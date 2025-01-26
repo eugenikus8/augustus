@@ -578,7 +578,7 @@ void window_building_draw_legion_info_foreground(building_info_context *c)
         button_border_draw(c->x_offset + BLOCK_SIZE * (c->width_blocks - 18) / 2,
             c->y_offset + 2 + BLOCK_SIZE * c->height_blocks - 48, 288, 32, data.return_button_id == 1);
         lang_text_draw_centered(138, 58, c->x_offset + BLOCK_SIZE * (c->width_blocks - 18) / 2,
-            c->y_offset + 2 + BLOCK_SIZE * c->height_blocks - 39, 288, FONT_NORMAL_BLACK);
+            c->y_offset + 3 + BLOCK_SIZE * c->height_blocks - 39, 288, FONT_NORMAL_BLACK);
     }
 }
 
