@@ -897,33 +897,35 @@ void window_building_draw_pantheon(building_info_context *c)
 void window_building_draw_work_camp(building_info_context *c)
 {
     window_building_play_sound(c, "wavs/tower4.wav");
-    if (!c->has_road_access) {
-        window_building_draw_description_at(c, 96, 69, 25);
-    }
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     inner_panel_draw(c->x_offset + 16, c->y_offset + 136, c->width_blocks - 2, 4);
-    text_draw_centered(translation_for(TR_BUILDING_WORK_CAMP),
-        c->x_offset, c->y_offset + 12, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK, 0);
-    text_draw_multiline(translation_for(TR_BUILDING_WORK_CAMP_DESC),
-        c->x_offset + 32, c->y_offset + 76, BLOCK_SIZE * (c->width_blocks - 4), 0, FONT_NORMAL_BLACK, 0);
     window_building_draw_employment(c, 138);
     window_building_draw_risks(c, c->x_offset + c->width_blocks * BLOCK_SIZE - 76, c->y_offset + 144);
+    text_draw_centered(translation_for(TR_BUILDING_WORK_CAMP),
+        c->x_offset, c->y_offset + 12, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK, 0);
+    if (!c->has_road_access) {
+        window_building_draw_description_at(c, 76, 69, 25);
+    return;
+    }
+    text_draw_multiline(translation_for(TR_BUILDING_WORK_CAMP_DESC),
+        c->x_offset + 32, c->y_offset + 76, BLOCK_SIZE * (c->width_blocks - 4), 0, FONT_NORMAL_BLACK, 0);
 }
 
 void window_building_draw_architect_guild(building_info_context *c)
 {
     window_building_play_sound(c, "wavs/eng_post.wav");
-    if (!c->has_road_access) {
-        window_building_draw_description_at(c, 96, 69, 25);
-    }
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     inner_panel_draw(c->x_offset + 16, c->y_offset + 136, c->width_blocks - 2, 4);
-    text_draw_centered(translation_for(TR_BUILDING_ARCHITECT_GUILD),
-        c->x_offset, c->y_offset + 12, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK, 0);
-    text_draw_multiline(translation_for(TR_BUILDING_ARCHITECT_GUILD_DESC),
-        c->x_offset + 32, c->y_offset + 76, BLOCK_SIZE * (c->width_blocks - 4), 0, FONT_NORMAL_BLACK, 0);
     window_building_draw_employment(c, 138);
     window_building_draw_risks(c, c->x_offset + c->width_blocks * BLOCK_SIZE - 76, c->y_offset + 144);
+    text_draw_centered(translation_for(TR_BUILDING_ARCHITECT_GUILD),
+        c->x_offset, c->y_offset + 12, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK, 0);
+    if (!c->has_road_access) {
+        window_building_draw_description_at(c, 76, 69, 25);
+    return;
+    }
+    text_draw_multiline(translation_for(TR_BUILDING_ARCHITECT_GUILD_DESC),
+        c->x_offset + 32, c->y_offset + 76, BLOCK_SIZE * (c->width_blocks - 4), 0, FONT_NORMAL_BLACK, 0);
 }
 
 void window_building_draw_tavern(building_info_context *c)
