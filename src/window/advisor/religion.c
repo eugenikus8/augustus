@@ -158,7 +158,7 @@ static int draw_background(void)
 
     city_gods_calculate_least_happy();
 
-    lang_text_draw_multiline(59, 21 + get_religion_advice(), 52, 208, 530, FONT_NORMAL_BLACK);
+    lang_text_draw_multiline(59, 21 + get_religion_advice(), 52, 208, 540, FONT_NORMAL_BLACK);
 
     draw_festival_info();
 

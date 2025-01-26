@@ -187,7 +187,7 @@ static int draw_background(void)
     lang_text_draw(CUSTOM_TRANSLATION, TR_ADVISOR_NO_ACTIVE_HIPPODROME + has_hippodrome, 45, 165, FONT_NORMAL_WHITE);
     lang_text_draw_centered(57, has_hippodrome ? 21 : 10, COVERAGE_OFFSET, 165, COVERAGE_WIDTH, FONT_NORMAL_WHITE);
 
-    lang_text_draw_multiline(58, 7 + get_entertainment_advice(), 52, 208, 530, FONT_NORMAL_BLACK);
+    lang_text_draw_multiline(58, 7 + get_entertainment_advice(), 52, 208, 540, FONT_NORMAL_BLACK);
 
     draw_games_info();
 
