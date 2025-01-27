@@ -905,8 +905,7 @@ void window_building_draw_work_camp(building_info_context *c)
         c->x_offset, c->y_offset + 12, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK, 0);
     if (!c->has_road_access) {
         window_building_draw_description_at(c, 76, 69, 25);
-    return;
-    }
+    } else
     text_draw_multiline(translation_for(TR_BUILDING_WORK_CAMP_DESC),
         c->x_offset + 32, c->y_offset + 76, BLOCK_SIZE * (c->width_blocks - 4), 0, FONT_NORMAL_BLACK, 0);
 }
@@ -922,8 +921,7 @@ void window_building_draw_architect_guild(building_info_context *c)
         c->x_offset, c->y_offset + 12, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK, 0);
     if (!c->has_road_access) {
         window_building_draw_description_at(c, 76, 69, 25);
-    return;
-    }
+    } else
     text_draw_multiline(translation_for(TR_BUILDING_ARCHITECT_GUILD_DESC),
         c->x_offset + 32, c->y_offset + 76, BLOCK_SIZE * (c->width_blocks - 4), 0, FONT_NORMAL_BLACK, 0);
 }
