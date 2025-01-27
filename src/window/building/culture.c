@@ -1204,23 +1204,27 @@ void window_building_draw_lighthouse(building_info_context *c)
     building *b = building_get(c->building_id);
     if (b->monument.phase == MONUMENT_FINISHED) {
         c->advisor_button = ADVISOR_TRADE;
+        window_building_play_sound(c, "wavs/lighthouse.wav");
         outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
 
-        image_draw(resource_get_data(RESOURCE_TIMBER)->image.icon, c->x_offset + 22, c->y_offset + 46,
+        image_draw(resource_get_data(RESOURCE_TIMBER)->image.icon, c->x_offset + 32, c->y_offset + 46,
             COLOR_MASK_NONE, SCALE_NONE);
-        int width = lang_text_draw(125, 12, c->x_offset + 50, c->y_offset + 50, FONT_NORMAL_BLACK);
+        int width = lang_text_draw(125, 12, c->x_offset + 60, c->y_offset + 50, FONT_NORMAL_BLACK);
         if (b->resources[RESOURCE_TIMBER] < 1) {
-            lang_text_draw_amount(8, 10, 0, c->x_offset + 50 + width, c->y_offset + 50, FONT_NORMAL_BLACK);
+            lang_text_draw_amount(8, 10, 0, c->x_offset + 60 + width, c->y_offset + 50, FONT_NORMAL_BLACK);
         } else {
-            lang_text_draw_amount(8, 10, b->resources[RESOURCE_TIMBER], c->x_offset + 50 + width, c->y_offset + 50, FONT_NORMAL_BLACK);
+            lang_text_draw_amount(8, 10, b->resources[RESOURCE_TIMBER], c->x_offset + 60 + width, c->y_offset + 50, FONT_NORMAL_BLACK);
         }
 
-        if (building_monument_has_labour_problems(b)) {
+        if (!c->has_road_access) {
+            window_building_draw_description_at(c, 80, 69, 25);
+        }
+        else if (building_monument_has_labour_problems(b)) {
             text_draw_multiline(translation_for(TR_BUILDING_LIGHTHOUSE_NEEDS_WORKERS),
-                c->x_offset + 22, c->y_offset + 70, 15 * c->width_blocks, 0, FONT_NORMAL_BLACK, 0);
+                c->x_offset + 32, c->y_offset + 80, 15 * c->width_blocks, 0, FONT_NORMAL_BLACK, 0);
         } else {
             text_draw_multiline(translation_for(TR_BUILDING_LIGHTHOUSE_BONUS_DESC),
-                c->x_offset + 22, c->y_offset + 70, 15 * c->width_blocks, 0, FONT_NORMAL_BLACK, 0);
+                c->x_offset + 32, c->y_offset + 80, 15 * c->width_blocks, 0, FONT_NORMAL_BLACK, 0);
         }
 
         if (!sea_trade_policy.items[0].image_id) {
