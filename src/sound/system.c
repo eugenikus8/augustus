@@ -119,7 +119,7 @@ static char channel_filenames[SOUND_CHANNEL_MAX][CHANNEL_FILENAME_MAX] = {
     "wavs/market3.wav",
     "",
     "wavs/granary1.wav",
-    "",
+    "wavs/granary2.wav",
     "wavs/warehouse1.wav",
     "wavs/warehouse2.wav",
     "wavs/shipyard1.wav",
@@ -160,13 +160,13 @@ static char channel_filenames[SOUND_CHANNEL_MAX][CHANNEL_FILENAME_MAX] = {
     "wavs/furn_workshop.wav",
     "wavs/pott_workshop.wav",
     "wavs/empty_land1.wav",
-    "",
+    "wavs/empty_land2.wav",
     "wavs/empty_land3.wav",
     "",
     "wavs/lighthouse.wav",
     "wavs/coin.wav",
     "wavs/river.wav",
-    "wavs/mission.wav"
+    "wavs/mission.wav",
 };
 
 static void correct_channel_filenames(void)

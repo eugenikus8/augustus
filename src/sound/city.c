@@ -53,6 +53,7 @@ enum {
     SOUND_CHANNEL_CITY_CARAVANSERAI = 84,
     SOUND_CHANNEL_CITY_TAVERN = 85,
     SOUND_CHANNEL_CITY_GRANARY = 87,
+    SOUND_CHANNEL_CITY_DEPOT = 88,
     SOUND_CHANNEL_CITY_WAREHOUSE = 89,
     SOUND_CHANNEL_CITY_MESS_HALL = 90,
     SOUND_CHANNEL_CITY_SHIPYARD = 91,
@@ -83,7 +84,10 @@ enum {
     SOUND_CHANNEL_CITY_WEAPONS_WORKSHOP = 125,
     SOUND_CHANNEL_CITY_FURNITURE_WORKSHOP = 126,
     SOUND_CHANNEL_CITY_POTTERY_WORKSHOP = 127,
-    SOUND_CHANNEL_CITY_EMPTY_LAND = 128,
+    SOUND_CHANNEL_CITY_EMPTY_LAND1 = 128,
+    SOUND_CHANNEL_CITY_EMPTY_LAND2 = 129,
+    SOUND_CHANNEL_CITY_EMPTY_LAND3 = 130,
+    //SOUND_CHANNEL_CITY_EMPTY_LAND4 = 131,
     SOUND_CHANNEL_CITY_LIGHTHOUSE = 132,
     SOUND_CHANNEL_CITY_CITY_MINT = 133,
     SOUND_CHANNEL_CITY_RIVER = 134,
@@ -105,8 +109,8 @@ typedef struct {
 } city_channel;
 
 static city_channel channels[MAX_CHANNELS];
-static int ambient_channels[] = { 61 };
-static int ambient_channels_number = 1;
+static int ambient_channels[] = { 61, 74, 75, };    // turn on "empty land" sound
+static int ambient_channels_number = 3;
 
 static const int BUILDING_TYPE_TO_CHANNEL_ID[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //0-9
@@ -127,7 +131,7 @@ static const int BUILDING_TYPE_TO_CHANNEL_ID[] = {
     0, 0, 44, 37, 68, 69, 0, 0, 66, 0, //150-159        MESS_HALL = 154[68], LIGHTHOUSE = 155[69], TAVERN = 158[66]
     9, 0, 0, 0, 0, 0, 0, 0, 0, 0, //160-169
     44, 44, 44, 71, 0, 0, 67, 0, 0, 0, //170-179        WATCHTOWER = 173[71], CARAVANSERAI = 176[67]
-    0, 0, 0, 0, 53, 72, 0, 55, 52, 0, //180-189         CITY_MINT = 185[72]
+    0, 0, 0, 0, 53, 72, 73, 55, 52, 0, //180-189        CITY_MINT = 185[72], DEPOT = 186[73]
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //190-199
     0, 0, 0, 65, 0, 0, 0, 0, 0, 0, //200-209
 };
@@ -206,7 +210,7 @@ void sound_city_init(void)
     channels[58].channel = SOUND_CHANNEL_CITY_WEAPONS_WORKSHOP;
     channels[59].channel = SOUND_CHANNEL_CITY_FURNITURE_WORKSHOP;
     channels[60].channel = SOUND_CHANNEL_CITY_POTTERY_WORKSHOP;
-    channels[61].channel = SOUND_CHANNEL_CITY_EMPTY_LAND;
+    channels[61].channel = SOUND_CHANNEL_CITY_EMPTY_LAND1;
     channels[62].channel = SOUND_CHANNEL_CITY_RIVER;
     channels[63].channel = SOUND_CHANNEL_CITY_MISSION_POST;
     channels[64].channel = SOUND_CHANNEL_CITY_CONSTRUCTION_SITE;
@@ -218,6 +222,11 @@ void sound_city_init(void)
     channels[70].channel = SOUND_CHANNEL_CITY_WORKCAMP;
     channels[71].channel = SOUND_CHANNEL_CITY_WATCHTOWER;
     channels[72].channel = SOUND_CHANNEL_CITY_CITY_MINT;
+    channels[73].channel = SOUND_CHANNEL_CITY_DEPOT;
+    channels[74].channel = SOUND_CHANNEL_CITY_EMPTY_LAND2;
+    channels[75].channel = SOUND_CHANNEL_CITY_EMPTY_LAND3;
+    //channels[76].channel = SOUND_CHANNEL_CITY_EMPTY_LAND4;
+
 }
 
 void sound_city_set_volume(int percentage)
