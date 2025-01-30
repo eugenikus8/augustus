@@ -339,8 +339,8 @@ void sound_city_play(void)
         }
     }
 
-    if (now - last_update_time < 2000) {
-        // Only play 1 sound every 2 seconds
+    if (now - last_update_time < 3000) {
+        // Only play 1 sound every 3 seconds
         return;
     }
     time_millis max_delay = 0;
