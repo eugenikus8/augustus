@@ -307,7 +307,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         }
     }
     handled |= generic_buttons_handle_mouse(m_dialog, 43,
-    30 + BLOCK_SIZE * data.height_blocks - 40, generic_button_delete_common, 1, &button_id);
+        30 + BLOCK_SIZE * data.height_blocks - 40, generic_button_delete_common, 1, &button_id);
     if (button_id) {
         data.focus_button_id = 16;
     }
