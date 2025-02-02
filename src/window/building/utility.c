@@ -169,7 +169,7 @@ static void draw_roadblock_orders_buttons(int x, int y, int focused)
 void window_building_draw_roadblock(building_info_context *c)
 {
     c->help_id = 0;
-    //window_building_play_sound(c, "wavs/prefecture.wav");
+    window_building_play_sound(c, ASSETS_DIRECTORY "/Sounds/Road.wav");
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(28, 115, c->x_offset, c->y_offset + 10, 16 * c->width_blocks, FONT_LARGE_BLACK);
     window_building_draw_description_at(c, 96, CUSTOM_TRANSLATION, TR_BUILDING_ROADBLOCK_DESC);
