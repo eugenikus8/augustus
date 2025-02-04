@@ -53,7 +53,7 @@ enum {
     SOUND_CHANNEL_CITY_SCHOOL = 66,
     SOUND_CHANNEL_CITY_ACADEMY = 67,
     SOUND_CHANNEL_CITY_LIBRARY = 68,
-    SOUND_CHANNEL_CITY_PREFECTURE = 69,
+    // Prefecture 69
     SOUND_CHANNEL_CITY_FORT = 70,
     SOUND_CHANNEL_CITY_TOWER = 74,
     SOUND_CHANNEL_CITY_WATCHTOWER = 75,
@@ -74,7 +74,7 @@ enum {
     SOUND_CHANNEL_CITY_DOCK = 93,
     SOUND_CHANNEL_CITY_WHARF = 95,
     SOUND_CHANNEL_CITY_PALACE = 97,
-    SOUND_CHANNEL_CITY_ENGINEERS_POST = 98,
+    // Engineers_post 98
     SOUND_CHANNEL_CITY_SENATE = 99,
     SOUND_CHANNEL_CITY_FORUM = 100,
     SOUND_CHANNEL_CITY_RESERVOIR = 101,
@@ -113,6 +113,7 @@ enum {
     SOUND_CHANNEL_CITY_TERRAIN01 = 140,
     SOUND_CHANNEL_CITY_TERRAIN02 = 141,
     SOUND_CHANNEL_CITY_CONSTRUCTION_SITE = 142,
+    SOUND_CHANNEL_CITY_ARENA = 133,
 };
 
 typedef struct {
@@ -153,7 +154,7 @@ static const int BUILDING_TYPE_TO_CHANNEL_ID[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //130-139
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //140-149
     0, 0, 44, 37, 68, 69, 0, 0, 66, 0, //150-159      MESS_HALL 154[68], LIGHTHOUSE 155[69], TAVERN 158[66]
-    9, 0, 0, 0, 0, 0, 0, 0, 0, 0, //160-169           ARENA 160[9]
+    99, 0, 0, 0, 0, 0, 0, 0, 0, 0, //160-169          ARENA 160[99]
     44, 44, 44, 71, 0, 0, 67, 0, 0, 0, //170-179      WATCHTOWER 173[71], CARAVANSERAI 176[67]
     0, 0, 0, 0, 53, 72, 73, 55, 52, 78, //180-189     CITY_MINT 185[72], DEPOT 186[73], CONCRETE_MAKER 189[78]
     77, 0, 0, 0, 0, 0, 0, 0, 0, 0, //190-199          BRICKWORKS 190[77]
@@ -270,6 +271,7 @@ void sound_city_init(void)
     channels[94].channel = SOUND_CHANNEL_CITY_NATIVE_HUT;
     channels[95].channel = SOUND_CHANNEL_CITY_TERRAIN01;
     channels[96].channel = SOUND_CHANNEL_CITY_TERRAIN02;
+    channels[99].channel = SOUND_CHANNEL_CITY_ARENA;
 }
 
 void sound_city_set_volume(int percentage)
