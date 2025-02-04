@@ -44,7 +44,7 @@ static void print_health_building_info(int y_offset, building_type type, int pop
     } else {
         lang_text_draw(58, 5, 305 + width, y_offset, FONT_NORMAL_WHITE);
     }
-    
+
     if (coverage == 0) {
         lang_text_draw_centered(57, 10, 440, y_offset, 160, FONT_NORMAL_WHITE);
     } else if (coverage < 100) {
