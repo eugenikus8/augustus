@@ -129,8 +129,8 @@ typedef struct {
 } city_channel;
 
 static city_channel channels[MAX_CHANNELS];
-static int ambient_channels[] = { 61, 74, 75, 62, 94 }; // "empty land" and river
-static int ambient_channels_number = 5;
+static int ambient_channels[] = { 61, 74, 75, 62, 95, 96 }; // "empty land"
+static int ambient_channels_number = 6;
 
 static const int BUILDING_TYPE_TO_CHANNEL_ID[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //0-9
