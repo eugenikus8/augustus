@@ -267,8 +267,9 @@ void sound_city_init(void)
     channels[91].channel = SOUND_CHANNEL_CITY_HOUSE_POSH2;
     channels[92].channel = SOUND_CHANNEL_CITY_HOUSE_POSH3;
     channels[93].channel = SOUND_CHANNEL_CITY_HOUSE_POSH4;
-    channels[94].channel = SOUND_CHANNEL_CITY_RIVER2;
-    channels[95].channel = SOUND_CHANNEL_CITY_NATIVE_HUT;
+    channels[94].channel = SOUND_CHANNEL_CITY_NATIVE_HUT;
+    channels[95].channel = SOUND_CHANNEL_CITY_TERRAIN01;
+    channels[96].channel = SOUND_CHANNEL_CITY_TERRAIN02;
 }
 
 void sound_city_set_volume(int percentage)
