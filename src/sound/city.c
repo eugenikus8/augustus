@@ -103,16 +103,17 @@ enum {
     SOUND_CHANNEL_CITY_EMPTY_LAND3 = 130,
     //SOUND_CHANNEL_CITY_EMPTY_LAND4 = 131,
     SOUND_CHANNEL_CITY_CITY_MINT = 132,
-    SOUND_CHANNEL_CITY_RIVER1 = 133,
+    SOUND_CHANNEL_CITY_RIVER = 133,
     SOUND_CHANNEL_CITY_MISSION_POST = 134,
     SOUND_CHANNEL_CITY_BRICKWORKS = 135,
     SOUND_CHANNEL_CITY_LIGHTHOUSE = 136,
     SOUND_CHANNEL_CITY_DEPOT = 137,
     SOUND_CHANNEL_CITY_CONCRETE_MAKER = 138,
-    SOUND_CHANNEL_CITY_CONSTRUCTION_SITE = 139,
-    SOUND_CHANNEL_CITY_NATIVE_HUT = 140,
-    SOUND_CHANNEL_CITY_TERRAIN01 = 141,
-    SOUND_CHANNEL_CITY_TERRAIN02 = 142,
+    SOUND_CHANNEL_CITY_NATIVE_HUT = 139,
+    SOUND_CHANNEL_CITY_TERRAIN01 = 140,
+    SOUND_CHANNEL_CITY_TERRAIN02 = 141,
+    SOUND_CHANNEL_CITY_CONSTRUCTION_SITE = 142,
+
 };
 
 typedef struct {
@@ -129,17 +130,17 @@ typedef struct {
 } city_channel;
 
 static city_channel channels[MAX_CHANNELS];
-static int ambient_channels[] = { 61, 74, 75, 62, 95, 96 }; // "empty land"
-static int ambient_channels_number = 6;
+static int ambient_channels[] = { 61, 74, 75, 95, 96 }; // "empty land" "terrain"
+static int ambient_channels_number = 5;
 
 static const int BUILDING_TYPE_TO_CHANNEL_ID[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //0-9
-    1, 79, 80, 81, 2, 82, 83, 84, 3, 85, //10-19      (SLUM) S_TENT 10[1], L_TENT 11[79], S_SHACK 12[80], L_SHACK 13[81],
-                                         //           (POOR) S_HOVEL 14[2], L_HOVEL 15[82], S_CASA 16[83], L_CASA 17[84]
-                                         //           (MEDIUM) S_INSULA 18[3], M_INSULA 19[85],
-    86, 87, 4, 88, 89, 90, 5, 91, 92, 93, //20-29     (MEDIUM) L_INSULA 20[86], G_INSULA 21[87]
-                                          //          (GOOD) S_VILLA 22[4], M_VILLA 23[88], L_VILLA 24[89], G_VILLA 25[90],
-                                          //          (POSH) SMALL_PALACE 26[5], MED_PALACE 27[91], LARG_PALACE 28[92], LUX_PALACE 29[93]
+    1, 79, 80, 81, 2, 82, 83, 84, 3, 85, //10-19     (SLUM) S_TENT 10[1], L_TENT 11[79], S_SHACK 12[80], L_SHACK 13[81],
+                                         //          (POOR) S_HOVEL 14[2], L_HOVEL 15[82], S_CASA 16[83], L_CASA 17[84]
+                                         //          (MEDIUM) S_INSULA 18[3], M_INSULA 19[85],
+    86, 87, 4, 88, 89, 90, 5, 91, 92, 93, //20-29    (MEDIUM) L_INSULA 20[86], G_INSULA 21[87]
+                                          //         (GOOD) S_VILLA 22[4], M_VILLA 23[88], L_VILLA 24[89], G_VILLA 25[90],
+                                          //         (POSH) SMALL_PALACE 26[5], MED_PALACE 27[91], LARG_PALACE 28[92], LUX_PALACE 29[93]
     6, 7, 8, 9, 10, 11, 12, 13, 0, 14, //30-39
     0, 0, 0, 0, 0, 0, 15, 16, 17, 18, //40-49
     0, 19, 20, 21, 0, 22, 0, 23, 24, 24, //50-59
@@ -235,7 +236,7 @@ void sound_city_init(void)
     channels[59].channel = SOUND_CHANNEL_CITY_FURNITURE_WORKSHOP;
     channels[60].channel = SOUND_CHANNEL_CITY_POTTERY_WORKSHOP;
     channels[61].channel = SOUND_CHANNEL_CITY_EMPTY_LAND1;
-    channels[62].channel = SOUND_CHANNEL_CITY_RIVER1;
+    channels[62].channel = SOUND_CHANNEL_CITY_RIVER;
     channels[63].channel = SOUND_CHANNEL_CITY_MISSION_POST;
     channels[64].channel = SOUND_CHANNEL_CITY_CONSTRUCTION_SITE;
     channels[65].channel = SOUND_CHANNEL_CITY_ARMOURY;
