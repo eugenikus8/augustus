@@ -170,8 +170,9 @@ static char channel_filenames[SOUND_CHANNEL_MAX][CHANNEL_FILENAME_MAX] = {
     ASSETS_DIRECTORY "/Sounds/Lighthouse.wav",
     ASSETS_DIRECTORY "/Sounds/Ox.wav", // DEPOT
     ASSETS_DIRECTORY "/Sounds/ConcreteMaker.wav",
-    ASSETS_DIRECTORY "/Sounds/Terrain02.wav", // river2
     ASSETS_DIRECTORY "/Sounds/NativeHut.wav",
+    ASSETS_DIRECTORY "/Sounds/Terrain01.wav", // terrain01
+    ASSETS_DIRECTORY "/Sounds/Terrain02.wav", // terrain02
 };
 
 static void correct_channel_filenames(void)
