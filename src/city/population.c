@@ -230,66 +230,61 @@ int get_people_in_age_range(int start_age, int end_age)
     return count;
 }
 
+static double weighted_population_range(int start_age, int end_age, double min_weight, double max_weight)
+{
+    double total = 0;
+    double step = (max_weight - min_weight) / (end_age - (double) start_age);
+    for (int age = start_age; age <= end_age; ++age) {
+        double weight = min_weight + step * (age - (double) start_age);
+        if (weight < min_weight) weight = min_weight; // Protect against weights below minimum
+        total += city_data.population.at_age[age] * weight;
+    }
+    return total;
+}
+
 int city_population_people_of_working_age(void)
 {
+    int base_start_age, base_end_age;
+    int elder_start_age, elder_end_age;
+
     if (config_get(CONFIG_GP_CH_RETIRE_AT_60)) {
-
-        int base = get_people_in_age_range(20, 59); // directly employable
-        double age_sum = 0;
-
-        // Children (10-19), linear increase
-        const int child_min = 10, child_max = 19;
-        const double child_weight_min = 0.1, child_weight_max = 0.9;
-        double a = (child_weight_max - child_weight_min) / (child_max - (double) child_min);//(0.9-0.1)/(19-10)=0.8/9=0.09
-        for (int age = child_min; age <= child_max; ++age) {
-            int delta = age - child_min;                                                    //10-10=0(for 10-year-old)
-            double weight = (a * delta) + child_weight_min;                                 //(0.09*0)+0.1=0.1(10% employable)
-            age_sum += city_data.population.at_age[age] * weight;
-        }
-
-        // Elderly (60-99), linear decline
-        const int elder_min = 60, elder_max = 99;
-        const double elder_weight_min = 0.9, elder_weight_max = 0.001;
-        double k = (elder_weight_min - elder_weight_max) / (elder_max - (double) elder_min);//0.9/39=0.02
-        for (int age = elder_min; age <= elder_max; ++age) {
-            int delta = age - elder_min;                                                    //60-60=0(for 60-year-old)
-            double weight = elder_weight_min - k * delta;                                   //0.9-(0.02*0)=0.9(90%employable)
-            if (weight < elder_weight_max) weight = elder_weight_max; // negative weight protection
-            age_sum += city_data.population.at_age[age] * weight;
-        }
-
-        int health = city_health();
-        return (int) ((base + age_sum) * ((double) health / 100));
+        base_start_age = 20;
+        base_end_age = 59;
+        elder_start_age = 60;
     } else {
-
-        int base = get_people_in_age_range(20, 49); // directly employable
-        double age_sum = 0;
-
-        // Children (10-19), linear increase
-        const int child_min = 10, child_max = 19;
-        const double child_weight_min = 0.1, child_weight_max = 0.9;
-        double a = (child_weight_max - child_weight_min) / (child_max - (double) child_min);//(0.9-0.1)/(19-10)=0.8/9=0.09
-        for (int age = child_min; age <= child_max; ++age) {
-            int delta = age - child_min;                                                    //10-10=0(for 10-year-old)
-            double weight = (a * delta) + child_weight_min;                                 //(0.09*0)+0.1=0.1(10% employable)
-            age_sum += city_data.population.at_age[age] * weight;
-        }
-
-        // Elderly (50-99), linear decline
-        const int elder_min = 50, elder_max = 99;
-        const double elder_weight_min = 0.9, elder_weight_max = 0.001;
-        double k = (elder_weight_min - elder_weight_max) / (elder_max - (double) elder_min);//0.9/49=0.02
-        for (int age = elder_min; age <= elder_max; ++age) {
-            int delta = age - elder_min;                                                    //50-50=0(for 50-year-old)
-            double weight = elder_weight_min - k * delta;                                   //0.9-(0.02*0)=0.9(90%employable)
-            if (weight < elder_weight_max) weight = elder_weight_max; // negative weight protection
-            age_sum += city_data.population.at_age[age] * weight;
-        }
-
-        int health = city_health();
-        return (int) ((base + age_sum) * ((double) health / 100));
-
+        base_start_age = 20;
+        base_end_age = 49;
+        elder_start_age = 50;
     }
+    elder_end_age = 99;
+
+    double elder_weight_min = 0.9;
+    double elder_weight_max = 0.001;
+
+    int child_min = 10;
+    int child_max = 19;
+    double child_weight_min = 0.1;
+    double child_weight_max = 0.9;
+
+    int base = get_people_in_age_range(base_start_age, base_end_age);
+
+    // Calculate weighted children population (linear increase)
+    double child_sum = weighted_population_range(child_min, child_max, child_weight_min, child_weight_max);
+
+    // Calculate weighted elderly population (linear decrease)
+    double elder_sum = 0;
+    {
+        double k = (elder_weight_min - elder_weight_max) / (elder_end_age - (double) elder_start_age);
+        for (int age = elder_start_age; age <= elder_end_age; ++age) {
+            int delta = age - elder_start_age;
+            double weight = elder_weight_min - k * delta;
+            if (weight < elder_weight_max) weight = elder_weight_max; // Protect minimum weight
+            elder_sum += city_data.population.at_age[age] * weight;
+        }
+    }
+
+    int health = city_health();
+    return (int) ((base + child_sum + elder_sum) * ((double) health / 100));
 }
 
 int city_population_percent_in_workforce(void)
