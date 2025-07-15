@@ -1,5 +1,7 @@
 #include "population.h"
 
+#include "city/health.h"
+
 #include "building/building.h"
 #include "building/house_population.h"
 #include "city/data_private.h"
@@ -12,17 +14,20 @@ static const int BIRTHS_PER_AGE_DECENNIUM[10] = {
 };
 
 static const int DEATHS_PER_HEALTH_PER_AGE_DECENNIUM[11][10] = {
-    {20, 10, 5, 10, 20, 30, 50, 85, 100, 100},
-    {15, 8, 4, 8, 16, 25, 45, 70, 90, 100},
-    {10, 6, 2, 6, 12, 20, 30, 55, 80, 90},
-    {5, 4, 0, 4, 8, 15, 25, 40, 65, 80},
-    {3, 2, 0, 2, 6, 12, 20, 30, 50, 70},
-    {2, 0, 0, 0, 4, 8, 15, 25, 40, 60},
-    {1, 0, 0, 0, 2, 6, 12, 20, 30, 50},
-    {0, 0, 0, 0, 0, 4, 8, 15, 20, 40},
-    {0, 0, 0, 0, 0, 2, 6, 10, 15, 30},
-    {0, 0, 0, 0, 0, 0, 4, 5, 10, 20},
-    {0, 0, 0, 0, 0, 0, 0, 2, 5, 10}
+/*
+age  0+  10  20 30  40  50  60  70  80  90+
+                                               city health         */
+    {20, 10, 5, 10, 20, 30, 60, 99, 99, 99},   // 0-9
+    {15, 8,  4, 8,  16, 25, 55, 95, 97, 99},   // 10-19
+    {10, 6,  2, 6,  12, 20, 50, 90, 95, 98},   // 20-29
+    {5,  4,  0, 4,  8,  15, 45, 85, 94, 97},   // 30-39
+    {3,  2,  0, 2,  6,  12, 40, 80, 93, 96},   // 40-49
+    {2,  0,  0, 0,  4,  8,  35, 75, 92, 95},   // 50-59
+    {1,  0,  0, 0,  2,  6,  30, 70, 91, 94},   // 60-69
+    {0,  0,  0, 0,  0,  4,  25, 65, 90, 93},   // 70-79
+    {0,  0,  0, 0,  0,  2,  20, 60, 85, 92},   // 80-89
+    {0,  0,  0, 0,  0,  0,  15, 55, 80, 91},   // 90-99
+    {0,  0,  0, 0,  0,  0,  10, 50, 75, 90}    // 100
 };
 
 int city_population(void)
@@ -216,19 +221,74 @@ void city_population_remove_for_troop_request(int num_people)
     recalculate_population();
 }
 
+int get_people_in_age_range(int start_age, int end_age)
+{
+    int count = 0;
+    for (int age = start_age; age <= end_age; age++) {
+        count += city_data.population.at_age[age];
+    }
+    return count;
+}
+
 int city_population_people_of_working_age(void)
 {
     if (config_get(CONFIG_GP_CH_RETIRE_AT_60)) {
-        return
-            get_people_in_age_decennium(2) +
-            get_people_in_age_decennium(3) +
-            get_people_in_age_decennium(4) +
-            get_people_in_age_decennium(5);
+
+        int base = get_people_in_age_range(20, 59); // directly employable
+        double age_sum = 0;
+
+        // Children (10-19), linear increase
+        const int child_min = 10, child_max = 19;
+        const double child_weight_min = 0.1, child_weight_max = 0.9;
+        double a = (child_weight_max - child_weight_min) / (child_max - (double) child_min);//(0.9-0.1)/(19-10)=0.8/9=0.09
+        for (int age = child_min; age <= child_max; ++age) {
+            int delta = age - child_min;                                                    //10-10=0(for 10-year-old)
+            double weight = (a * delta) + child_weight_min;                                 //(0.09*0)+0.1=0.1(10% employable)
+            age_sum += city_data.population.at_age[age] * weight;
+        }
+
+        // Elderly (60-99), linear decline
+        const int elder_min = 60, elder_max = 99;
+        const double elder_weight_min = 0.9, elder_weight_max = 0.001;
+        double k = (elder_weight_min - elder_weight_max) / (elder_max - (double) elder_min);//0.9/39=0.02
+        for (int age = elder_min; age <= elder_max; ++age) {
+            int delta = age - elder_min;                                                    //60-60=0(for 60-year-old)
+            double weight = elder_weight_min - k * delta;                                   //0.9-(0.02*0)=0.9(90%employable)
+            if (weight < elder_weight_max) weight = elder_weight_max; // negative weight protection
+            age_sum += city_data.population.at_age[age] * weight;
+        }
+
+        int health = city_health();
+        return (int) ((base + age_sum) * ((double) health / 100));
     } else {
-        return
-            get_people_in_age_decennium(2) +
-            get_people_in_age_decennium(3) +
-            get_people_in_age_decennium(4);
+
+        int base = get_people_in_age_range(20, 49); // directly employable
+        double age_sum = 0;
+
+        // Children (10-19), linear increase
+        const int child_min = 10, child_max = 19;
+        const double child_weight_min = 0.1, child_weight_max = 0.9;
+        double a = (child_weight_max - child_weight_min) / (child_max - (double) child_min);//(0.9-0.1)/(19-10)=0.8/9=0.09
+        for (int age = child_min; age <= child_max; ++age) {
+            int delta = age - child_min;                                                    //10-10=0(for 10-year-old)
+            double weight = (a * delta) + child_weight_min;                                 //(0.09*0)+0.1=0.1(10% employable)
+            age_sum += city_data.population.at_age[age] * weight;
+        }
+
+        // Elderly (50-99), linear decline
+        const int elder_min = 50, elder_max = 99;
+        const double elder_weight_min = 0.9, elder_weight_max = 0.001;
+        double k = (elder_weight_min - elder_weight_max) / (elder_max - (double) elder_min);//0.9/49=0.02
+        for (int age = elder_min; age <= elder_max; ++age) {
+            int delta = age - elder_min;                                                    //50-50=0(for 50-year-old)
+            double weight = elder_weight_min - k * delta;                                   //0.9-(0.02*0)=0.9(90%employable)
+            if (weight < elder_weight_max) weight = elder_weight_max; // negative weight protection
+            age_sum += city_data.population.at_age[age] * weight;
+        }
+
+        int health = city_health();
+        return (int) ((base + age_sum) * ((double) health / 100));
+
     }
 }
 
@@ -252,8 +312,8 @@ static int get_people_aged_between(int min, int max)
 
 void city_population_calculate_educational_age(void)
 {
-    city_data.population.school_age = get_people_aged_between(0, 14);
-    city_data.population.academy_age = get_people_aged_between(14, 21);
+    city_data.population.school_age = get_people_aged_between(5, 15);   // 11 years
+    city_data.population.academy_age = get_people_aged_between(16, 19); // 4  years
 }
 
 void city_population_record_monthly(void)
@@ -312,7 +372,7 @@ static void yearly_advance_ages_and_calculate_deaths(void)
 
 void city_population_venus_blessing(void)
 {
-    int years_to_grant = 3;
+    int years_to_grant = 0;
     int total_before = 0;
     int total_after = 0;
     for (int age = 0; age < 95; age++) {
