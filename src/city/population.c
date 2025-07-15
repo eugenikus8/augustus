@@ -372,7 +372,7 @@ static void yearly_advance_ages_and_calculate_deaths(void)
 
 void city_population_venus_blessing(void)
 {
-    int years_to_grant = 0;
+    int years_to_grant = 3;
     int total_before = 0;
     int total_after = 0;
     for (int age = 0; age < 95; age++) {
