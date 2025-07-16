@@ -221,7 +221,7 @@ void city_population_remove_for_troop_request(int num_people)
     recalculate_population();
 }
 
-int get_people_in_age_range(int start_age, int end_age)
+static int get_people_in_age_range(int start_age, int end_age)
 {
     int count = 0;
     for (int age = start_age; age <= end_age; age++) {
@@ -244,19 +244,19 @@ static double weighted_population_range(int start_age, int end_age, double min_w
 
 int city_population_people_of_working_age(void)
 {
-    int base_start_age, base_end_age;
-    int elder_start_age, elder_end_age;
+    int base_start_age = 20;
+    int base_end_age;
+
+    int elder_start_age;
+    int elder_end_age = 99;
 
     if (config_get(CONFIG_GP_CH_RETIRE_AT_60)) {
-        base_start_age = 20;
         base_end_age = 59;
         elder_start_age = 60;
     } else {
-        base_start_age = 20;
         base_end_age = 49;
         elder_start_age = 50;
     }
-    elder_end_age = 99;
 
     double elder_weight_min = 0.9;
     double elder_weight_max = 0.001;
@@ -283,8 +283,8 @@ int city_population_people_of_working_age(void)
         }
     }
 
-    int health = city_health();
-    return (int) ((base + child_sum + elder_sum) * ((double) health / 100));
+    double health = (double) city_health() / 100;
+    return (int) ((base + child_sum + elder_sum) * health);
 }
 
 int city_population_percent_in_workforce(void)
@@ -296,19 +296,10 @@ int city_population_percent_in_workforce(void)
     return calc_percentage(city_data.labor.workers_available, city_data.population.population);
 }
 
-static int get_people_aged_between(int min, int max)
-{
-    int pop = 0;
-    for (int i = min; i < max; i++) {
-        pop += city_data.population.at_age[i];
-    }
-    return pop;
-}
-
 void city_population_calculate_educational_age(void)
 {
-    city_data.population.school_age = get_people_aged_between(5, 15);   // 11 years
-    city_data.population.academy_age = get_people_aged_between(16, 19); // 4  years
+    city_data.population.school_age = get_people_in_age_range(5, 15);   // 11 years (before 14)
+    city_data.population.academy_age = get_people_in_age_range(16, 19); // 4  years (before 7)
 }
 
 void city_population_record_monthly(void)
