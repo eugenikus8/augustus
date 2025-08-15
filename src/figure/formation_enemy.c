@@ -272,19 +272,16 @@ static int set_enemy_target_building(formation *m)
 
 int get_structures_on_native_land(int *dst_x, int *dst_y)
 {
-    struct {
-        building_type type;
-        int radius;
-    } native_buildings[] = {
-        { BUILDING_NATIVE_MEETING, 6 },
-        { BUILDING_NATIVE_WATCHTOWER, 3 },
-        { BUILDING_NATIVE_HUT, 3 },
-        { BUILDING_NATIVE_HUT_ALT, 3 }
+    building_type native_buildings[] = {
+        BUILDING_NATIVE_MEETING,
+        BUILDING_NATIVE_WATCHTOWER,
+        BUILDING_NATIVE_HUT,
+        BUILDING_NATIVE_HUT_ALT
     };
 
     for (int i = 0; i < sizeof(native_buildings) / sizeof(native_buildings[0]); i++) {
-        building_type type = native_buildings[i].type;
-        int radius = native_buildings[i].radius;
+        building_type type = native_buildings[i];
+        int radius = (type == BUILDING_NATIVE_MEETING) ? 6 : 3;
         int size = building_properties_for_type(type)->size;
 
         for (building *b = building_first_of_type(type); b; b = b->next_of_type) {
@@ -325,6 +322,8 @@ int get_structures_on_native_land(int *dst_x, int *dst_y)
                             case BUILDING_LOOPED_GARDEN_GATE:
                             case BUILDING_HEDGE_GATE_DARK:
                             case BUILDING_HEDGE_GATE_LIGHT:
+                            case BUILDING_LOW_BRIDGE:
+                            case BUILDING_SHIP_BRIDGE:
                                 continue;
                             default:
                                 *dst_x = xx;
@@ -347,7 +346,6 @@ int get_structures_on_native_land(int *dst_x, int *dst_y)
             }
         }
     }
-
     return 0;
 }
 
