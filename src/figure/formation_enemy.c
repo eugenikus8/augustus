@@ -268,7 +268,7 @@ static int set_enemy_target_building(formation *m)
     return best_building != 0;
 }
 
-static int get_structures_on_native_land(int *dst_x, int *dst_y)
+int get_structures_on_native_land(int *dst_x, int *dst_y)
 {
     struct {
         building_type type;
