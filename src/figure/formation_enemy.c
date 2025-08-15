@@ -1,5 +1,7 @@
 #include "formation_enemy.h"
 
+#include "map/road_aqueduct.h"
+
 #include "building/building.h"
 #include "building/properties.h"
 #include "city/buildings.h"
@@ -329,11 +331,17 @@ int get_structures_on_native_land(int *dst_x, int *dst_y)
                                 *dst_y = yy;
                                 return 1;
                         }
-                    } else if (map_terrain_is(map_grid_offset(xx, yy),
-                        TERRAIN_AQUEDUCT | TERRAIN_WALL | TERRAIN_GARDEN)) {
-                        *dst_x = xx;
-                        *dst_y = yy;
-                        return 1;
+                    } else {
+                        int grid_offset = map_grid_offset(xx, yy);
+                        // Destroy walls, gardens and aqueduct (if there is no road or highway beneath it)
+                        if (map_terrain_is(grid_offset, TERRAIN_WALL | TERRAIN_GARDEN) ||
+                            (map_terrain_is(grid_offset, TERRAIN_AQUEDUCT) &&
+                                !map_is_straight_road_for_aqueduct(grid_offset) &&
+                                !map_terrain_is(grid_offset, TERRAIN_HIGHWAY))) {
+                            *dst_x = xx;
+                            *dst_y = yy;
+                            return 1;
+                        }
                     }
                 }
             }
