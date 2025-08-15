@@ -1,7 +1,5 @@
 #include "formation_enemy.h"
 
-#include "map/road_aqueduct.h"
-
 #include "building/building.h"
 #include "building/properties.h"
 #include "city/buildings.h"
@@ -20,6 +18,7 @@
 #include "map/data.h"
 #include "map/figure.h"
 #include "map/grid.h"
+#include "map/road_aqueduct.h"
 #include "map/routing.h"
 #include "map/routing_path.h"
 #include "map/soldier_strength.h"
