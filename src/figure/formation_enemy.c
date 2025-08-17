@@ -296,21 +296,18 @@ int get_structures_on_native_land(int *dst_x, int *dst_y)
                     int building_id = map_building_at(map_grid_offset(xx, yy));
                     building *target = building_get(building_id);
                     if (target && target->id > 0) {
-                        if (target->type == BUILDING_GRANARY) {
-                            int prop = map_property_multi_tile_xy(map_grid_offset(xx, yy));
-                            switch (prop) { //To avoid getting stuck inside, we attack GRANARY only on impassable tiles
-                                case EDGE_X0Y0:
-                                case EDGE_X2Y0:
-                                case EDGE_X0Y2:
-                                case EDGE_X2Y2:
+                        switch (target->type) { //To avoid getting stuck inside, we attack GRANARY only on impassable tiles
+                            case BUILDING_GRANARY:
+                            {
+                                int prop = map_property_multi_tile_xy(map_grid_offset(xx, yy));
+                                if (prop == EDGE_X0Y0 || prop == EDGE_X2Y0 || prop == EDGE_X0Y2 || prop == EDGE_X2Y2) {
                                     *dst_x = xx;
                                     *dst_y = yy;
                                     return 1;
-                                default:
+                                } else {
                                     continue;
+                                }
                             }
-                        }
-                        switch (target->type) {
                             case BUILDING_MISSION_POST:
                             case BUILDING_NATIVE_HUT:
                             case BUILDING_NATIVE_HUT_ALT:
