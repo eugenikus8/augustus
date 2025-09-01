@@ -85,7 +85,7 @@ void figure_indigenous_native_action(figure *f)
         {
             // Checking if there are any more buildings on native land
             int dst_x, dst_y;
-            if (!get_structures_on_native_land(&dst_x, &dst_y)) {
+            if (!formation_enemy_get_structures_on_native_land(&dst_x, &dst_y)) {
                 f->action_state = FIGURE_ACTION_157_NATIVE_RETURNING_FROM_MEETING;
                 f->destination_x = f->source_x;
                 f->destination_y = f->source_y;

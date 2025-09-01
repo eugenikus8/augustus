@@ -268,7 +268,7 @@ static int set_enemy_target_building(formation *m)
     return best_building != 0;
 }
 
-int get_structures_on_native_land(int *dst_x, int *dst_y)
+int formation_enemy_get_structures_on_native_land(int *dst_x, int *dst_y)
 {
     building_type native_buildings[] = {
         BUILDING_NATIVE_MEETING,
@@ -354,7 +354,7 @@ int get_structures_on_native_land(int *dst_x, int *dst_y)
 static void set_native_target_building(formation *m)
 {
     int dst_x = 0, dst_y = 0;
-    if (get_structures_on_native_land(&dst_x, &dst_y)) {
+    if (formation_enemy_get_structures_on_native_land(&dst_x, &dst_y)) {
         formation_set_destination_building(m, dst_x, dst_y, 0);
     } else {
         formation_retreat(m);
