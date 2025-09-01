@@ -15,7 +15,6 @@
 #include "figure/formation_layout.h"
 #include "figure/route.h"
 #include "map/building.h"
-//#include "map/data.h"
 #include "map/figure.h"
 #include "map/grid.h"
 #include "map/property.h"
@@ -289,9 +288,6 @@ int get_structures_on_native_land(int *dst_x, int *dst_y)
             map_grid_get_area(b->x, b->y, size, radius, &x_min, &y_min, &x_max, &y_max);
             for (int yy = y_min; yy <= y_max; yy++) {
                 for (int xx = x_min; xx <= x_max; xx++) {
-                  //  if (xx < 0 || xx >= map_data.width || yy < 0 || yy >= map_data.height) {
-                  //      continue;
-                  //  }
                     int building_id = map_building_at(map_grid_offset(xx, yy));
                     building *target = building_get(building_id);
                     if (target && target->id > 0) {
