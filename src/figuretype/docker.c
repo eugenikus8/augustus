@@ -92,7 +92,7 @@ static int store_destination_map_point(int building_id, map_point *dst)
         map_point_store_result(b->x + 1, b->y + 1, dst);
     } else if (b->has_road_access == 1) {
         map_point_store_result(b->x, b->y, dst);
-    } else if (!map_has_road_access_rotation(b->subtype.orientation, b->x, b->y, 3, dst)) {
+    } else if (!map_has_road_access_warehouse(b->x, b->y, dst)) {
         return 0;
     }
     return 1;
@@ -147,8 +147,7 @@ static int get_closest_building_for_import(int x, int y, int city_id, building *
     for (building *b = building_first_of_type(BUILDING_WAREHOUSE); b; b = b->next_of_type) {
 
         if (is_invalid_destination(b, dock) ||
-            building_storage_get_empty_all(b->id) ||
-            building_storage_get_state(b, resource, 1) == BUILDING_STORAGE_STATE_NOT_ACCEPTING) {
+            !building_warehouse_maximum_receptible_amount(b, resource)) {
             continue;
         }
         int distance_penalty = get_distance_penalty_imports(b, resource);
@@ -166,8 +165,7 @@ static int get_closest_building_for_import(int x, int y, int city_id, building *
     if (resource_is_food(resource)) {
         for (building *b = building_first_of_type(BUILDING_GRANARY); b; b = b->next_of_type) {
             if (is_invalid_destination(b, dock) ||
-                building_storage_get_empty_all(b->id) ||
-                building_storage_get_state(b, resource, 1) == BUILDING_STORAGE_STATE_NOT_ACCEPTING) {
+                !building_granary_maximum_receptible_amount(b, resource)) {
                 continue;
             }
             // always prefer granary
