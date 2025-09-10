@@ -268,6 +268,16 @@ static int set_enemy_target_building(formation *m)
     return best_building != 0;
 }
 
+static int forts_on_native_land(void)
+{
+    return building_first_of_type(BUILDING_FORT_ARCHERS) ||
+        building_first_of_type(BUILDING_FORT_LEGIONARIES) ||
+        building_first_of_type(BUILDING_FORT_JAVELIN) ||
+        building_first_of_type(BUILDING_FORT_MOUNTED) ||
+        building_first_of_type(BUILDING_FORT_AUXILIA_INFANTRY) ||
+        building_first_of_type(BUILDING_FORT_GROUND);
+}
+
 int formation_enemy_get_structures_on_native_land(int *dst_x, int *dst_y)
 {
     building_type native_buildings[] = {
@@ -278,7 +288,11 @@ int formation_enemy_get_structures_on_native_land(int *dst_x, int *dst_y)
     };
     for (int i = 0; i < sizeof(native_buildings) / sizeof(native_buildings[0]); i++) {
         building_type type = native_buildings[i];
+
         int radius = (type == BUILDING_NATIVE_MEETING) ? 6 : 3;
+        if (forts_on_native_land()) {
+            radius = INFINITE;
+        }
         int size = building_properties_for_type(type)->size;
         for (building *b = building_first_of_type(type); b; b = b->next_of_type) {
             if (b->state != BUILDING_STATE_IN_USE) {
