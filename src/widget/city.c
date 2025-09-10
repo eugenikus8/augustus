@@ -653,7 +653,7 @@ static void handle_mouse(const mouse *m)
             return;
         }
         if (handle_right_click_allow_building_info(tile)) {
-            int building_id = map_building_at(tile->grid_offset);
+            int building_id = building_main(building_get(map_building_at(tile->grid_offset)))->id; //building inception!
             data.selected_building_id = building_id ? building_id : NO_POSITION; //no position if selected 0
             window_building_info_show(tile->grid_offset);
             return;
@@ -697,7 +697,12 @@ static void military_map_click(int legion_formation_id, const map_tile *tile)
         formation_legion_return_home(m);
     } else {
         formation_legion_move_to(m, tile);
-        sound_speech_play_file("wavs/cohort5.wav");
+        if (config_get(CONFIG_UI_MOVE_LEGION_SOUND_SWAP)) {
+            sound_speech_play_file("wavs/marching.wav"); //replacement marching sound
+        } else {
+            sound_speech_play_file("wavs/cohort5.wav");
+        }
+
     }
     window_city_show();
 }

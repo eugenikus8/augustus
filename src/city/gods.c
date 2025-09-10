@@ -96,9 +96,15 @@ static void perform_small_curse(god_type god)
             building_curse_farms(0);
             break;
         case GOD_NEPTUNE:
-            city_message_post(1, MESSAGE_NEPTUNE_IS_UPSET, 0, 0);
-            figure_sink_all_ships();
-            city_data.religion.neptune_sank_ships = 1;
+            if (city_data.trade.num_sea_routes <= 0 && building_count_active(BUILDING_SHIPYARD) <= 0 && building_count_active(BUILDING_WHARF) <= 0) {
+                city_message_post(1, MESSAGE_WRATH_OF_NEPTUNE_NO_SEA_TRADE, 0, 0);
+                break;
+            } else {
+                city_message_post(1, MESSAGE_WRATH_OF_NEPTUNE, 0, 0);
+                figure_sink_half_ships();
+                city_data.religion.neptune_sank_ships = 1;
+                city_trade_start_sea_trade_problems(40);
+            }
             break;
         case GOD_MERCURY:
             city_message_post(1, MESSAGE_MERCURY_IS_UPSET, 0, 0);
@@ -128,7 +134,7 @@ static int perform_large_curse(god_type god)
             building_curse_farms(1);
             break;
         case GOD_NEPTUNE:
-            if (city_data.trade.num_sea_routes <= 0) {
+            if (city_data.trade.num_sea_routes <= 0 && building_count_active(BUILDING_SHIPYARD) <= 0 && building_count_active(BUILDING_WHARF) <= 0) {
                 city_message_post(1, MESSAGE_WRATH_OF_NEPTUNE_NO_SEA_TRADE, 0, 0);
                 return 0;
             } else {
@@ -148,6 +154,7 @@ static int perform_large_curse(god_type god)
                 scenario_invasion_start_from_mars();
             } else {
                 city_message_post(1, MESSAGE_WRATH_OF_MARS_NO_MILITARY, 0, 0);
+                scenario_invasion_start_from_mars();
             }
             break;
         case GOD_VENUS:
@@ -299,19 +306,19 @@ void city_gods_calculate_moods(int update_moods)
         int num_temples = 0;
         switch (i) {
             case GOD_CERES:
-                num_temples = building_count_total(BUILDING_SMALL_TEMPLE_CERES) + building_count_total(BUILDING_LARGE_TEMPLE_CERES) + building_count_total(BUILDING_GRAND_TEMPLE_CERES);
+                num_temples = building_count_active(BUILDING_SMALL_TEMPLE_CERES) + building_count_active(BUILDING_LARGE_TEMPLE_CERES) + building_count_active(BUILDING_GRAND_TEMPLE_CERES);
                 break;
             case GOD_NEPTUNE:
-                num_temples = building_count_total(BUILDING_SMALL_TEMPLE_NEPTUNE) + building_count_total(BUILDING_LARGE_TEMPLE_NEPTUNE) + building_count_total(BUILDING_GRAND_TEMPLE_NEPTUNE);
+                num_temples = building_count_active(BUILDING_SMALL_TEMPLE_NEPTUNE) + building_count_active(BUILDING_LARGE_TEMPLE_NEPTUNE) + building_count_active(BUILDING_GRAND_TEMPLE_NEPTUNE);
                 break;
             case GOD_MERCURY:
-                num_temples = building_count_total(BUILDING_SMALL_TEMPLE_MERCURY) + building_count_total(BUILDING_LARGE_TEMPLE_MERCURY) + building_count_total(BUILDING_GRAND_TEMPLE_MERCURY);
+                num_temples = building_count_active(BUILDING_SMALL_TEMPLE_MERCURY) + building_count_active(BUILDING_LARGE_TEMPLE_MERCURY) + building_count_active(BUILDING_GRAND_TEMPLE_MERCURY);
                 break;
             case GOD_MARS:
-                num_temples = building_count_total(BUILDING_SMALL_TEMPLE_MARS) + building_count_total(BUILDING_LARGE_TEMPLE_MARS) + building_count_total(BUILDING_GRAND_TEMPLE_MARS);
+                num_temples = building_count_active(BUILDING_SMALL_TEMPLE_MARS) + building_count_active(BUILDING_LARGE_TEMPLE_MARS) + building_count_active(BUILDING_GRAND_TEMPLE_MARS);
                 break;
             case GOD_VENUS:
-                num_temples = building_count_total(BUILDING_SMALL_TEMPLE_VENUS) + building_count_total(BUILDING_LARGE_TEMPLE_VENUS) + building_count_total(BUILDING_GRAND_TEMPLE_VENUS);
+                num_temples = building_count_active(BUILDING_SMALL_TEMPLE_VENUS) + building_count_active(BUILDING_LARGE_TEMPLE_VENUS) + building_count_active(BUILDING_GRAND_TEMPLE_VENUS);
                 break;
         }
         if (num_temples == max_temples) {

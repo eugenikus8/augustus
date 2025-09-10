@@ -191,7 +191,12 @@ static int draw_preview_image(int x, int y, int center, color_t color_mask, int 
         return 0;
     }
 
+    if (data.preview_image_group == GROUP_EMPIRE_BORDER_EDGE) {
+        draw_borders = 0;
+    }
+
     int image_id = image_group(data.preview_image_group);
+
     const image *img = image_get(image_id);
     int x_offset = x + (center - img->width) / 2;
     int y_offset = y + (center - img->height) / 2;
@@ -258,7 +263,7 @@ static void draw_empire_object(const empire_object *obj)
     }
     if (scenario_empire_id() == SCENARIO_CUSTOM_EMPIRE &&
         (obj->type == EMPIRE_OBJECT_LAND_TRADE_ROUTE || obj->type == EMPIRE_OBJECT_SEA_TRADE_ROUTE)) {
-        window_empire_draw_trade_waypoints(obj, data.x_draw_offset, data.y_draw_offset);
+        window_empire_draw_static_trade_waypoints(obj, data.x_draw_offset, data.y_draw_offset);
     }
     if (obj->type == EMPIRE_OBJECT_ORNAMENT) {
         if (image_id < 0) {
@@ -402,7 +407,8 @@ static void draw_city_info(const empire_city *city)
         case EMPIRE_CITY_FUTURE_ROMAN:
             lang_text_draw(47, 0, x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN);
             break;
-        case EMPIRE_CITY_OURS: {
+        case EMPIRE_CITY_OURS:
+        {
             width += lang_text_draw(47, 1, x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN);
             int resource_x_offset = x_offset + 30 + width;
             for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
@@ -413,7 +419,8 @@ static void draw_city_info(const empire_city *city)
             }
             break;
         }
-        case EMPIRE_CITY_TRADE: {
+        case EMPIRE_CITY_TRADE:
+        {
             width += lang_text_draw(47, 5, x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN);
             int resource_x_offset = x_offset + 30 + width;
             for (resource_type r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
@@ -620,6 +627,18 @@ static void button_cycle_preview(const generic_button *button)
             data.preview_image_group = GROUP_EMPIRE_CITY_TRADE;
             break;
         case GROUP_EMPIRE_CITY_TRADE:
+            data.preview_image_group = GROUP_EMPIRE_BATTLE;
+            break;
+        case GROUP_EMPIRE_BATTLE:
+            data.preview_image_group = GROUP_EMPIRE_ROMAN_ARMY;
+            break;
+        case GROUP_EMPIRE_ROMAN_ARMY:
+            data.preview_image_group = GROUP_EMPIRE_ENEMY_ARMY;
+            break;
+        case GROUP_EMPIRE_ENEMY_ARMY:
+            data.preview_image_group = GROUP_EMPIRE_BORDER_EDGE;
+            break;
+        case GROUP_EMPIRE_BORDER_EDGE:
             data.preview_image_group = 0;
             break;
         default:

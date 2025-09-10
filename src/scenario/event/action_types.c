@@ -23,6 +23,10 @@
 #include "game/resource.h"
 #include "map/building.h"
 #include "map/grid.h"
+#include "map/property.h"
+#include "map/routing_terrain.h"
+#include "map/terrain.h"
+#include "map/tiles.h"
 #include "scenario/allowed_building.h"
 #include "scenario/custom_variable.h"
 #include "scenario/gladiator_revolt.h"
@@ -88,6 +92,14 @@ int scenario_action_type_change_custom_variable_execute(scenario_action_t *actio
     return 1;
 }
 
+int scenario_action_type_change_custom_variable_visibility(scenario_action_t *action)
+{
+    int variable_id = action->parameter1;
+    int value = action->parameter2;
+    scenario_custom_variable_set_visibility(variable_id, value);
+    return 1;
+}
+
 int scenario_action_type_change_resource_produced_execute(scenario_action_t *action)
 {
     int resource = action->parameter1;
@@ -120,17 +132,17 @@ int scenario_action_type_change_resource_stockpiles_execute(scenario_action_t *a
         case STORAGE_TYPE_ALL:
             if (to_remove) {
                 remaining = building_warehouses_remove_resource(resource, remaining);
-                remaining = building_granaries_remove_resource(resource, remaining * RESOURCE_ONE_LOAD);
+                remaining = building_granaries_remove_resource(resource, remaining);
             } else {
                 remaining = building_warehouses_add_resource(resource, remaining, respect_settings);
-                remaining = building_granaries_add_resource(resource, remaining * RESOURCE_ONE_LOAD, respect_settings);
+                remaining = building_granaries_add_resource(resource, remaining, respect_settings);
             }
             break;
         case STORAGE_TYPE_GRANARIES:
             if (to_remove) {
-                remaining = building_granaries_remove_resource(resource, remaining * RESOURCE_ONE_LOAD);
+                remaining = building_granaries_remove_resource(resource, remaining);
             } else {
-                remaining = building_granaries_add_resource(resource, remaining * RESOURCE_ONE_LOAD, respect_settings);
+                remaining = building_granaries_add_resource(resource, remaining, respect_settings);
             }
             break;
         case STORAGE_TYPE_WAREHOUSES:
@@ -330,6 +342,13 @@ int scenario_action_type_building_force_collapse_execute(scenario_action_t *acti
             if (!map_grid_is_valid_offset(current_grid_offset)) {
                 continue;
             }
+            if (type == BUILDING_OVERGROWN_GARDENS || type == BUILDING_PLAZA) {
+                map_property_clear_plaza_earthquake_or_overgrown_garden(current_grid_offset);
+            }
+            if ((type == BUILDING_ROAD || type == BUILDING_GARDENS || type == BUILDING_HIGHWAY ||
+                type == BUILDING_OVERGROWN_GARDENS) && !map_terrain_is(current_grid_offset, TERRAIN_BUILDING)) {
+                map_terrain_remove(current_grid_offset, TERRAIN_GARDEN | TERRAIN_ROAD | TERRAIN_HIGHWAY);
+            }
             int building_id = map_building_at(current_grid_offset);
             if (!building_id) {
                 continue;
@@ -346,7 +365,15 @@ int scenario_action_type_building_force_collapse_execute(scenario_action_t *acti
             }
         }
     }
-
+    if (type == BUILDING_ROAD || type == BUILDING_GARDENS || type == BUILDING_HIGHWAY ||
+        type == BUILDING_OVERGROWN_GARDENS || type == BUILDING_PLAZA) {
+        map_tiles_update_all_empty_land();
+        map_tiles_update_all_meadow();
+        map_tiles_update_all_highways();
+        map_tiles_update_all_gardens();
+        map_tiles_update_all_roads();
+        map_tiles_update_all_plazas();
+    }
     return 1;
 }
 
@@ -653,6 +680,57 @@ int scenario_action_type_change_climate_execute(scenario_action_t *action)
     int climate = action->parameter1;
 
     scenario_change_climate(climate);
+
+    return 1;
+}
+
+int scenario_action_type_change_terrain_execute(scenario_action_t *action)
+{
+    int grid_offset = action->parameter1;
+    int block_radius = action->parameter2;
+    int terrain = action->parameter3;
+    int add = action->parameter4;
+
+    if (!map_grid_is_valid_offset(grid_offset)) {
+        return 0;
+    }
+
+    for (int y = -block_radius; y <= block_radius; y++) {
+        for (int x = -block_radius; x <= block_radius; x++) {
+            int current_grid_offset = map_grid_add_delta(grid_offset, x, y);
+            if (!map_grid_is_valid_offset(current_grid_offset)) {
+                continue;
+            }
+            if (add) {
+                if (terrain & TERRAIN_NOT_CLEAR) {
+                    // Destroy buildings if the new terrains doesn't allow for buildings
+                    int building_id = map_building_at(current_grid_offset);
+                    if (building_id) {
+                        building *b = building_main(building_get(building_id));
+                        building_destroy_without_rubble(b);
+                    }
+                    // Since the engine only supports one blocking terrain per tile, 
+                    // remove all others before adding a new one
+                    map_terrain_remove(current_grid_offset, TERRAIN_NOT_CLEAR);
+                }
+                map_terrain_add(current_grid_offset, terrain);
+            } else {
+                if (terrain == TERRAIN_WATER && map_terrain_get(current_grid_offset) & TERRAIN_WATER) {
+                    // Destroy water buildings when removing water
+                    int building_id = map_building_at(current_grid_offset);
+                    if (building_id) {
+                        building *b = building_main(building_get(building_id));
+                        building_destroy_without_rubble(b);
+                    }
+
+                }
+                map_terrain_remove(current_grid_offset, terrain);
+            }
+        }
+    }
+
+    map_tiles_update_all();
+    map_routing_update_all();
 
     return 1;
 }

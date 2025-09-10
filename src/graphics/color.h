@@ -27,6 +27,7 @@ typedef uint32_t color_t;
 #define COLOR_FONT_LIGHT_GRAY 0xffb3b3b3
 #define COLOR_FONT_GRAY 0xff888888
 #define COLOR_FONT_PLAIN 0xff180800
+#define COLOR_FONT_GREEN 0xff00cc00
 
 #define COLOR_INSET_LIGHT 0xffffffff
 #define COLOR_INSET_DARK 0xff848484
@@ -38,12 +39,15 @@ typedef uint32_t color_t;
 #define COLOR_RISK_ICON_HIGH 0xfff7a142
 #define COLOR_RISK_ICON_EXTREME 0xffff603a
 
+#define COLOR_MAINTAIN_ICON 0xfffbf0f5
+
 #define COLOR_MASK_NONE 0xffffffff
 #define COLOR_MASK_RED 0xffff0818
 #define COLOR_MASK_GREEN 0xff18ff18
 #define COLOR_MASK_PURPLE 0xff7f0000
 #define COLOR_MASK_DARK_GREEN 0xff005100
 #define COLOR_MASK_DARK_BLUE 0x66001199
+#define COLOR_MASK_DARK_PINK 0x88402060
 #define COLOR_MASK_BLUE 0x663377ff
 #define COLOR_MASK_GREY 0x66aaaaaa
 #define COLOR_MASK_PINK 0x99fa94ff
@@ -98,6 +102,13 @@ typedef uint32_t color_t;
 #define COLOR_BITSHIFT_RED 16
 #define COLOR_BITSHIFT_GREEN 8
 #define COLOR_BITSHIFT_BLUE 0
+
+#define COLOR_WEATHER_SAND 0xffe6b85c
+#define COLOR_WEATHER_SNOW 0xffddeeff
+#define COLOR_WEATHER_RAIN 0xff000000
+#define COLOR_WEATHER_SNOWFLAKE 0x88ffffff
+#define COLOR_WEATHER_SAND_PARTICLE 0xe1a65e2e
+#define COLOR_WEATHER_DROPS 0xccffffff
 
 #define COLOR_CHANNEL_ALPHA 0xff000000
 #define COLOR_CHANNEL_RED 0x00ff0000

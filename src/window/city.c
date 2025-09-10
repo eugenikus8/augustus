@@ -38,6 +38,7 @@
 #include "map/terrain.h"
 #include "scenario/allowed_building.h"
 #include "scenario/criteria.h"
+#include "scenario/custom_variable.h"
 #include "widget/city.h"
 #include "widget/city_with_overlay.h"
 #include "widget/top_menu.h"
@@ -50,7 +51,22 @@
 #include "window/file_dialog.h"
 #include "window/message_list.h"
 
+#define TOPLEFT_MESSAGES_X 5
+#define TOPLEFT_MESSAGES_Y_SPACING 24
+
 static int mothball_warning_id;
+static int time_left_label_shown;
+
+// One value + optional unit that follows it
+typedef struct {
+    int value;
+    int unit_group;   // translation group for the unit (or -1 if none)
+    int unit_text;    // translation id for the unit (ignored if unit_group == -1)
+} ui_value_segment_t;
+
+static void draw_topleft_label(int x, int y, const uint8_t *label_text, const ui_value_segment_t *segments,
+    int segment_count, font_t font);
+static void draw_topleft_label_short(int x, int y, const uint8_t *label_text, int value, font_t font);
 
 static void draw_background(void)
 {
@@ -146,31 +162,97 @@ static void draw_paused_banner(void)
     }
 }
 
+static void draw_custom_variables_text_display(void)
+{
+    if (!config_get(CONFIG_UI_SHOW_CUSTOM_VARIABLES)) {
+        return;
+    }
+    int y = 25 + (time_left_label_shown ? (TOPLEFT_MESSAGES_Y_SPACING) : 0);
+    const font_t font = FONT_NORMAL_WHITE;
+
+    for (unsigned int i = 0; i < scenario_custom_variable_count(); i++) {
+        if (!scenario_custom_variable_is_visible(i)) {
+            continue;
+        }
+        const uint8_t *display = scenario_custom_variable_get_text_display(i);
+        int value = scenario_custom_variable_get_value(i);
+        draw_topleft_label_short(TOPLEFT_MESSAGES_X, y, display, value, font);
+        y += TOPLEFT_MESSAGES_Y_SPACING;
+    }
+}
+
 static void draw_time_left(void)
 {
-    if (scenario_criteria_time_limit_enabled() && !city_victory_has_won()) {
+
+    int fps_offset = config_get(CONFIG_UI_DISPLAY_FPS) * 2 * BLOCK_SIZE; // shift to the right if FPS is displayed
+    time_left_label_shown = fps_offset > 0; // if fps is shown skip first row anyway
+    if ((scenario_criteria_time_limit_enabled() || scenario_criteria_survival_enabled()) && !city_victory_has_won()) {
+        time_left_label_shown = 1;
+
         int years;
         if (scenario_criteria_max_year() <= game_time_year() + 1) {
             years = 0;
         } else {
             years = scenario_criteria_max_year() - game_time_year() - 1;
         }
+
         int total_months = 12 - game_time_month() + 12 * years;
-        label_draw(1, 25, 15, 1);
-        int width = lang_text_draw(6, 2, 6, 29, FONT_NORMAL_BLACK);
-        text_draw_number(total_months, '@', " ", 6 + width, 29, FONT_NORMAL_BLACK, 0);
-    } else if (scenario_criteria_survival_enabled() && !city_victory_has_won()) {
-        int years;
-        if (scenario_criteria_max_year() <= game_time_year() + 1) {
-            years = 0;
-        } else {
-            years = scenario_criteria_max_year() - game_time_year() - 1;
-        }
-        int total_months = 12 - game_time_month() + 12 * years;
-        label_draw(1, 25, 15, 1);
-        int width = lang_text_draw(6, 3, 6, 29, FONT_NORMAL_BLACK);
-        text_draw_number(total_months, '@', " ", 6 + width, 29, FONT_NORMAL_BLACK, 0);
+        int years_left = total_months / 12;
+        int months_left = total_months % 12;
+
+        const font_t font = FONT_NORMAL_WHITE;
+
+        // Precompose the prefix text (translated): "Time left until defeat/victory: "
+        const int label_id = scenario_criteria_time_limit_enabled()
+            ? TR_CONDITION_TEXT_TIME_LEFT_UNTIL_DEFEAT
+            : TR_CONDITION_TEXT_TIME_LEFT_UNTIL_VICTORY;
+        const uint8_t *label_str = lang_get_string(CUSTOM_TRANSLATION, label_id);
+
+        ui_value_segment_t segs[2] = {
+            { years_left,  CUSTOM_TRANSLATION, TR_EDITOR_REPEAT_FREQUENCY_YEARS  },
+            { months_left, CUSTOM_TRANSLATION, TR_EDITOR_REPEAT_FREQUENCY_MONTHS }
+        };
+        draw_topleft_label(fps_offset + TOPLEFT_MESSAGES_X, 25, label_str, segs, 2, font);
     }
+}
+
+static void draw_topleft_label(int x, int y, const uint8_t *label_text, const ui_value_segment_t *segments,
+    int segment_count, font_t font)
+{
+    // Measure total width: precomposed text + all numbers + their (optional) units
+    int label_width = text_get_width(label_text, font);
+    for (int i = 0; i < segment_count; ++i) {
+        label_width += text_get_number_width(segments[i].value, '@', "", font);
+        if (segments[i].unit_group != -1) {
+            label_width += lang_text_get_width(segments[i].unit_group, segments[i].unit_text, font);
+        }
+    }
+
+    int label_blocks = (label_width + 2 * BLOCK_SIZE) / BLOCK_SIZE;
+    if (label_blocks < 1) label_blocks = 1;
+
+    label_draw(x, y, label_blocks, 1);
+    int draw_x = x + 6;
+    const int draw_y = y + 4;
+    // Draw the precomposed text and advance by its pixel width
+    int prefix_w = text_get_width(label_text, font);
+    text_draw(label_text, draw_x, draw_y, font, 0);
+    draw_x += prefix_w;
+
+    // Draw value segments
+    for (int i = 0; i < segment_count; ++i) {
+        draw_x += text_draw_number(segments[i].value, '@', "", draw_x, draw_y, font, 0);
+        if (segments[i].unit_group != -1) {
+            draw_x += lang_text_draw(segments[i].unit_group, segments[i].unit_text, draw_x, draw_y, font);
+        }
+    }
+}
+
+//wrapper for the common case of a single text + value
+static void draw_topleft_label_short(int x, int y, const uint8_t *label_text, int value, font_t font)
+{
+    ui_value_segment_t seg = { value, -1, 0 };
+    draw_topleft_label(x, y, label_text, &seg, 1, font);
 }
 
 static void draw_speedrun_info(void)
@@ -190,6 +272,7 @@ static void draw_foreground(void)
     draw_speedrun_info();
     if (window_is(WINDOW_CITY) || window_is(WINDOW_CITY_MILITARY)) {
         draw_time_left();
+        draw_custom_variables_text_display();
         widget_city_draw_construction_buttons();
         if (!mouse_get()->is_touch || sidebar_extra_is_information_displayed(SIDEBAR_EXTRA_DISPLAY_GAME_SPEED)) {
             draw_paused_banner();
@@ -597,11 +680,12 @@ static void toggle_pause(void)
     city_warning_clear_all();
 }
 
-static void set_construction_building_type(building_type type)
+static void set_construction_building_type(building_type type, int rotation)
 {
     if (scenario_allowed_building(type) && building_menu_is_enabled(type)) {
         building_construction_cancel();
         building_construction_set_type(type);
+        building_rotation_setup_rotation(rotation);
         window_request_refresh();
     }
 }
@@ -675,7 +759,7 @@ static void handle_hotkeys(const hotkeys *h)
         building_rotation_rotate_backward();
     }
     if (h->building) {
-        set_construction_building_type(h->building);
+        set_construction_building_type(h->building, 0);
     }
     if (h->undo) {
         game_undo_perform();
@@ -695,20 +779,22 @@ static void handle_hotkeys(const hotkeys *h)
     }
     if (h->storage_order) {
         int grid_offset = widget_city_current_grid_offset();
-        int building_id = map_building_at(grid_offset);       
-        if (building_id) {   
+        int building_id = map_building_at(grid_offset);
+        if (building_id) {
             building *b = building_main(building_get(building_id));
             if (has_storage_orders(b->type)) {
-                    window_building_info_show(grid_offset);
-                    window_building_info_show_storage_orders();
+                window_building_info_show(grid_offset);
+                window_building_info_show_storage_orders();
             }
         }
     }
     if (h->clone_building) {
         building_type type = building_clone_type_from_grid_offset(widget_city_current_grid_offset());
+        int rotation = building_clone_rotation_from_grid_offset(widget_city_current_grid_offset());
         if (type) {
-            set_construction_building_type(type);
+            set_construction_building_type(type, rotation);
         }
+
     }
     if (h->copy_building_settings) {
         int building_id = map_building_at(widget_city_current_grid_offset());

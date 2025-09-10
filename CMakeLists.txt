@@ -560,6 +560,7 @@ set(GRAPHICS_FILES
     ${PROJECT_SOURCE_DIR}/src/graphics/arrow_button.c
     ${PROJECT_SOURCE_DIR}/src/graphics/button.c
     ${PROJECT_SOURCE_DIR}/src/graphics/clouds.c
+    ${PROJECT_SOURCE_DIR}/src/graphics/weather.c
     ${PROJECT_SOURCE_DIR}/src/graphics/font.c
     ${PROJECT_SOURCE_DIR}/src/graphics/generic_button.c
     ${PROJECT_SOURCE_DIR}/src/graphics/graphics.c
@@ -681,6 +682,7 @@ set(WINDOW_FILES
     ${PROJECT_SOURCE_DIR}/src/window/console.c
     ${PROJECT_SOURCE_DIR}/src/window/donate_to_city.c
     ${PROJECT_SOURCE_DIR}/src/window/empire.c
+    ${PROJECT_SOURCE_DIR}/src/window/empire_sidebar_sort.c
     ${PROJECT_SOURCE_DIR}/src/window/file_dialog.c
     ${PROJECT_SOURCE_DIR}/src/window/gift_to_emperor.c
     ${PROJECT_SOURCE_DIR}/src/window/hold_games.c
@@ -870,7 +872,7 @@ endif()
 
 if(${TARGET_PLATFORM} STREQUAL "emscripten")
     set(CMAKE_EXECUTABLE_SUFFIX .html)
-    set_target_properties(${SHORT_NAME} PROPERTIES LINK_FLAGS "-lidbfs.js -s SINGLE_FILE=1 -s DYNCALLS=1 --shell-file ${PROJECT_SOURCE_DIR}/res/shell.html --embed-file ${ASSETS_DIR}@/assets -s INITIAL_MEMORY=268435456 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0 -s SAFE_HEAP=1 -s INVOKE_RUN=0 -s EXPORTED_FUNCTIONS=[\"_main\"] -s EXPORTED_RUNTIME_METHODS=[\"callMain\",\"FS\"] -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=[\"$autoResumeAudioContext\"] -s PTHREAD_POOL_SIZE_STRICT=0 --bind")
+    set_target_properties(${SHORT_NAME} PROPERTIES LINK_FLAGS "-lidbfs.js -s SINGLE_FILE=1 -s DYNCALLS=1 --shell-file ${PROJECT_SOURCE_DIR}/res/shell.html --embed-file ${ASSETS_DIR}@/assets -s INITIAL_MEMORY=268435456 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0 -s SAFE_HEAP=1 -s INVOKE_RUN=0 -s EXPORTED_FUNCTIONS=[\"_main\"] -s EXPORTED_RUNTIME_METHODS=[\"callMain\",\"FS\"] -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=[\"$autoResumeAudioContext\"] --bind")
 endif()
 
 if(MSVC)

@@ -128,6 +128,10 @@ static void add_warehouse(building *b)
     game_undo_adjust_building(b);
 
     building_get(prev)->next_part_building_id = 0;
+    map_tiles_update_area_roads(b->x, b->y, 5);
+    if (!map_has_road_access_warehouse(b->x, b->y, 0)) {
+        city_warning_show(WARNING_WAREHOUSE_TOWER, NEW_WARNING_SLOT);
+    }
 }
 
 static void add_building(building *b)
@@ -148,6 +152,7 @@ static void add_granary(building *b)
 {
     b->storage_id = building_storage_create(b->id);
     add_building(b);
+    map_update_granary_internal_roads(b);
     map_tiles_update_area_roads(b->x, b->y, 5);
 }
 
@@ -346,7 +351,8 @@ int building_construction_place_building(building_type type, int x, int y)
 {
     int terrain_mask = TERRAIN_ALL;
     if (building_type_is_roadblock(type)) {
-        terrain_mask = type == BUILDING_GATEHOUSE ? ~TERRAIN_WALL & ~TERRAIN_ROAD & ~TERRAIN_HIGHWAY : ~TERRAIN_ROAD & ~TERRAIN_HIGHWAY;
+        terrain_mask = type == BUILDING_GATEHOUSE ? ~TERRAIN_WALL & ~TERRAIN_ROAD &
+            ~TERRAIN_HIGHWAY : ~TERRAIN_ROAD & ~TERRAIN_HIGHWAY;
         //allow building gatehouses over walls and roads, other non-bridge roadblocks over roads and highways
     } else if (type == BUILDING_TOWER) {
         terrain_mask = ~TERRAIN_WALL;
@@ -435,7 +441,7 @@ int building_construction_place_building(building_type type, int x, int y)
         int orient_index = building_rotation_get_rotation();
         int x_offset = offsets_x[orient_index];
         int y_offset = offsets_y[orient_index];
-        if (!map_tiles_are_clear(x + x_offset, y + y_offset, 4, terrain_mask, check_figure)) {
+        if (!map_tiles_are_clear(x + x_offset, y + y_offset, 4, terrain_mask, 0)) { // ignore figures on fort grounds
             city_warning_show(WARNING_CLEAR_LAND_NEEDED, NEW_WARNING_SLOT);
             return 0;
         }
@@ -521,11 +527,8 @@ int building_construction_place_building(building_type type, int x, int y)
 
     // phew, checks done!
     building *b;
-    if (building_is_fort(type)) {
-        b = building_create(BUILDING_FORT, x, y);
-    } else {
-        b = building_create(type, x, y);
-    }
+    b = building_create(type, x, y);
+
     game_undo_add_building(b);
     if (b->id <= 0) {
         return 0;
