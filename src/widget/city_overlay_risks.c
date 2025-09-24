@@ -111,7 +111,7 @@ static int show_building_native(const building *b)
 
 static int draw_footprint_enemy(int x, int y, float scale, int grid_offset)
 {
-    if (map_terrain_is(grid_offset, TERRAIN_WALL)) {
+    if (map_terrain_is(grid_offset, TERRAIN_WALL | TERRAIN_AQUEDUCT)) {
         int image_id = map_image_at(grid_offset);
         image_draw_isometric_footprint_from_draw_tile(image_id, x, y, 0, scale);
         return 1;
@@ -121,7 +121,7 @@ static int draw_footprint_enemy(int x, int y, float scale, int grid_offset)
 
 static int draw_top_enemy(int x, int y, float scale, int grid_offset)
 {
-    if (map_terrain_is(grid_offset, TERRAIN_WALL)) {
+    if (map_terrain_is(grid_offset, TERRAIN_WALL | TERRAIN_AQUEDUCT)) {
         image_draw_isometric_top_from_draw_tile(map_image_at(grid_offset), x, y, 0, scale);
         return 1;
     }
