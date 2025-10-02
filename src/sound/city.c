@@ -169,23 +169,23 @@ void sound_city_mark_building_view(building_type type, int num_workers, int dire
     const model_building *model = model_get_building(type);
     int enemies_present = city_figures_enemies() > 0 || city_figures_imperial_soldiers() > 0;
 
-    // Buildings for which the sound plays even if there are enemies
-    int play_sound_for_enemies = 0;
+    // Buildings for which sound is disabled during enemy attacks
+    int mute_on_enemies = 0;
     switch (type) {
-        case BUILDING_PREFECTURE:
-        case BUILDING_TOWER:
-        case BUILDING_GATEHOUSE:
-        case BUILDING_WATCHTOWER:
-        case BUILDING_BARRACKS:
-        case BUILDING_MILITARY_ACADEMY:
-        case BUILDING_FORT_LEGIONARIES:
-        case BUILDING_FORT_JAVELIN:
-        case BUILDING_FORT_MOUNTED:
-        case BUILDING_FORT_AUXILIA_INFANTRY:
-        case BUILDING_FORT_ARCHERS:
+        case BUILDING_BATHHOUSE:
+        case BUILDING_SCHOOL:
+        case BUILDING_THEATER:
+        case BUILDING_AMPHITHEATER:
+        case BUILDING_ARENA:
+        case BUILDING_COLOSSEUM:
+        case BUILDING_HIPPODROME:
+        case BUILDING_ACTOR_COLONY:
         case BUILDING_GLADIATOR_SCHOOL:
-        case BUILDING_LION_HOUSE:
-            play_sound_for_enemies = 1;
+        case BUILDING_CHARIOT_MAKER:
+        case BUILDING_GOVERNORS_HOUSE:
+        case BUILDING_GOVERNORS_VILLA:
+        case BUILDING_GOVERNORS_PALACE:
+            mute_on_enemies = 1;
             break;
         default:
             break;
@@ -193,7 +193,7 @@ void sound_city_mark_building_view(building_type type, int num_workers, int dire
     // Shut off when:
     if ((model->laborers > 0 && num_workers <= 0)
         || city_population() <= 0
-        || (enemies_present && !play_sound_for_enemies)) {
+        || (enemies_present && mute_on_enemies)) {
         return;
     }
 
