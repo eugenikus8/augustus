@@ -86,7 +86,9 @@ static const uint8_t *get_text_for_warning(warning_type type)
         case WARNING_WAREHOUSE_TOWER:
             return translation_for(TR_WARNING_NO_WAREHOUSE_TOWER_ROAD_ACCESS);
         case WARNING_DEPOT_CART_PUSHER_RECALL_ALL:
-            return translation_for(TR_WARNING_RECALL_ALL);
+            return translation_for(TR_WARNING_DEPOT_RECALL_ALL);
+        case WARNING_DEPOT_RESOURCE_CHANGE:
+            return translation_for(TR_WARNING_DEPOT_RESOURCE_CHANGE);
         default:
             return lang_get_string(19, type - 2);
     }

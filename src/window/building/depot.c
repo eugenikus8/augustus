@@ -834,10 +834,22 @@ int window_building_handle_mouse_depot_select_destination(const mouse *m, buildi
 
 static void order_set_resource(const generic_button *button)
 {
-    //building *b = building_get(data.depot_building_id);
-    //if (b->data.depot.current_order.src_storage_id && b->data.depot.current_order.dst_storage_id) {
-    //    return;
-    //}
+    building *b = building_get(data.depot_building_id);
+    if (!b || b->type != BUILDING_DEPOT)
+        return;
+    // Check if there are active carts (Ox) associated with this depot
+    for (int i = 0; i < 3; i++) {
+        int fig_id = b->data.distribution.cartpusher_ids[i];
+        if (fig_id) {
+            figure *f = figure_get(fig_id);
+            if (f && f->state != FIGURE_STATE_DEAD) {
+                // If there is an active cart, changing the resource is prohibited
+                city_warning_show(WARNING_DEPOT_RESOURCE_CHANGE, NEW_WARNING_SLOT);
+                return;
+            }
+        }
+    }
+    // If there are no carts, allow resource selection
     window_building_info_depot_select_resource();
 }
 
