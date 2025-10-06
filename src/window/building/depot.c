@@ -839,9 +839,8 @@ static void order_set_resource(const generic_button *button)
         return;
     // Check if there are active carts (Ox) associated with this depot
     for (int i = 0; i < 3; i++) {
-        int fig_id = b->data.distribution.cartpusher_ids[i];
-        if (fig_id) {
-            figure *f = figure_get(fig_id);
+        if (b->data.distribution.cartpusher_ids[i]) {
+            figure *f = figure_get(b->data.distribution.cartpusher_ids[i]);
             if (f && f->state != FIGURE_STATE_DEAD) {
                 // If there is an active cart, changing the resource is prohibited
                 city_warning_show(WARNING_DEPOT_RESOURCE_CHANGE, NEW_WARNING_SLOT);
