@@ -416,43 +416,8 @@ void figure_depot_cartpusher_action(figure *f)
                 f->wait_ticks = 0;
             }
             break;
-
-        case FIGURE_ACTION_250_DEPOT_CART_PUSHER_RETURN_TO_SOURCE:
-            set_cart_graphic(f); // visible cart
-            if (f->wait_ticks > DEPOT_CART_REROUTE_DELAY) {
-                figure_movement_move_ticks_with_percentage(f, speed_factor, percentage_speed);
-                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                    f->action_state = FIGURE_ACTION_240_DEPOT_CART_PUSHER_AT_SOURCE;
-                    f->wait_ticks = 0;
-                } else if (f->direction == DIR_FIGURE_LOST) {
-                    f->action_state = FIGURE_ACTION_243_DEPOT_CART_PUSHER_RETURNING;
-                    f->wait_ticks = 0;
-                } else if (f->direction == DIR_FIGURE_REROUTE) {
-                    figure_route_remove(f);
-                    f->wait_ticks = 0;
-                }
-            } else {
-                f->wait_ticks++;
-            }
-            break;
-
         case FIGURE_ACTION_244_DEPOT_CART_PUSHER_CANCEL_ORDER:
             if (f->loads_sold_or_carrying > 0 && f->resource_id != RESOURCE_NONE) {
-                // If the cart is already carrying cargo - go to the new destination
-                if (b->data.depot.current_order.dst_storage_id) {
-                    building *new_dst = building_get(b->data.depot.current_order.dst_storage_id);
-                    if (new_dst && new_dst->state == BUILDING_STATE_IN_USE) {
-                        f->action_state = FIGURE_ACTION_241_DEPOT_CART_HEADING_TO_DESTINATION;
-                        f->destination_building_id = b->data.depot.current_order.dst_storage_id;
-                        map_point road_access;
-                        get_storage_road_access(new_dst, &road_access);
-                        f->destination_x = road_access.x;
-                        f->destination_y = road_access.y;
-                        figure_route_remove(f);
-                        set_cart_graphic(f);
-                        break;
-                    }
-                }
                 // If the new destination is invalid - then return to the source
                 f->action_state = FIGURE_ACTION_250_DEPOT_CART_PUSHER_RETURN_TO_SOURCE;
                 f->destination_building_id = b->data.depot.current_order.src_storage_id;
@@ -472,10 +437,55 @@ void figure_depot_cartpusher_action(figure *f)
                 set_cart_graphic(f);
             }
             break;
+
+        case FIGURE_ACTION_250_DEPOT_CART_PUSHER_RETURN_TO_SOURCE:
+            set_cart_graphic(f); // visible cart
+            if (f->wait_ticks > DEPOT_CART_REROUTE_DELAY) {
+                figure_movement_move_ticks_with_percentage(f, speed_factor, percentage_speed);
+                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                    f->action_state = FIGURE_ACTION_240_DEPOT_CART_PUSHER_AT_SOURCE;
+                    f->wait_ticks = 0;
+                } else if (f->direction == DIR_FIGURE_LOST) {
+                    f->action_state = FIGURE_ACTION_243_DEPOT_CART_PUSHER_RETURNING;
+                    f->wait_ticks = 0;
+                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                    figure_route_remove(f);
+                    f->wait_ticks = 0;
+                }
+            } else {
+                f->wait_ticks++;
+            }
+            break;
     }
-    if (!is_current_state_still_valid_for_order(f, &b->data.depot.current_order) ||
-        !check_valid_storages(&b->data.depot.current_order, f->action_state)) {
-        f->action_state = FIGURE_ACTION_244_DEPOT_CART_PUSHER_CANCEL_ORDER;
+
+    if ((f->action_state == FIGURE_ACTION_241_DEPOT_CART_HEADING_TO_DESTINATION ||
+        f->action_state == FIGURE_ACTION_242_DEPOT_CART_PUSHER_AT_DESTINATION) &&
+        f->loads_sold_or_carrying > 0 && f->resource_id != RESOURCE_NONE) {
+        int valid_dst = 0;
+        if (b->data.depot.current_order.dst_storage_id) {
+            building *new_dst = building_get(b->data.depot.current_order.dst_storage_id);
+            if (new_dst && new_dst->state == BUILDING_STATE_IN_USE &&
+                building_storage_get_state(new_dst, f->resource_id, 0) != BUILDING_STORAGE_STATE_NOT_ACCEPTING) {
+                valid_dst = 1;
+            }
+        }
+        if (valid_dst) {
+            f->action_state = FIGURE_ACTION_241_DEPOT_CART_HEADING_TO_DESTINATION;
+            building *dst = building_get(b->data.depot.current_order.dst_storage_id);
+            f->loads_sold_or_carrying = storage_add_resource(dst, f->resource_id, f->loads_sold_or_carrying);
+            if (f->loads_sold_or_carrying) {
+                set_cart_graphic(f);
+            }
+            f->destination_building_id = b->data.depot.current_order.dst_storage_id;
+            map_point road_access;
+            get_storage_road_access(building_get(f->destination_building_id), &road_access);
+            f->destination_x = road_access.x;
+            f->destination_y = road_access.y;
+            figure_route_remove(f);
+            set_cart_graphic(f);
+        } else {
+            f->action_state = FIGURE_ACTION_244_DEPOT_CART_PUSHER_CANCEL_ORDER;
+        }
     }
 
     update_image(f);
@@ -495,7 +505,6 @@ void figure_depot_recall(figure *f)
         set_cart_graphic(f);
     } else {
         f->action_state = FIGURE_ACTION_243_DEPOT_CART_PUSHER_RETURNING;
-        building *b = building_get(f->building_id);
         f->destination_x = b->road_access_x;
         f->destination_y = b->road_access_y;
         figure_route_remove(f);
