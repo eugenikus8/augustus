@@ -306,12 +306,18 @@ static void sound_city_play_city(void)
     if (!sound_to_play) {
         return;
     }
-
-    int direction = SOUND_DIRECTION_CENTER;
-    if (sound_to_play->direction_views[SOUND_DIRECTION_LEFT] > 10)
+    // always only one channel available... use it
+    int direction;
+    if (sound_to_play->direction_views[SOUND_DIRECTION_CENTER] > 10) {
+        direction = SOUND_DIRECTION_CENTER;
+    } else if (sound_to_play->direction_views[SOUND_DIRECTION_LEFT] > 10) {
         direction = SOUND_DIRECTION_LEFT;
-    else if (sound_to_play->direction_views[SOUND_DIRECTION_RIGHT] > 10)
+    } else if (sound_to_play->direction_views[SOUND_DIRECTION_RIGHT] > 10) {
         direction = SOUND_DIRECTION_RIGHT;
+    } else {
+        direction = SOUND_DIRECTION_CENTER;
+    }
+
     play_sound(sound_to_play, direction);
     sound_to_play->last_played_time = now;
     sound_to_play->total_views = 0;
