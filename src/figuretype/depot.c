@@ -438,7 +438,22 @@ void figure_depot_cartpusher_action(figure *f)
 
         case FIGURE_ACTION_244_DEPOT_CART_PUSHER_CANCEL_ORDER:
             if (f->loads_sold_or_carrying > 0 && f->resource_id != RESOURCE_NONE) {
-                // Cart with goods is returning to the source
+                // If the cart is already carrying cargo - go to the new destination
+                if (b->data.depot.current_order.dst_storage_id) {
+                    building *new_dst = building_get(b->data.depot.current_order.dst_storage_id);
+                    if (new_dst && new_dst->state == BUILDING_STATE_IN_USE) {
+                        f->action_state = FIGURE_ACTION_241_DEPOT_CART_HEADING_TO_DESTINATION;
+                        f->destination_building_id = b->data.depot.current_order.dst_storage_id;
+                        map_point road_access;
+                        get_storage_road_access(new_dst, &road_access);
+                        f->destination_x = road_access.x;
+                        f->destination_y = road_access.y;
+                        figure_route_remove(f);
+                        set_cart_graphic(f);
+                        break;
+                    }
+                }
+                // If the new destination is invalid - then return to the source
                 f->action_state = FIGURE_ACTION_250_DEPOT_CART_PUSHER_RETURN_TO_SOURCE;
                 f->destination_building_id = b->data.depot.current_order.src_storage_id;
                 map_point road_access;
@@ -468,5 +483,22 @@ void figure_depot_cartpusher_action(figure *f)
 
 void figure_depot_recall(figure *f)
 {
-    f->action_state = FIGURE_ACTION_244_DEPOT_CART_PUSHER_CANCEL_ORDER;
+    building *b = building_get(f->building_id);
+    if (f->loads_sold_or_carrying > 0 && f->resource_id != RESOURCE_NONE) {
+        f->action_state = FIGURE_ACTION_250_DEPOT_CART_PUSHER_RETURN_TO_SOURCE;
+        f->destination_building_id = b->data.depot.current_order.src_storage_id;
+        map_point road_access;
+        get_storage_road_access(building_get(f->destination_building_id), &road_access);
+        f->destination_x = road_access.x;
+        f->destination_y = road_access.y;
+        figure_route_remove(f);
+        set_cart_graphic(f);
+    } else {
+        f->action_state = FIGURE_ACTION_243_DEPOT_CART_PUSHER_RETURNING;
+        building *b = building_get(f->building_id);
+        f->destination_x = b->road_access_x;
+        f->destination_y = b->road_access_y;
+        figure_route_remove(f);
+        set_cart_graphic(f);
+    }
 }
