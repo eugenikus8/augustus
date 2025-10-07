@@ -1,5 +1,7 @@
 #include "city.h"
 
+#include "graphics/window.h"
+
 #include "building/model.h"
 #include "building/properties.h"
 #include "city/figures.h"
@@ -13,8 +15,9 @@
 #include <string.h>
 
 #define SOUND_VIEWS_THRESHOLD 200
-#define SOUND_DELAY_MILLIS 10000
+#define SOUND_DELAY_MILLIS 30000
 #define SOUND_PLAY_INTERVAL_MILLIS 2000
+#define AMBIENT_PLAY_INTERVAL_MILLIS 5000
 
 typedef enum {
     SOUND_AMBIENT_NONE = 0,
@@ -45,6 +48,7 @@ static struct {
     background_sound city_sounds[SOUND_CITY_MAX];
     background_sound ambient_sounds[SOUND_AMBIENT_MAX];
     time_millis last_update_time;
+    time_millis ambient_last_played_time;
 } data = {
     .city_sounds = {
         [SOUND_CITY_HOUSE_SLUM]         = { .filenames.total = 8, .filenames.list = (sound_filenames[]) { "wavs/house_slum1.wav", "wavs/house_slum2.wav", "wavs/house_slum3.wav", "wavs/house_slum4.wav", "wavs/house_poor1.wav", "wavs/house_poor2.wav", "wavs/house_poor3.wav", "wavs/house_poor4.wav" } },
@@ -122,7 +126,7 @@ static struct {
         [SOUND_CITY_CONCRETE_MAKER]     = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { ASSETS_DIRECTORY "/Sounds/ConcreteMaker.ogg" } },
         [SOUND_CITY_CONSTRUCTION_SITE]  = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { ASSETS_DIRECTORY "/Sounds/Engineer.ogg" } },
         [SOUND_CITY_NATIVE_HUT]         = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { ASSETS_DIRECTORY "/Sounds/NativeHut.ogg" } },
-        [SOUND_CITY_ARENA]              = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/colloseum.wav" } }, //In the future, this will become a separate sound… hopefully
+        [SOUND_CITY_ARENA]              = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/colloseum.wav" } }, //In the future, this will become a separate sound, hopefully
     },
     .ambient_sounds = {
         [SOUND_AMBIENT_EMPTY_LAND1]     = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/empty_land1.wav" } },
@@ -273,58 +277,98 @@ static void play_sound(background_sound *sound, int direction)
         setting_sound(SOUND_TYPE_CITY)->volume, left_pan, right_pan, 0);
 }
 
-void sound_city_play(void)
+static void sound_city_play_city(void)
 {
     time_millis now = time_get_millis();
-    time_millis max_delay = 0;
-    background_sound *sound_to_play = 0;
-    for (sound_city_type sound = SOUND_CITY_FIRST; sound < SOUND_CITY_MAX; sound++) {
-        background_sound *current_sound = &data.city_sounds[sound];
-        if (current_sound->available) {
-            current_sound->available = 0;
-            if (current_sound->total_views >= SOUND_VIEWS_THRESHOLD) {
-                if (now - current_sound->last_played_time >= SOUND_DELAY_MILLIS) {
-                    if (now - current_sound->last_played_time > max_delay) {
-                        max_delay = now - current_sound->last_played_time;
-                        sound_to_play = current_sound;
-                    }
-                }
-            }
-        } else {
-            current_sound->total_views = 0;
-            for (int d = 0; d < 5; d++) {
-                current_sound->direction_views[d] = 0;
-            }
-        }
-    }
 
     if (now - data.last_update_time < SOUND_PLAY_INTERVAL_MILLIS) {
         // Only play 1 sound every 2 seconds
         return;
     }
 
+    time_millis max_delay = 0;
+    background_sound *sound_to_play = 0;
+    for (sound_city_type sound = SOUND_CITY_FIRST; sound < SOUND_CITY_MAX; sound++) {
+        background_sound *current_sound = &data.city_sounds[sound];
+        if (!current_sound->available) {
+            continue;
+        }
+        current_sound->available = 0;
+        if (current_sound->total_views >= SOUND_VIEWS_THRESHOLD &&
+            now - current_sound->last_played_time >= SOUND_DELAY_MILLIS) {
+            if (now - current_sound->last_played_time > max_delay) {
+                max_delay = now - current_sound->last_played_time;
+                sound_to_play = current_sound;
+            }
+        }
+    }
+
     if (!sound_to_play) {
-        // progress_ambient();
         return;
     }
 
-    // always only one channel available... use it
-    int direction;
-    if (sound_to_play->direction_views[SOUND_DIRECTION_CENTER] > 10) {
-        direction = SOUND_DIRECTION_CENTER;
-    } else if (sound_to_play->direction_views[SOUND_DIRECTION_LEFT] > 10) {
+    int direction = SOUND_DIRECTION_CENTER;
+    if (sound_to_play->direction_views[SOUND_DIRECTION_LEFT] > 10)
         direction = SOUND_DIRECTION_LEFT;
-    } else if (sound_to_play->direction_views[SOUND_DIRECTION_RIGHT] > 10) {
+    else if (sound_to_play->direction_views[SOUND_DIRECTION_RIGHT] > 10)
         direction = SOUND_DIRECTION_RIGHT;
-    } else {
-        direction = SOUND_DIRECTION_CENTER;
-    }
-
     play_sound(sound_to_play, direction);
-    data.last_update_time = now;
     sound_to_play->last_played_time = now;
     sound_to_play->total_views = 0;
     for (int d = 0; d < 5; d++) {
         sound_to_play->direction_views[d] = 0;
     }
+    data.last_update_time = now;
+}
+
+static void sound_city_play_ambient(void)
+{
+    if (!window_is(WINDOW_CITY)) {
+        return;
+    }
+
+    time_millis now = time_get_millis();
+
+    // Skip if ambient interval not reached or too soon after a city sound
+    if (now - data.ambient_last_played_time < AMBIENT_PLAY_INTERVAL_MILLIS * 2) {
+        return;
+    }
+    if (now - data.last_update_time < SOUND_PLAY_INTERVAL_MILLIS) {
+        return;
+    }
+
+    sound_city_progress_ambient();
+    time_millis max_delay = 0;
+    background_sound *sound_to_play = 0;
+    for (sound_ambient_type sound = SOUND_AMBIENT_FIRST; sound < SOUND_AMBIENT_MAX; sound++) {
+        background_sound *current_sound = &data.ambient_sounds[sound];
+        if (!current_sound->available) {
+            continue;
+        }
+
+        if (now - current_sound->last_played_time >= AMBIENT_PLAY_INTERVAL_MILLIS) {
+            if (now - current_sound->last_played_time > max_delay) {
+                max_delay = now - current_sound->last_played_time;
+                sound_to_play = current_sound;
+            }
+        }
+    }
+
+    if (!sound_to_play) {
+        return;
+    }
+
+    play_sound(sound_to_play, SOUND_DIRECTION_CENTER);
+    sound_to_play->last_played_time = now;
+    sound_to_play->total_views = 0;
+    for (int d = 0; d < 5; d++) {
+        sound_to_play->direction_views[d] = 0;
+    }
+    data.ambient_last_played_time = now;
+}
+
+void sound_city_play(void)
+{
+    sound_city_play_city();
+    sound_city_play_ambient();
 }
