@@ -230,10 +230,21 @@ static int check_valid_storages(order *current_order, int action_state)
 
 static void try_reroute_order_dst(figure *f, building *b)
 {
-    if (!((f->action_state == FIGURE_ACTION_241_DEPOT_CART_HEADING_TO_DESTINATION) ||
-        (f->action_state == FIGURE_ACTION_242_DEPOT_CART_PUSHER_AT_DESTINATION))) {
+    if (f->action_state == FIGURE_ACTION_241_DEPOT_CART_HEADING_TO_DESTINATION) {
+        // normal case - can reroute while moving
+    } else if (f->action_state == FIGURE_ACTION_242_DEPOT_CART_PUSHER_AT_DESTINATION) {
+        // special case: standing at destination waiting to unload
+        // allow reroute only if assigned destination changed
+        int new_dst_id = b->data.depot.current_order.dst_storage_id;
+        if (new_dst_id == f->destination_building_id || new_dst_id == 0) {
+            return; // destination same - still unloading
+        }
+        // else: destination changed - allow reroute
+    } else {
+        // any other state - skip reroute
         return;
     }
+
     if (f->loads_sold_or_carrying <= 0 || f->resource_id == RESOURCE_NONE) {
         return;
     }
@@ -247,20 +258,13 @@ static void try_reroute_order_dst(figure *f, building *b)
     }
     if (valid_dst) {
         f->action_state = FIGURE_ACTION_241_DEPOT_CART_HEADING_TO_DESTINATION;
-        building *dst = building_get(b->data.depot.current_order.dst_storage_id);
-        if (dst) {
-            f->loads_sold_or_carrying = storage_add_resource(dst, f->resource_id, f->loads_sold_or_carrying);
-            if (f->loads_sold_or_carrying) {
-                set_cart_graphic(f);
-            }
-            f->destination_building_id = b->data.depot.current_order.dst_storage_id;
-            map_point road_access;
-            get_storage_road_access(building_get(f->destination_building_id), &road_access);
-            f->destination_x = road_access.x;
-            f->destination_y = road_access.y;
-            figure_route_remove(f);
-            set_cart_graphic(f);
-        }
+        f->destination_building_id = b->data.depot.current_order.dst_storage_id;
+        map_point road_access;
+        get_storage_road_access(building_get(f->destination_building_id), &road_access);
+        f->destination_x = road_access.x;
+        f->destination_y = road_access.y;
+        figure_route_remove(f);
+        set_cart_graphic(f);
     } else {
         f->action_state = FIGURE_ACTION_244_DEPOT_CART_PUSHER_CANCEL_ORDER;
     }
@@ -347,7 +351,6 @@ void figure_depot_cartpusher_action(figure *f)
             break;
 
         case FIGURE_ACTION_240_DEPOT_CART_PUSHER_AT_SOURCE:
-            set_cart_graphic(f);
             f->wait_ticks++;
             if (f->wait_ticks > DEPOT_CART_LOAD_OFFLOAD_DELAY) {
                 building *src = building_get(b->data.depot.current_order.src_storage_id);
@@ -369,7 +372,7 @@ void figure_depot_cartpusher_action(figure *f)
                     break;
                 }
 
-                // --- original loading logic (if this is not a return) ---
+                // Depot cartpusher waits if not enough goods
                 int src_amount = src->type == BUILDING_GRANARY ?
                     building_granary_get_amount(src, b->data.depot.current_order.resource_type) :
                     building_warehouse_get_amount(src, b->data.depot.current_order.resource_type);
@@ -378,7 +381,7 @@ void figure_depot_cartpusher_action(figure *f)
                     break;
                 }
 
-                // TODO upgradable?
+                // loading logic    TODO upgradable?
                 int capacity = resource_is_food(b->data.depot.current_order.resource_type) ?
                     DEPOT_CART_PUSHER_FOOD_CAPACITY : DEPOT_CART_PUSHER_OTHER_CAPACITY;
                 int amount_loaded = storage_remove_resource(src, b->data.depot.current_order.resource_type, capacity);
@@ -423,9 +426,52 @@ void figure_depot_cartpusher_action(figure *f)
             set_cart_graphic(f);
             f->wait_ticks++;
             if (f->wait_ticks > DEPOT_CART_LOAD_OFFLOAD_DELAY) {
-                building *dst = building_get(b->data.depot.current_order.dst_storage_id);
+                building *dst = 0;
+                if (b->data.depot.current_order.dst_storage_id) {
+                    dst = building_get(b->data.depot.current_order.dst_storage_id);
+                }
+
+                // Destination warehouse validity check
+                int invalid_dst = 0;
+                if (!dst || dst->state != BUILDING_STATE_IN_USE ||
+                    building_storage_get_state(dst, f->resource_id, 0) == BUILDING_STORAGE_STATE_NOT_ACCEPTING) {
+                    invalid_dst = 1;
+                }
+
+                if (invalid_dst) {
+                    // Warehouse is invalid - returning to the source
+                    f->action_state = FIGURE_ACTION_250_DEPOT_CART_PUSHER_RETURN_TO_SOURCE;
+                    f->destination_building_id = b->data.depot.current_order.src_storage_id;
+
+                    if (f->destination_building_id) {
+                        building *src = building_get(f->destination_building_id);
+                        if (src) {
+                            map_point road_access;
+                            get_storage_road_access(src, &road_access);
+                            f->destination_x = road_access.x;
+                            f->destination_y = road_access.y;
+                        } else {
+                            // If the source is also invalid - return to the depot
+                            f->destination_building_id = f->building_id;
+                            f->destination_x = b->road_access_x;
+                            f->destination_y = b->road_access_y;
+                        }
+                    } else {
+                        // No source - go straight to the depot
+                        f->destination_building_id = f->building_id;
+                        f->destination_x = b->road_access_x;
+                        f->destination_y = b->road_access_y;
+                    }
+
+                    figure_route_remove(f);
+                    f->wait_ticks = 0;
+                    break;
+                }
+
+                // unload logic
                 f->loads_sold_or_carrying = storage_add_resource(dst, f->resource_id, f->loads_sold_or_carrying);
                 if (f->loads_sold_or_carrying) {
+                    // loads remaining
                     set_cart_graphic(f);
                 } else {
                     city_health_dispatch_sickness(f);
