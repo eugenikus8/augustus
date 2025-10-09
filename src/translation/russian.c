@@ -1723,6 +1723,14 @@ static translation_string all_strings[] = {
     {TR_CONFIG_CLEAR_WARNINGS_RIGHTCLICK, "Щелчок правой кнопкой очистит предупреждения в обзоре города"},
     {TR_CONFIG_GP_CH_STORAGE_REQUESTS_RESPECT_MAINTAIN, "Запросы Цезаря учитывают \"Хранение\""},
     {TR_CONFIG_ENABLE_MARKET_RANGE, "ВКЛ ограниченную область доступа рынков"},
+    {TR_OVERLAY_HOUSING_TENTS, "Палатки"},
+    {TR_OVERLAY_HOUSING_SHACKS, "Лачуги"},
+    {TR_OVERLAY_HOUSING_HOVELS, "Хибары"},
+    {TR_OVERLAY_HOUSING_CASAS, "Хижины"},
+    {TR_OVERLAY_HOUSE_INSULAS, "Дома"},
+    {TR_OVERLAY_HOUSE_VILLAS, "Виллы"},
+    {TR_OVERLAY_HOUSE_PALACES, "Дворцы"},
+    {TR_OVERLAY_BY_GROUP, "По группам"},
 };
 
 void translation_russian(const translation_string **strings, int *num_strings)
