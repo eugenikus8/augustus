@@ -175,6 +175,7 @@ void sound_city_mark_building_view(building_type type, int num_workers, int dire
 
     // Buildings for which sound is disabled during enemy attacks
     int mute_on_enemies = 0;
+    int always_play = 0;
     switch (type) {
         case BUILDING_BATHHOUSE:
         case BUILDING_SCHOOL:
@@ -191,13 +192,19 @@ void sound_city_mark_building_view(building_type type, int num_workers, int dire
         case BUILDING_GOVERNORS_PALACE:
             mute_on_enemies = 1;
             break;
+            // Buildings that always produce sound
+        case BUILDING_NATIVE_HUT:
+        case BUILDING_NATIVE_MEETING:
+        case BUILDING_NATIVE_CROPS:
+            always_play = 1;
+            break;
         default:
             break;
     }
     // Shut off when:
-    if ((model->laborers > 0 && num_workers <= 0)
+    if (!always_play && ((model->laborers > 0 && num_workers <= 0)
         || city_population() <= 0
-        || (enemies_present && mute_on_enemies)) {
+        || (enemies_present && mute_on_enemies))) {
         return;
     }
 
