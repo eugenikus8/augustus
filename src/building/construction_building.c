@@ -410,7 +410,6 @@ int building_construction_fill_vacant_lots(grid_slice *area)
             continue;
         }
         building *b = building_get(map_building_at(grid_offset));
-        //map_building_tiles_add(b->id, x, y, 1, image_group(GROUP_BUILDING_HOUSE_VACANT_LOT), TERRAIN_BUILDING);
         game_undo_add_building(b);
         items_placed++;
     }
