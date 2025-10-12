@@ -359,31 +359,51 @@ static void depot_draw_cart_status(const building *b, building_info_context *c, 
     int y_cart = 180;
     for (int i = 0; i < 3; i++) {
         int y_pos = y_cart + i * 16;
-        figure *f = 0;
+        figure *f = NULL;
         if (b->data.distribution.cartpusher_ids[i]) {
             f = figure_get(b->data.distribution.cartpusher_ids[i]);
         }
         if (f && f->state != FIGURE_STATE_DEAD) {
             switch (f->action_state) {
                 case FIGURE_ACTION_239_DEPOT_CART_PUSHER_HEADING_TO_SOURCE:
-                case FIGURE_ACTION_240_DEPOT_CART_PUSHER_AT_SOURCE:
                 {
                     building *src = building_get(f->destination_building_id);
                     text_draw_multiline(
                         translation_for((src && src->type == BUILDING_GRANARY)
-                            ? TR_WINDOW_BUILDING_DISTRIBUTION_GRANARY_CART_PUSHER_GETTING
-                            : TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_GETTING),
+                            ? TR_WINDOW_BUILDING_DISTRIBUTION_GETTING_FOOD
+                            : TR_WINDOW_BUILDING_DISTRIBUTION_GETTING_GOODS),
                         c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
                         BLOCK_SIZE * (c->width_blocks - 5), 0, FONT_NORMAL_BROWN, 0);
                     break;
                 }
+                case FIGURE_ACTION_240_DEPOT_CART_PUSHER_AT_SOURCE:
+                    if (!f->loads_sold_or_carrying) {
+                        text_draw_multiline(
+                            translation_for(TR_WINDOW_BUILDING_DISTRIBUTION_WAIT_LOAD),
+                            c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
+                            BLOCK_SIZE * (c->width_blocks - 5), 0, FONT_NORMAL_BROWN, 0);
+                    } else {
+                        text_draw_multiline(
+                            translation_for(TR_WINDOW_BUILDING_DISTRIBUTION_WAIT_UNLOAD),
+                            c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
+                            BLOCK_SIZE * (c->width_blocks - 5), 0, FONT_NORMAL_BROWN, 0);
+                    }
+                    break;
                 case FIGURE_ACTION_241_DEPOT_CART_HEADING_TO_DESTINATION:
-                case FIGURE_ACTION_242_DEPOT_CART_PUSHER_AT_DESTINATION:
-                    lang_text_draw_multiline(99, 16, c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
+                case FIGURE_ACTION_250_DEPOT_CART_PUSHER_RETURN_TO_SOURCE:
+                    lang_text_draw_multiline(99, 16,
+                        c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
                         BLOCK_SIZE * (c->width_blocks - 5), FONT_NORMAL_BROWN);
                     break;
+                case FIGURE_ACTION_242_DEPOT_CART_PUSHER_AT_DESTINATION:
+                    text_draw_multiline(
+                        translation_for(TR_WINDOW_BUILDING_DISTRIBUTION_WAIT_UNLOAD),
+                        c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
+                        BLOCK_SIZE * (c->width_blocks - 5), 0, FONT_NORMAL_BROWN, 0);
+                    break;
                 case FIGURE_ACTION_243_DEPOT_CART_PUSHER_RETURNING:
-                    lang_text_draw_multiline(99, 17, c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
+                    lang_text_draw_multiline(99, 17,
+                        c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
                         BLOCK_SIZE * (c->width_blocks - 5), FONT_NORMAL_BROWN);
                     break;
             }
