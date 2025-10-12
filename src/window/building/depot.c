@@ -359,7 +359,7 @@ static void depot_draw_cart_status(const building *b, building_info_context *c, 
     int y_cart = 180;
     for (int i = 0; i < 3; i++) {
         int y_pos = y_cart + i * 16;
-        figure *f = NULL;
+        figure *f = 0;
         if (b->data.distribution.cartpusher_ids[i]) {
             f = figure_get(b->data.distribution.cartpusher_ids[i]);
         }
