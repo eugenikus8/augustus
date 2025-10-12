@@ -1413,6 +1413,8 @@ static translation_string all_strings[] = {
     {TR_BUILDING_INFO_DEPOT_SELECT_RESOURCE_TITLE, "Select resource" },
     {TR_TOOLTIP_BUTTON_CENTER_CAMERA, "Center camera on building"},
     {TR_FIGURE_INFO_DEPOT_RECALL, "Recall" },
+    {TR_WARNING_DEPOT_RECALL_ALL, "All Depot cartpusher recalled!"},
+    {TR_WARNING_DEPOT_RESOURCE_CHANGE, "Cannot change resource while there are active cart pushers!"},
     {TR_FIGURE_INFO_DEPOT_RETURNING, "Returning" },
     {TR_FIGURE_INFO_DEPOT_DELIVER, "Delivering" },
     {TR_FIGURE_INFO_DEPOT_FROM, "From " },
@@ -1740,6 +1742,10 @@ static translation_string all_strings[] = {
     {TR_OVERLAY_HOUSE_PALACES, "Palaces"},
     {TR_OVERLAY_BY_GROUP, "By Group"},
     {TR_BUTTON_INFO_RETURN_ALL_LEGIONS, "Recall all legions"},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_WAIT_LOAD, "Our cart is waiting to be loaded."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_WAIT_UNLOAD, "Our cart is waiting to be unloaded."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_GETTING_FOOD, "Our cart off to granary for food."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_GETTING_GOODS, "Our cart off to warehouse for goods."},
 };
 
 void translation_english(const translation_string **strings, int *num_strings)
