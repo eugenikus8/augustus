@@ -206,6 +206,31 @@ static void try_reroute_order_dst(figure *f, building *b)
     }
 }
 
+static void try_reroute_order_src(figure *f, building *depot)
+{
+    if (f->action_state != FIGURE_ACTION_239_DEPOT_CART_PUSHER_HEADING_TO_SOURCE &&
+        f->action_state != FIGURE_ACTION_240_DEPOT_CART_PUSHER_AT_SOURCE &&
+        f->action_state != FIGURE_ACTION_250_DEPOT_CART_PUSHER_RETURN_TO_SOURCE) {
+        return;
+    }
+
+    int src_id = depot->data.depot.current_order.src_storage_id;
+    building *src = building_get(src_id);
+
+    if (!storage_valid(src, depot->data.depot.current_order.resource_type)) {
+        // If there are resources on the cart, try to go to the destination
+        if (f->loads_sold_or_carrying > 0 && f->resource_id != RESOURCE_NONE) {
+            int dst_id = depot->data.depot.current_order.dst_storage_id;
+            building *dst = building_get(dst_id);
+            if (storage_valid(dst, f->resource_id)) {
+                figure_cart_set_destination(f, dst_id, FIGURE_ACTION_241_DEPOT_CART_PUSHER_HEADING_TO_DESTINATION);
+                return;
+            }
+        }
+        figure_cart_set_destination(f, f->building_id, FIGURE_ACTION_244_DEPOT_CART_PUSHER_CANCEL_ORDER);
+    }
+}
+
 static void figure_cart_unload_or_return(figure *f, building *b)
 {
     if (f->loads_sold_or_carrying <= 0 || f->resource_id == RESOURCE_NONE) {
@@ -298,6 +323,9 @@ void figure_depot_cartpusher_action(figure *f)
             set_cart_graphic(f);
             if (f->wait_ticks > DEPOT_CART_REROUTE_DELAY) {
                 figure_movement_move_ticks_with_percentage(f, speed_factor, percentage_speed);
+
+                try_reroute_order_src(f, b);
+
                 if (f->direction == DIR_FIGURE_AT_DESTINATION) {
                     if (f->action_state == FIGURE_ACTION_239_DEPOT_CART_PUSHER_HEADING_TO_SOURCE ||
                         f->action_state == FIGURE_ACTION_250_DEPOT_CART_PUSHER_RETURN_TO_SOURCE) {
@@ -326,6 +354,9 @@ void figure_depot_cartpusher_action(figure *f)
         {
             set_cart_graphic(f);
             f->wait_ticks++;
+
+            try_reroute_order_src(f, b);
+
             if (f->wait_ticks > DEPOT_CART_LOAD_OFFLOAD_DELAY) {
                 building *src = building_get(b->data.depot.current_order.src_storage_id);
                 if (f->loads_sold_or_carrying > 0 && f->resource_id != RESOURCE_NONE) {
