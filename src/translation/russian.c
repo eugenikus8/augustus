@@ -470,7 +470,7 @@ static translation_string all_strings[] = {
     {TR_BUTTON_BACK_TO_MAIN_MENU, "Обратно в глав. меню"},
     {TR_LABEL_PAUSE_MENU, "Пауза"},
     {TR_OVERLAY_LEVY, "Сборы"},
-    {TR_TOOLTIP_OVERLAY_LEVY, " Ден. ежемесячных сборов на содержание"},
+    {TR_TOOLTIP_OVERLAY_LEVY, " Ден. налога в месяц"},
     {TR_OVERLAY_EMPLOYMENT, "Работа"},
     {TR_TOOLTIP_OVERLAY_EMPLOYMENT_FULL, "Это здание полностью укомплектовано"},
     {TR_TOOLTIP_OVERLAY_EMPLOYMENT_MISSING_1, " рабочий нужен в этом здании"},
@@ -1746,6 +1746,7 @@ static translation_string all_strings[] = {
     {TR_WINDOW_BUILDING_DISTRIBUTION_WAIT_UNLOAD, "Наша тележка ожидает разгрузки."},
     {TR_WINDOW_BUILDING_DISTRIBUTION_GETTING_FOOD, "Наша тележка направляется в амбар за едой."},
     {TR_WINDOW_BUILDING_DISTRIBUTION_GETTING_GOODS, "Наша тележка направляется на склад за товаром."},
+    {TR_TOOLTIP_OVERLAY_LEVY_PER_TILE, " Ден. налога в месяц за плитку"},
 };
 
 void translation_russian(const translation_string **strings, int *num_strings)
