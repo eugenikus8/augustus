@@ -413,12 +413,9 @@ void figure_depot_cartpusher_action(figure *f)
             } else {
                 f->wait_ticks++;
             }
-            /*
-            if (f->action_state == FIGURE_ACTION_241_DEPOT_CART_PUSHER_HEADING_TO_DESTINATION ||
-                f->action_state == FIGURE_ACTION_242_DEPOT_CART_PUSHER_AT_DESTINATION) {
+            if (f->action_state == FIGURE_ACTION_241_DEPOT_CART_PUSHER_HEADING_TO_DESTINATION) {
                 try_reroute_order_dst(f, b);
             }
-            */
             break;
         }
 
