@@ -264,7 +264,7 @@ static int figure_cart_destination_valid(building *b, int resource)
 
 static void try_reroute_order_dst(figure *f, building *b)
 {
-    if (f->action_state != FIGURE_ACTION_241_DEPOT_CART_HEADING_TO_DESTINATION &&
+    if (f->action_state != FIGURE_ACTION_241_DEPOT_CART_PUSHER_HEADING_TO_DESTINATION &&
         f->action_state != FIGURE_ACTION_242_DEPOT_CART_PUSHER_AT_DESTINATION) {
         return;
     }
@@ -283,7 +283,7 @@ static void try_reroute_order_dst(figure *f, building *b)
 
     building *new_dst = building_get(new_dst_id);
     if (figure_cart_destination_valid(new_dst, f->resource_id)) {
-        figure_cart_set_destination(f, new_dst_id, FIGURE_ACTION_241_DEPOT_CART_HEADING_TO_DESTINATION);
+        figure_cart_set_destination(f, new_dst_id, FIGURE_ACTION_241_DEPOT_CART_PUSHER_HEADING_TO_DESTINATION);
     } else {
         f->action_state = FIGURE_ACTION_244_DEPOT_CART_PUSHER_CANCEL_ORDER;
     }
@@ -386,7 +386,7 @@ void figure_depot_cartpusher_action(figure *f)
         }
 
         case FIGURE_ACTION_239_DEPOT_CART_PUSHER_HEADING_TO_SOURCE:
-        case FIGURE_ACTION_241_DEPOT_CART_HEADING_TO_DESTINATION:
+        case FIGURE_ACTION_241_DEPOT_CART_PUSHER_HEADING_TO_DESTINATION:
         case FIGURE_ACTION_250_DEPOT_CART_PUSHER_RETURN_TO_SOURCE:
         {
             set_cart_graphic(f);
@@ -413,11 +413,12 @@ void figure_depot_cartpusher_action(figure *f)
             } else {
                 f->wait_ticks++;
             }
-
-            if (f->action_state == FIGURE_ACTION_241_DEPOT_CART_HEADING_TO_DESTINATION ||
+            /*
+            if (f->action_state == FIGURE_ACTION_241_DEPOT_CART_PUSHER_HEADING_TO_DESTINATION ||
                 f->action_state == FIGURE_ACTION_242_DEPOT_CART_PUSHER_AT_DESTINATION) {
                 try_reroute_order_dst(f, b);
             }
+            */
             break;
         }
 
@@ -458,7 +459,7 @@ void figure_depot_cartpusher_action(figure *f)
                     f->loads_sold_or_carrying = amount_loaded;
 
                     figure_cart_set_destination(f, b->data.depot.current_order.dst_storage_id,
-                                                FIGURE_ACTION_241_DEPOT_CART_HEADING_TO_DESTINATION);
+                                                FIGURE_ACTION_241_DEPOT_CART_PUSHER_HEADING_TO_DESTINATION);
                     f->wait_ticks = DEPOT_CART_REROUTE_DELAY + 1;
                 }
             }
