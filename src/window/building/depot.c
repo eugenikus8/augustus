@@ -387,7 +387,7 @@ static void depot_draw_cart_status(const building *b, building_info_context *c, 
                             BLOCK_SIZE * (c->width_blocks - 5), 0, FONT_NORMAL_BROWN, 0);
                     }
                     break;
-                case FIGURE_ACTION_241_DEPOT_CART_HEADING_TO_DESTINATION:
+                case FIGURE_ACTION_241_DEPOT_CART_PUSHER_HEADING_TO_DESTINATION:
                 case FIGURE_ACTION_250_DEPOT_CART_PUSHER_RETURN_TO_SOURCE:
                     lang_text_draw_multiline(99, 16,
                         c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
