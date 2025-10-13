@@ -470,7 +470,7 @@ static translation_string all_strings[] = {
     {TR_BUTTON_BACK_TO_MAIN_MENU, "Exit to main menu" },
     {TR_LABEL_PAUSE_MENU, "Pause" },
     {TR_OVERLAY_LEVY, "Levies" },
-    {TR_TOOLTIP_OVERLAY_LEVY, " denarii paid monthly in levies" },
+    {TR_TOOLTIP_OVERLAY_LEVY, " Denarii paid monthly in levies" },
     {TR_OVERLAY_EMPLOYMENT, "Employment" },
     {TR_TOOLTIP_OVERLAY_EMPLOYMENT_FULL, "This building is fully staffed" },
     {TR_TOOLTIP_OVERLAY_EMPLOYMENT_MISSING_1, " employee needed in this building" },
@@ -1746,6 +1746,7 @@ static translation_string all_strings[] = {
     {TR_WINDOW_BUILDING_DISTRIBUTION_WAIT_UNLOAD, "Our cart is waiting to be unloaded."},
     {TR_WINDOW_BUILDING_DISTRIBUTION_GETTING_FOOD, "Our cart off to granary for food."},
     {TR_WINDOW_BUILDING_DISTRIBUTION_GETTING_GOODS, "Our cart off to warehouse for goods."},
+    {TR_TOOLTIP_OVERLAY_LEVY_PER_TILE, " Denarii paid monthly in levies per tile"},
 };
 
 void translation_english(const translation_string **strings, int *num_strings)
