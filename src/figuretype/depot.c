@@ -214,11 +214,19 @@ static void try_reroute_order_src(figure *f, building *depot)
         return;
     }
 
-    int src_id = depot->data.depot.current_order.src_storage_id;
-    building *src = building_get(src_id);
+    int new_src_id = depot->data.depot.current_order.src_storage_id;
+    building *new_src = building_get(new_src_id);
 
-    if (!storage_valid(src, depot->data.depot.current_order.resource_type)) {
-        // If there are resources on the cart, try to go to the destination
+    // if source has changed, reroute cart
+    if (f->destination_building_id != new_src_id && new_src_id != 0) {
+        if (storage_valid(new_src, depot->data.depot.current_order.resource_type)) {
+            figure_cart_set_destination(f, new_src_id, FIGURE_ACTION_239_DEPOT_CART_PUSHER_HEADING_TO_SOURCE);
+            return;
+        }
+    }
+
+    if (!storage_valid(new_src, depot->data.depot.current_order.resource_type)) {
+        // if new source becomes invalid and there is cargo (return) - go to destination, else cancel
         if (f->loads_sold_or_carrying > 0 && f->resource_id != RESOURCE_NONE) {
             int dst_id = depot->data.depot.current_order.dst_storage_id;
             building *dst = building_get(dst_id);
