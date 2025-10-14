@@ -18,9 +18,9 @@ static void button_send_gift(const generic_button *button);
 static void button_cancel(const generic_button *button);
 
 static generic_button buttons[] = {
-    {208, 213, 300, 20, button_set_gift, 0, 1},
-    {208, 233, 300, 20, button_set_gift, 0, 2},
-    {208, 253, 300, 20, button_set_gift, 0, 3},
+    {120, 213, 428, 20, button_set_gift, 0, 1},
+    {120, 233, 428, 20, button_set_gift, 0, 2},
+    {120, 253, 428, 20, button_set_gift, 0, 3},
     {118, 336, 260, 20, button_send_gift},
     {400, 336, 160, 20, button_cancel},
 };
@@ -84,7 +84,7 @@ static void draw_foreground(void)
         int width = lang_text_draw(52, 59 + gift->id, 224, 258, font);
         text_draw_money(gift->cost, 224 + width, 258, font);
         if (current_gift == GIFT_LAVISH) {
-            button_border_draw(120, 242, 428, 24, 1);
+            button_border_draw(120, 251, 428, 24, 1);
         }
     }
     // can give at least one type
