@@ -177,7 +177,7 @@ static void setup_buttons_for_selected_depot(void)
         int max_storable = building_storage_resource_max_storable(store_building, data.target_resource_id);
         if (storage->in_use && max_storable > 0) {
             row_count++;
-            if (row_count <= scrollbar.scroll_position) {
+            if (row_count <= scrollbar.scroll_position || drawn_rows >= MAX_VISIBLE_ROWS) {
                 continue;
             }
             // Map button_index to the correct drawn_row position
@@ -214,7 +214,7 @@ static void setup_buttons_for_selected_depot(void)
         if ((max_storable == 0 || !storage->in_use || store_building->state == BUILDING_STATE_MOTHBALLED) &&
             store_building->storage_id > 0) {
             row_count++;
-            if (row_count <= scrollbar.scroll_position) {
+            if (row_count <= scrollbar.scroll_position || drawn_rows >= MAX_VISIBLE_ROWS) {
                 continue;
             }
             // Map button_index to the correct drawn_row position
@@ -226,6 +226,7 @@ static void setup_buttons_for_selected_depot(void)
             button_index++;
         }
     }
+    scrollbar_update_total_elements(&scrollbar, row_count);
 }
 
 static int total_storages(void)
@@ -557,7 +558,7 @@ void window_building_draw_depot_select_source_destination(building_info_context 
 
     // header/separator for active storages
     if (data.available_storages > 0 && drawn_rows < MAX_VISIBLE_ROWS && data.advanced_mode) {
-        row_count++;; // skip 1 row for active storage header
+        row_count++;// skip 1 row for active storage header
         if (row_count > scrollbar.scroll_position) {
             lang_text_draw_centered(CUSTOM_TRANSLATION, TR_BUILDING_INFO_ACTIVE_STORAGE_BUILDINGS,
                 c->x_offset + 18 + BLOCK_SIZE * 2, y_offset + 50 + ROW_HEIGHT * drawn_rows, base_width,
