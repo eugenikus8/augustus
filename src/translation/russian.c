@@ -1742,10 +1742,12 @@ static translation_string all_strings[] = {
     {TR_OVERLAY_HOUSE_PALACES, "Дворцы"},
     {TR_OVERLAY_BY_GROUP, "По группам"},
     {TR_BUTTON_INFO_RETURN_ALL_LEGIONS, "Вернуть все легионы"},
-    {TR_WINDOW_BUILDING_DISTRIBUTION_WAIT_LOAD, "Наша тележка ожидает погрузки."},
-    {TR_WINDOW_BUILDING_DISTRIBUTION_WAIT_UNLOAD, "Наша тележка ожидает разгрузки."},
-    {TR_WINDOW_BUILDING_DISTRIBUTION_GETTING_FOOD, "Наша тележка направляется в амбар за едой."},
-    {TR_WINDOW_BUILDING_DISTRIBUTION_GETTING_GOODS, "Наша тележка направляется на склад за товаром."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT_LOAD, "Наша тележка ожидает погрузки."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT_UNLOAD, "Наша тележка ожидает разгрузки."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_GETTING_FOOD, "Наша тележка направляется в амбар за едой."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_GETTING_GOODS, "Наша тележка направляется на склад за товаром."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_DELIVER, "Наша тележка доставляет товар."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT, "Наша тележка ждет новых указаний."},
     {TR_TOOLTIP_OVERLAY_LEVY_PER_TILE, " Ден. налога в месяц за плитку"},
 };
 

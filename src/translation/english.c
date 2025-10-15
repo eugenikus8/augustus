@@ -1742,10 +1742,12 @@ static translation_string all_strings[] = {
     {TR_OVERLAY_HOUSE_PALACES, "Palaces"},
     {TR_OVERLAY_BY_GROUP, "By Group"},
     {TR_BUTTON_INFO_RETURN_ALL_LEGIONS, "Recall all legions"},
-    {TR_WINDOW_BUILDING_DISTRIBUTION_WAIT_LOAD, "Our cart is waiting to be loaded."},
-    {TR_WINDOW_BUILDING_DISTRIBUTION_WAIT_UNLOAD, "Our cart is waiting to be unloaded."},
-    {TR_WINDOW_BUILDING_DISTRIBUTION_GETTING_FOOD, "Our cart off to granary for food."},
-    {TR_WINDOW_BUILDING_DISTRIBUTION_GETTING_GOODS, "Our cart off to warehouse for goods."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT_LOAD, "Our cart is waiting to be loaded."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT_UNLOAD, "Our cart is waiting to be unloaded."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_GETTING_FOOD, "Our cart off to granary for food."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_GETTING_GOODS, "Our cart off to warehouse for goods."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_DELIVER, "Our cart is taking goods."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT, "Our cart waiting for new instructions."},
     {TR_TOOLTIP_OVERLAY_LEVY_PER_TILE, " Denarii paid monthly in levies per tile"},
 };
 
