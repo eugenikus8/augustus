@@ -2,12 +2,12 @@
 
 [![Github Actions](https://github.com/Keriew/augustus/workflows/Build%20Augustus/badge.svg)](https://github.com/Keriew/Augustus/actions)
 
-💬 **Join the Augustus Community - players, mapmakers, and developers**  
- [![Discord](https://img.shields.io/badge/Discord-TheZakhcolytes-5865F2?logo=discord&logoColor=white)](https://discord.gg/GamerZakh)  
+ **💬 Join the Augustus Community - players, mapmakers, and developers**  
+[![Discord](https://img.shields.io/badge/Discord-TheZakhcolytes-5865F2?logo=discord&logoColor=white)](https://discord.gg/GamerZakh)  
 kindly hosted by GamerZakh.
 
-📜 **Share Maps, Campaigns and Scenarios**  
-[**Caesar 3 Heaven Scenarios Download**](https://caesar3.heavengames.com/downloads/lister.php?&category=augustus_scen&start=0&s=dls&o=d)  
+ **📜 Share Maps, Campaigns and Scenarios**  
+[![AugustusScernarios](https://augustus.josecadete.net/badge/c3-heaven.svg)](https://caesar3.heavengames.com/downloads/lister.php?&category=augustus_scen&start=0&s=dls&o=d)  
 Download Julius and Augustus scenarios, create your own and share with others! 
 
 | Platform | Latest release | Unstable build |
