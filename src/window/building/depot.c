@@ -356,60 +356,67 @@ static void on_scroll(void)
 static void depot_draw_cart_status(const building *b, building_info_context *c, int y_offset)
 {
     int y_cart = 180;
+    int x_icon = c->x_offset + 35;  // icon position
+    int x_amount = x_icon + 15;     // amount position
+    int x_action = x_amount + 30;   // text action position
+
     for (int i = 0; i < 3; i++) {
         int y_pos = y_cart + i * 16;
         figure *f = 0;
         if (b->data.distribution.cartpusher_ids[i]) {
             f = figure_get(b->data.distribution.cartpusher_ids[i]);
         }
+
         if (f && f->state != FIGURE_STATE_DEAD) {
-            switch (f->action_state) {
+            
+            int resource = f->resource_id ? f->resource_id : f->collecting_item_id;
+            if (resource != RESOURCE_NONE) { //icon position
+                const resource_data *rdata = resource_get_data(resource);
+                const image *img = image_get(rdata->image.icon);
+                int draw_x = x_icon - (img->original.width / 2);
+                int draw_y = y_pos - (img->original.height / 2);
+                image_draw(rdata->image.icon, draw_x, c->y_offset + draw_y + 5, COLOR_MASK_NONE, SCALE_NONE);
+            }
+            
+            if (f->loads_sold_or_carrying > 0) { //amount position
+                text_draw_number(f->loads_sold_or_carrying, 'x', "",
+                    x_amount, c->y_offset + y_pos, FONT_NORMAL_BROWN, 0);
+            }
+            switch (f->action_state) { // text action position
                 case FIGURE_ACTION_239_DEPOT_CART_PUSHER_HEADING_TO_SOURCE:
                 {
                     building *src = building_get(f->destination_building_id);
-                    text_draw_multiline(
-                        translation_for((src && src->type == BUILDING_GRANARY)
-                            ? TR_WINDOW_BUILDING_DISTRIBUTION_GETTING_FOOD
-                            : TR_WINDOW_BUILDING_DISTRIBUTION_GETTING_GOODS),
-                        c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
-                        BLOCK_SIZE * (c->width_blocks - 5), 0, FONT_NORMAL_BROWN, 0);
+                    text_draw(translation_for((src && src->type == BUILDING_GRANARY)
+                            ? TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_GETTING_FOOD
+                            : TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_GETTING_GOODS),
+                        x_action, c->y_offset + y_pos, FONT_NORMAL_BROWN, 0);
                     break;
                 }
                 case FIGURE_ACTION_240_DEPOT_CART_PUSHER_AT_SOURCE:
-                    if (!f->loads_sold_or_carrying) {
-                        text_draw_multiline(
-                            translation_for(TR_WINDOW_BUILDING_DISTRIBUTION_WAIT_LOAD),
-                            c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
-                            BLOCK_SIZE * (c->width_blocks - 5), 0, FONT_NORMAL_BROWN, 0);
-                    } else {
-                        text_draw_multiline(
-                            translation_for(TR_WINDOW_BUILDING_DISTRIBUTION_WAIT_UNLOAD),
-                            c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
-                            BLOCK_SIZE * (c->width_blocks - 5), 0, FONT_NORMAL_BROWN, 0);
-                    }
+                    text_draw(translation_for(f->loads_sold_or_carrying
+                            ? TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT_UNLOAD
+                            : TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT_LOAD),
+                        x_action, c->y_offset + y_pos, FONT_NORMAL_BROWN, 0);
                     break;
                 case FIGURE_ACTION_241_DEPOT_CART_PUSHER_HEADING_TO_DESTINATION:
                 case FIGURE_ACTION_250_DEPOT_CART_PUSHER_RETURN_TO_SOURCE:
-                    lang_text_draw_multiline(99, 16,
-                        c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
-                        BLOCK_SIZE * (c->width_blocks - 5), FONT_NORMAL_BROWN);
+                    text_draw(translation_for(TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_DELIVER),
+                        x_action, c->y_offset + y_pos, FONT_NORMAL_BROWN, 0);
                     break;
                 case FIGURE_ACTION_242_DEPOT_CART_PUSHER_AT_DESTINATION:
-                    text_draw_multiline(
-                        translation_for(TR_WINDOW_BUILDING_DISTRIBUTION_WAIT_UNLOAD),
-                        c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
-                        BLOCK_SIZE * (c->width_blocks - 5), 0, FONT_NORMAL_BROWN, 0);
+                    text_draw(translation_for(TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT_UNLOAD),
+                        x_action, c->y_offset + y_pos, FONT_NORMAL_BROWN, 0);
                     break;
                 case FIGURE_ACTION_243_DEPOT_CART_PUSHER_RETURNING:
-                    lang_text_draw_multiline(99, 17,
-                        c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
-                        BLOCK_SIZE * (c->width_blocks - 5), FONT_NORMAL_BROWN);
+                    lang_text_draw(99, 17, x_action, c->y_offset + y_pos, FONT_NORMAL_BROWN);
+                    break;
+                default:
+                    text_draw(translation_for(TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT),
+                        x_action, c->y_offset + y_pos, FONT_NORMAL_BROWN, 0);
                     break;
             }
         } else if (b->num_workers > 0) {
-            lang_text_draw_multiline(99, 15,
-                c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + y_pos,
-                BLOCK_SIZE * (c->width_blocks - 3), FONT_NORMAL_BROWN);
+            lang_text_draw(99, 15, x_action, c->y_offset + y_pos, FONT_NORMAL_BROWN);
         }
     }
 }
@@ -422,7 +429,7 @@ void window_building_draw_depot(building_info_context *c)
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     inner_panel_draw(c->x_offset + 16, c->y_offset + 136, c->width_blocks - 2, 6);
     window_building_draw_employment(c, 138);
-    window_building_draw_risks(c, c->x_offset + c->width_blocks * BLOCK_SIZE - 76, c->y_offset + 144);
+    window_building_draw_risks(c, c->x_offset + c->width_blocks * BLOCK_SIZE - 76, c->y_offset + 143);
     const building *b = building_get(data.depot_building_id);
     translation_key depot_name_key = b->num_workers <= 0 && c->has_road_access ?
         TR_BUILDING_CAT_DEPOT : TR_BUILDING_DEPOT;
