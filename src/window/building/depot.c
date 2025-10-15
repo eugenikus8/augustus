@@ -353,9 +353,9 @@ static void on_scroll(void)
     window_request_refresh();
 }
 
-static void depot_draw_cart_status(const building *b, building_info_context *c, int y_offset)
+static void depot_draw_cart_status(const building *b, building_info_context *c)
 {
-    int y_cart = 180;
+    int y_cart = c->y_offset + 180;
     int x_icon = c->x_offset + 35;  // icon position
     int x_amount = x_icon + 15;     // amount position
     int x_action = x_amount + 30;   // text action position
@@ -375,12 +375,12 @@ static void depot_draw_cart_status(const building *b, building_info_context *c, 
                 const image *img = image_get(rdata->image.icon);
                 int draw_x = x_icon - (img->original.width / 2);
                 int draw_y = y_pos - (img->original.height / 2);
-                image_draw(rdata->image.icon, draw_x, c->y_offset + draw_y + 5, COLOR_MASK_NONE, SCALE_NONE);
+                image_draw(rdata->image.icon, draw_x, draw_y + 5, COLOR_MASK_NONE, SCALE_NONE);
             }
             
             if (f->loads_sold_or_carrying > 0) { //amount position
                 text_draw_number(f->loads_sold_or_carrying, 'x', "",
-                    x_amount, c->y_offset + y_pos, FONT_NORMAL_BROWN, 0);
+                    x_amount, y_pos, FONT_NORMAL_BROWN, 0);
             }
             switch (f->action_state) { // text action position
                 case FIGURE_ACTION_239_DEPOT_CART_PUSHER_HEADING_TO_SOURCE:
@@ -389,34 +389,34 @@ static void depot_draw_cart_status(const building *b, building_info_context *c, 
                     text_draw(translation_for((src && src->type == BUILDING_GRANARY)
                             ? TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_GETTING_FOOD
                             : TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_GETTING_GOODS),
-                        x_action, c->y_offset + y_pos, FONT_NORMAL_BROWN, 0);
+                        x_action, y_pos, FONT_NORMAL_BROWN, 0);
                     break;
                 }
                 case FIGURE_ACTION_240_DEPOT_CART_PUSHER_AT_SOURCE:
                     text_draw(translation_for(f->loads_sold_or_carrying
                             ? TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT_UNLOAD
                             : TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT_LOAD),
-                        x_action, c->y_offset + y_pos, FONT_NORMAL_BROWN, 0);
+                        x_action, y_pos, FONT_NORMAL_BROWN, 0);
                     break;
                 case FIGURE_ACTION_241_DEPOT_CART_PUSHER_HEADING_TO_DESTINATION:
                 case FIGURE_ACTION_250_DEPOT_CART_PUSHER_RETURN_TO_SOURCE:
                     text_draw(translation_for(TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_DELIVER),
-                        x_action, c->y_offset + y_pos, FONT_NORMAL_BROWN, 0);
+                        x_action, y_pos, FONT_NORMAL_BROWN, 0);
                     break;
                 case FIGURE_ACTION_242_DEPOT_CART_PUSHER_AT_DESTINATION:
                     text_draw(translation_for(TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT_UNLOAD),
-                        x_action, c->y_offset + y_pos, FONT_NORMAL_BROWN, 0);
+                        x_action, y_pos, FONT_NORMAL_BROWN, 0);
                     break;
                 case FIGURE_ACTION_243_DEPOT_CART_PUSHER_RETURNING:
-                    lang_text_draw(99, 17, x_action, c->y_offset + y_pos, FONT_NORMAL_BROWN);
+                    lang_text_draw(99, 17, x_action, y_pos, FONT_NORMAL_BROWN);
                     break;
                 default:
                     text_draw(translation_for(TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT),
-                        x_action, c->y_offset + y_pos, FONT_NORMAL_BROWN, 0);
+                        x_action, y_pos, FONT_NORMAL_BROWN, 0);
                     break;
             }
         } else if (b->num_workers > 0) {
-            lang_text_draw(99, 15, x_action, c->y_offset + y_pos, FONT_NORMAL_BROWN);
+            lang_text_draw(99, 15, x_action, y_pos, FONT_NORMAL_BROWN);
         }
     }
 }
@@ -439,7 +439,7 @@ void window_building_draw_depot(building_info_context *c)
     data.window_area.y = c->y_offset;
     data.window_area.width = c->width_blocks * BLOCK_SIZE;
     data.window_area.height = c->height_blocks * BLOCK_SIZE;
-    depot_draw_cart_status(b, c, c->y_offset);
+    depot_draw_cart_status(b, c);
 }
 
 void window_building_draw_depot_foreground(building_info_context *c)
