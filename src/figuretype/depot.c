@@ -241,29 +241,37 @@ static void try_reroute_order_src(figure *f, building *depot)
 
 static void figure_cart_unload_or_return(figure *f, building *b)
 {
+    // if there is no cargo return to the depot
     if (f->loads_sold_or_carrying <= 0 || f->resource_id == RESOURCE_NONE) {
         f->action_state = FIGURE_ACTION_243_DEPOT_CART_PUSHER_RETURNING;
         figure_cart_set_destination(f, f->building_id, FIGURE_ACTION_243_DEPOT_CART_PUSHER_RETURNING);
         return;
     }
-    building *dst = building_get(b->data.depot.current_order.dst_storage_id);
     int src_id = b->data.depot.current_order.src_storage_id;
-    // If both the source and the destination are destroyed, do nothing
-    if ((!dst || !storage_valid(dst, f->resource_id)) && !src_id) {
-        return;
-    }
-    if (!storage_valid(dst, f->resource_id)) {
-        if (src_id) {
+    int dst_id = b->data.depot.current_order.dst_storage_id;
+    building *src = building_get(src_id);
+    building *dst = building_get(dst_id);
+
+    // determine where to unload: if we are at the source - unload to the source, otherwise to the destination
+    building *target = (f->action_state == FIGURE_ACTION_240_DEPOT_CART_PUSHER_AT_SOURCE) ? src : dst;
+
+    if (!target || !storage_valid(target, f->resource_id)) {
+        // if the target is invalid, try to return to the depot or cancel
+        if (f->action_state == FIGURE_ACTION_240_DEPOT_CART_PUSHER_AT_SOURCE) {
+            figure_cart_set_destination(f, f->building_id, FIGURE_ACTION_243_DEPOT_CART_PUSHER_RETURNING);
+        } else if (src_id) {
             figure_cart_set_destination(f, src_id, FIGURE_ACTION_244_DEPOT_CART_PUSHER_CANCEL_ORDER);
         }
         return;
     }
     // unload
-    f->loads_sold_or_carrying = storage_add_resource(dst, f->resource_id, f->loads_sold_or_carrying);
+    f->loads_sold_or_carrying = storage_add_resource(target, f->resource_id, f->loads_sold_or_carrying);
+
+    // If everything is unloaded - return to the depot
     if (f->loads_sold_or_carrying == 0) {
         city_health_dispatch_sickness(f);
-        f->action_state = FIGURE_ACTION_243_DEPOT_CART_PUSHER_RETURNING;
         f->resource_id = RESOURCE_NONE;
+        f->action_state = FIGURE_ACTION_243_DEPOT_CART_PUSHER_RETURNING;
         figure_cart_set_destination(f, f->building_id, FIGURE_ACTION_243_DEPOT_CART_PUSHER_RETURNING);
     } else {
         set_cart_graphic(f);
@@ -367,13 +375,9 @@ void figure_depot_cartpusher_action(figure *f)
 
             if (f->wait_ticks > DEPOT_CART_LOAD_OFFLOAD_DELAY) {
                 building *src = building_get(b->data.depot.current_order.src_storage_id);
+                // If the cart has remaining cargo, unload it using the common function
                 if (f->loads_sold_or_carrying > 0 && f->resource_id != RESOURCE_NONE) {
-                    f->loads_sold_or_carrying = storage_add_resource(src, f->resource_id, f->loads_sold_or_carrying);
-                    if (f->loads_sold_or_carrying == 0) {
-                        f->resource_id = RESOURCE_NONE;
-                        set_cart_graphic(f);
-                        figure_cart_set_destination(f, f->building_id, FIGURE_ACTION_243_DEPOT_CART_PUSHER_RETURNING);
-                    }
+                    figure_cart_unload_or_return(f, b);
                     f->wait_ticks = 0;
                     break;
                 }
@@ -384,7 +388,7 @@ void figure_depot_cartpusher_action(figure *f)
                     building_warehouse_get_amount(src, b->data.depot.current_order.resource_type);
                 if (b->data.depot.current_order.condition.condition_type == ORDER_CONDITION_SOURCE_HAS_MORE_THAN &&
                     src_amount < b->data.depot.current_order.condition.threshold) {
-                    break;
+                    break; // wait until enough goods are available
                 }
 
                 // loading TODO upgradable?
@@ -400,8 +404,8 @@ void figure_depot_cartpusher_action(figure *f)
                                                 FIGURE_ACTION_241_DEPOT_CART_PUSHER_HEADING_TO_DESTINATION);
                     f->wait_ticks = DEPOT_CART_REROUTE_DELAY + 1;
                 }
+                f->wait_ticks = 0;
             }
-            f->image_offset = 0;
             break;
         }
 
