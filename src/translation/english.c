@@ -1741,6 +1741,7 @@ static translation_string all_strings[] = {
     {TR_OVERLAY_BY_GROUP, "By Group"},
     {TR_BUTTON_INFO_RETURN_ALL_LEGIONS, "Recall all legions"},
     {TR_TOOLTIP_OVERLAY_LEVY_PER_TILE, " Denarii paid monthly in levies per tile"},
+    {TR_CONFIG_UI_CV_BUILD_MENU_ICONS, "Show resource icons in build menu"},
 };
 
 void translation_english(const translation_string **strings, int *num_strings)
