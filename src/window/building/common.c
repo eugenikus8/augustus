@@ -89,7 +89,7 @@ static int get_employment_info_text(const building *b, int consider_house_coveri
 
 void window_building_draw_levy(int amount, int x_offset, int y_offset)
 {
-    image_draw(resource_get_data(RESOURCE_DENARII)->image.icon, x_offset, y_offset + 4, COLOR_MASK_NONE, SCALE_NONE);
+    image_draw(resource_get_data(RESOURCE_DENARII)->image.icon, x_offset, y_offset + 5, COLOR_MASK_NONE, SCALE_NONE);
     int width = text_draw_money(abs(amount), x_offset + 20, y_offset + 10, FONT_NORMAL_BROWN);
     if (amount > 0) {
         text_draw(translation_for(TR_BUILDING_INFO_MONTHLY_LEVY),
