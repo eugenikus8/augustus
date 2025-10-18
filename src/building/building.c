@@ -442,8 +442,8 @@ int building_repair(building *b)
     building_type og_type = BUILDING_NONE;
 
     // --- Handle rubble recovery ---
-    if (b->type == BUILDING_BURNING_RUIN || b->type == BUILDING_WAREHOUSE_SPACE || b->type == BUILDING_WAREHOUSE) {
-        // in collapse, warehouse space and warehouse all inherit the rubble data of the original warehouse
+    if (b->data.rubble.og_size || b->data.rubble.og_grid_offset ||        // if there's rubble data, take it from there
+         b->data.rubble.og_orientation || b->data.rubble.og_type) {
         og_size = b->data.rubble.og_size;
         og_grid_offset = b->data.rubble.og_grid_offset;
         og_orientation = b->data.rubble.og_orientation;
