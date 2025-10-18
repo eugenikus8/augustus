@@ -67,7 +67,7 @@ static struct {
         [SOUND_CITY_GARDEN]             = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/gardens1.wav" } },
         [SOUND_CITY_CLINIC]             = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/clinic.wav" } },
         [SOUND_CITY_HOSPITAL]           = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/hospital.wav" } },
-        [SOUND_CITY_BATHHOUSE]          = { .filenames.total = 2, .filenames.list = (sound_filenames[]) { "wavs/baths.wav", "wavs/aquaduct.wav" } },
+        [SOUND_CITY_BATHHOUSE]          = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/baths.wav" } },
         [SOUND_CITY_BARBER]             = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/barber.wav" } },
         [SOUND_CITY_SCHOOL]             = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/school.wav" } },
         [SOUND_CITY_ACADEMY]            = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/academy.wav" } },
@@ -126,6 +126,7 @@ static struct {
         [SOUND_CITY_CONCRETE_MAKER]     = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { ASSETS_DIRECTORY "/Sounds/ConcreteMaker.ogg" } },
         [SOUND_CITY_CONSTRUCTION_SITE]  = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { ASSETS_DIRECTORY "/Sounds/Engineer.ogg" } },
         [SOUND_CITY_NATIVE_HUT]         = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { ASSETS_DIRECTORY "/Sounds/NativeHut.ogg" } },
+        [SOUND_CITY_AQUEDUCT]           = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/aquaduct.wav" } },
         [SOUND_CITY_ARENA]              = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/colloseum.wav" } }, //In the future, this will become a separate sound, hopefully
     },
     .ambient_sounds = {
@@ -163,7 +164,7 @@ void sound_city_set_volume(int percentage)
     sound_device_set_volume_for_type(SOUND_TYPE_CITY, percentage);
 }
 
-void sound_city_mark_building_view(building_type type, int num_workers, int direction)
+void sound_city_mark_building_view(building_type type, int num_workers, int direction, int has_water_access)
 {
     sound_city_type sound = building_properties_for_type(type)->sound_id;
 
@@ -201,6 +202,13 @@ void sound_city_mark_building_view(building_type type, int num_workers, int dire
         default:
             break;
     }
+
+    if ((type == BUILDING_BATHHOUSE || type == BUILDING_CONCRETE_MAKER || type == BUILDING_FOUNTAIN ||
+        type == BUILDING_LARGE_STATUE || type == BUILDING_SMALL_POND || type == BUILDING_LARGE_POND) &&
+        !has_water_access) {
+        return;
+    }
+
     // Shut off when:
     if (!always_play && ((model->laborers > 0 && num_workers <= 0)
         || city_population() <= 0
