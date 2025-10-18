@@ -27,6 +27,7 @@ typedef enum {
     SOUND_AMBIENT_EMPTY_LAND3, // SOUND_AMBIENT_RIVER,
     SOUND_AMBIENT_EMPTY_TERRAIN01,
     SOUND_AMBIENT_EMPTY_TERRAIN02,
+    SOUND_AMBIENT_EMPTY_LAND,
     SOUND_AMBIENT_MAX
 } sound_ambient_type;
 
@@ -135,6 +136,7 @@ static struct {
         [SOUND_AMBIENT_EMPTY_LAND3]     = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/empty_land3.wav" } },
         [SOUND_AMBIENT_EMPTY_TERRAIN01] = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { ASSETS_DIRECTORY "/Sounds/Terrain01.ogg" } },
         [SOUND_AMBIENT_EMPTY_TERRAIN02] = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { ASSETS_DIRECTORY "/Sounds/Terrain02.ogg" } },
+        [SOUND_AMBIENT_EMPTY_LAND]      = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/empty_land.wav" } },
     }
 };
 
