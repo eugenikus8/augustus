@@ -127,7 +127,7 @@ static struct {
         [SOUND_CITY_CONSTRUCTION_SITE]  = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { ASSETS_DIRECTORY "/Sounds/Engineer.ogg" } },
         [SOUND_CITY_NATIVE_HUT]         = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { ASSETS_DIRECTORY "/Sounds/NativeHut.ogg" } },
         [SOUND_CITY_AQUEDUCT]           = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/aquaduct.wav" } },
-        [SOUND_CITY_ARENA]              = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/colloseum.wav" } }, //In the future, this will become a separate sound, hopefully
+        [SOUND_CITY_ARENA]              = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/colloseum.wav" } }, //Dummy. If a separate sound appears, place it in the ASSETS_DIRECTORY
     },
     .ambient_sounds = {
         [SOUND_AMBIENT_EMPTY_LAND1]     = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/empty_land1.wav" } },
