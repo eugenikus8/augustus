@@ -47,7 +47,9 @@ static building_type get_clone_type_from_building(building *b, building_type clo
             return BUILDING_NONE;
         case BUILDING_BURNING_RUIN:
             if (b) {
-                return get_clone_type_from_building(b, building_get(map_building_rubble_building_id(b->grid_offset))->type);
+                building *before_fire = building_get(map_building_rubble_building_id(b->grid_offset));
+                building_type type = building_clone_type_from_building_type(before_fire->data.rubble.og_type);
+                return type;
             } else {
                 return BUILDING_NONE;
             }
