@@ -1748,6 +1748,7 @@ static translation_string all_strings[] = {
     {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_GETTING_GOODS, "Our cart off to warehouse for goods."},
     {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_DELIVER, "Our cart is taking goods."},
     {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT, "Our cart waiting for new instructions."},
+    {TR_WINDOW_BUILDING_DISTRIBUTION_NO_INSTRUCTIONS, "No instructions"},
     {TR_TOOLTIP_OVERLAY_LEVY_PER_TILE, " Denarii paid monthly in levies per tile"},
     {TR_CONFIG_UI_CV_BUILD_MENU_ICONS, "Show resource icons in build menu"},
     {TR_CONFIG_UI_WT_ENABLE_SNOW_CENTRAL, "Enable snow in central climate"},
