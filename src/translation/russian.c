@@ -1749,6 +1749,8 @@ static translation_string all_strings[] = {
     {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_DELIVER, "Наша тележка доставляет товар."},
     {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT, "Наша тележка ждет новых указаний."},
     {TR_TOOLTIP_OVERLAY_PROBLEMS_DEPOT_NO_INSTRUCTIONS, "Нет указаний"},
+    {TR_TOOLTIP_DEPOT_CLEAR_SRC, "Очистить источник"},
+    {TR_TOOLTIP_DEPOT_CLEAR_DST, "Очистить назначение"},
     {TR_TOOLTIP_OVERLAY_LEVY_PER_TILE, " Ден. налога в месяц за плитку"},
     {TR_CONFIG_UI_CV_BUILD_MENU_ICONS, "Отображать иконки ресурсов в меню строительства"},
     {TR_CONFIG_UI_WT_ENABLE_SNOW_CENTRAL, "ВКЛ снег в центральном климате"},

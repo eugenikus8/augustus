@@ -37,6 +37,8 @@ static void goto_special_orders_on_top(const generic_button *button);
 static void copy_settings(const generic_button *button);
 static void paste_settings(const generic_button *button);
 static void depot_recall_all_cart_pushers(const generic_button *button);
+static void order_clear_source(const generic_button *button);
+static void order_clear_destination(const generic_button *button);
 
 static void tooltip_style_changed(dropdown_button *button);
 
@@ -135,8 +137,8 @@ static generic_button depot_select_resource_buttons[] = {
 
 static generic_button depot_order_buttons[] = {
     {100,  0, 284, ROW_HEIGHT + 4, order_set_resource, 0, 1},
-    {100, 56, 284, ROW_HEIGHT, order_set_source, 0, 2},
-    {100, 82, 284, ROW_HEIGHT, order_set_destination, 0, 3},
+    {126, 56, 258, ROW_HEIGHT, order_set_source, 0, 2},
+    {126, 82, 258, ROW_HEIGHT, order_set_destination, 0, 3},
     {100, 30, 284, ROW_HEIGHT, order_set_condition_type, 0, 4},
     {384, 30,  32, ROW_HEIGHT, order_set_condition_threshold, order_set_condition_threshold_reverse, 5},
     {384, 56,  32, ROW_HEIGHT, set_camera_position},
@@ -144,6 +146,8 @@ static generic_button depot_order_buttons[] = {
     {40, 112,  22, ROW_HEIGHT, copy_settings},
     {63, 112,  22, ROW_HEIGHT, paste_settings},
     {100, 112, 250, ROW_HEIGHT, depot_recall_all_cart_pushers},
+    {100, 56,  22, ROW_HEIGHT, order_clear_source, 0, 11},
+    {100, 82,  22, ROW_HEIGHT, order_clear_destination, 0, 12},
 };
 dropdown_button tooltip_style_dropdown_button;
 
@@ -565,13 +569,24 @@ void window_building_draw_depot_foreground(building_info_context *c)
     lang_text_draw_centered(CUSTOM_TRANSLATION, TR_FIGURE_INFO_DEPOT_RECALL,
         x_offset + depot_order_buttons[9].x, y_offset + depot_order_buttons[9].y + 6,
         depot_order_buttons[9].width, FONT_NORMAL_RED);
-
+    // clear src
+    button_border_draw(x_offset + depot_order_buttons[10].x, y_offset + depot_order_buttons[10].y,
+        depot_order_buttons[10].width, depot_order_buttons[10].height, data.focus_button_id == 11);
+    image_draw(assets_get_image_id("UI", "Denied_Walker_Checkmark"),
+        x_offset + depot_order_buttons[10].x + 5,
+        y_offset + depot_order_buttons[10].y + 5, COLOR_MASK_NONE, SCALE_NONE);
+    // clear dst
+    button_border_draw(x_offset + depot_order_buttons[11].x, y_offset + depot_order_buttons[11].y,
+        depot_order_buttons[11].width, depot_order_buttons[11].height, data.focus_button_id == 12);
+    image_draw(assets_get_image_id("UI", "Denied_Walker_Checkmark"),
+        x_offset + depot_order_buttons[11].x + 5,
+        y_offset + depot_order_buttons[11].y + 5, COLOR_MASK_NONE, SCALE_NONE);
 }
 
 int window_building_handle_mouse_depot(const mouse *m, building_info_context *c)
 {
     return generic_buttons_handle_mouse(m, c->x_offset + DEPOT_BUTTONS_X_OFFSET, c->y_offset + DEPOT_BUTTONS_Y_OFFSET,
-        depot_order_buttons, data.advanced_mode ? 10 : 8, &data.focus_button_id);
+        depot_order_buttons, data.advanced_mode ? 12 : 10, &data.focus_button_id);
 }
 
 static void order_set_source(const generic_button *button)
@@ -953,6 +968,12 @@ void window_building_depot_get_tooltip_main(int *translation)
     if (data.focus_button_id == 9) {
         *translation = TR_HOTKEY_PASTE_SETTINGS;
     }
+    if (data.focus_button_id == 11) {
+        *translation = TR_TOOLTIP_DEPOT_CLEAR_SRC;
+    }
+    if (data.focus_button_id == 12) {
+        *translation = TR_TOOLTIP_DEPOT_CLEAR_DST;
+    }
 }
 
 const uint8_t *window_building_depot_get_tooltip_source_destination(int *translation, int *group_id)
@@ -1039,6 +1060,26 @@ void window_building_draw_depot_select_resource_foreground(building_info_context
         text_draw(str, c->x_offset + depot_select_resource_buttons[i].x + 33,
             y_offset + 46 + depot_select_resource_buttons[i].y + 8, FONT_NORMAL_WHITE, 0);
     }
+}
+
+static void order_clear_source(const generic_button *button)
+{
+    building *b = building_get(data.depot_building_id);
+    if (!b || b->type != BUILDING_DEPOT) {
+        return;
+    }
+    b->data.depot.current_order.src_storage_id = 0;
+    window_request_refresh();
+}
+
+static void order_clear_destination(const generic_button *button)
+{
+    building *b = building_get(data.depot_building_id);
+    if (!b || b->type != BUILDING_DEPOT) {
+        return;
+    }
+    b->data.depot.current_order.dst_storage_id = 0;
+    window_request_refresh();
 }
 
 int window_building_handle_mouse_depot_select_resource(const mouse *m, building_info_context *c)
