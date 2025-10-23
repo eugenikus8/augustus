@@ -349,7 +349,7 @@ static int get_tooltip_problems(tooltip_context *c, const building *b)
     } else if (b->type == BUILDING_DEPOT &&
         (!b->data.depot.current_order.src_storage_id ||
             !b->data.depot.current_order.dst_storage_id)) {
-        c->translation_key = TR_WINDOW_BUILDING_DISTRIBUTION_NO_INSTRUCTIONS;
+        c->translation_key = TR_TOOLTIP_OVERLAY_PROBLEMS_DEPOT_NO_INSTRUCTIONS;
 
     } else if (b->has_road_access == 0 &&
         building_get_laborers(b->type) && b->type != BUILDING_LATRINES && b->type != BUILDING_FOUNTAIN) {
