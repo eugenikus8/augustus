@@ -391,31 +391,31 @@ static void depot_draw_cart_status(const building *b, building_info_context *c)
                 {
                     building *src = building_get(f->destination_building_id);
                     text_draw(translation_for((src && src->type == BUILDING_GRANARY)
-                            ? TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_GETTING_FOOD
-                            : TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_GETTING_GOODS),
+                            ? TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_GETTING_FOOD
+                            : TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_GETTING_GOODS),
                         x_action, y_pos, FONT_NORMAL_BROWN, 0);
                     break;
                 }
                 case FIGURE_ACTION_240_DEPOT_CART_PUSHER_AT_SOURCE:
                     text_draw(translation_for(f->loads_sold_or_carrying
-                            ? TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT_UNLOAD
-                            : TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT_LOAD),
+                            ? TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_WAIT_UNLOAD
+                            : TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_WAIT_LOAD),
                         x_action, y_pos, FONT_NORMAL_BROWN, 0);
                     break;
                 case FIGURE_ACTION_241_DEPOT_CART_PUSHER_HEADING_TO_DESTINATION:
                 case FIGURE_ACTION_250_DEPOT_CART_PUSHER_RETURN_TO_SOURCE:
-                    text_draw(translation_for(TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_DELIVER),
+                    text_draw(translation_for(TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_DELIVER),
                         x_action, y_pos, FONT_NORMAL_BROWN, 0);
                     break;
                 case FIGURE_ACTION_242_DEPOT_CART_PUSHER_AT_DESTINATION:
-                    text_draw(translation_for(TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT_UNLOAD),
+                    text_draw(translation_for(TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_WAIT_UNLOAD),
                         x_action, y_pos, FONT_NORMAL_BROWN, 0);
                     break;
                 case FIGURE_ACTION_243_DEPOT_CART_PUSHER_RETURNING:
                     lang_text_draw(99, 17, x_action, y_pos, FONT_NORMAL_BROWN);
                     break;
                 default:
-                    text_draw(translation_for(TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_WAIT),
+                    text_draw(translation_for(TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_WAIT),
                         x_action, y_pos, FONT_NORMAL_BROWN, 0);
                     break;
             }
