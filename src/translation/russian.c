@@ -1754,6 +1754,9 @@ static translation_string all_strings[] = {
     {TR_TOOLTIP_OVERLAY_LEVY_PER_TILE, " Ден. налога в месяц за плитку"},
     {TR_CONFIG_UI_CV_BUILD_MENU_ICONS, "Отображать иконки ресурсов в меню строительства"},
     {TR_CONFIG_UI_WT_ENABLE_SNOW_CENTRAL, "ВКЛ снег в центральном климате"},
+    {TR_CONFIG_UI_CV_CURSOR_SHADOW, "ВКЛ тень курсора"},
+    {TR_CONFIG_GENERAL_UNLOCK_MOUSE, "Курсор не выходит за пределы экрана в полноэкранном режиме"},
+    {TR_CONFIG_GP_CH_HOUSING_PRE_MERGE_VACANT_LOTS, "Свободные места объединяются в дом 2х2 до заселения иммигрантов"},
 };
 
 void translation_russian(const translation_string **strings, int *num_strings)
