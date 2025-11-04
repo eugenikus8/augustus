@@ -307,7 +307,7 @@ void building_clear_related_data(building *b)
         building_storage_delete(b->storage_id);
         b->storage_id = 0;
     }
-    if (building_is_fort) {
+    if (building_is_fort(b->type)) {
         formation_legion_delete_for_fort(b);
     }
     if (b->type == BUILDING_TRIUMPHAL_ARCH) {
@@ -335,7 +335,7 @@ void building_trim(void)
     array_trim(data.buildings);
 }
 
-int building_was_tent(building *b)
+int building_was_tent(const building *b)
 {
     return b->data.rubble.og_type == BUILDING_HOUSE_LARGE_TENT || b->data.rubble.og_type == BUILDING_HOUSE_SMALL_TENT;
 }
