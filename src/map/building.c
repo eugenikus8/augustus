@@ -14,18 +14,18 @@ static grid_u8 damage_grid_backup;
 static grid_u32 rubble_info_grid_backup;
 
 
-int map_building_at(int grid_offset)
+unsigned int map_building_at(int grid_offset)
 {
     return map_grid_is_valid_offset(grid_offset) ? buildings_grid.items[grid_offset] : 0;
 }
 
-int map_building_from_buffer(buffer *buildings, int grid_offset)
+unsigned int map_building_from_buffer(buffer *buildings, int grid_offset)
 {
     buffer_set(buildings, grid_offset * sizeof(uint16_t));
     return buffer_read_u16(buildings);
 }
 
-void map_building_set(int grid_offset, int building_id)
+void map_building_set(int grid_offset, unsigned int building_id)
 {
     buildings_grid.items[grid_offset] = building_id;
 }
@@ -40,7 +40,7 @@ int map_building_damage_increase(int grid_offset)
     return ++damage_grid.items[grid_offset];
 }
 
-int map_building_rubble_building_id(int grid_offset)
+unsigned int map_building_rubble_building_id(int grid_offset)
 {
     return rubble_info_grid.items[grid_offset];
 }
@@ -61,7 +61,7 @@ void map_building_set_rubble_grid_building_id(int grid_offset, unsigned int buil
     }
 }
 
-int map_building_ruins_left(int building_id)
+int map_building_ruins_left(unsigned int building_id)
 {
     // doesnt work for hippodromes and forts - forts shouldnt turn to rubble, hippodromes are not repairable
     building *b = building_get(building_id);
@@ -69,10 +69,15 @@ int map_building_ruins_left(int building_id)
     if (b->type == BUILDING_HIPPODROME || building_is_fort(b->type)) {
         return 0;
     }
-    grid_slice *slice = map_grid_get_grid_slice_square(b->grid_offset, b->size);
+    int size = b->data.rubble.og_size ? b->data.rubble.og_size : b->size;
+    int slice_offset = b->data.rubble.og_grid_offset ? b->data.rubble.og_grid_offset : b->grid_offset;
+    grid_slice *slice = map_grid_get_grid_slice_square(slice_offset, size);
     for (int i = 0; i < slice->size; i++) {
         int grid_offset = slice->grid_offsets[i];
         if (map_building_rubble_building_id(grid_offset) == building_id) {
+            ruins_count++;
+        } else if (map_building_at(grid_offset) == building_id &&
+                building_get(building_id)->type == BUILDING_BURNING_RUIN) {
             ruins_count++;
         }
     }
@@ -132,7 +137,7 @@ int map_building_is_reservoir(int x, int y)
         return 0;
     }
     int grid_offset = map_grid_offset(x, y);
-    int building_id = map_building_at(grid_offset);
+    unsigned int building_id = map_building_at(grid_offset);
     if (!building_id || building_get(building_id)->type != BUILDING_RESERVOIR) {
         return 0;
     }
