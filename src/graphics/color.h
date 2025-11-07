@@ -74,7 +74,8 @@ typedef uint32_t color_t;
 #define COLOR_MASK_SKY_BLUE 0xff90aaff
 #define COLOR_MASK_POSITIVE_RANGE 0x80005100    //50% transparent DARK_GREEN
 #define COLOR_MASK_NEGATIVE_RANGE 0x40ff0000    //25% transparent COLOR_RED
-#define COLOR_MASK_REPAIR_RANGE 0x4000ff00    //25% transparent COLOR_GREEN
+#define COLOR_MASK_REPAIR_RANGE 0x4000ff00      //25% transparent COLOR_GREEN
+#define COLOR_MASK_RESERVOIR_RANGE 0x6633ddff   //40% transparent cyan blue
 
 #define COLOR_MINIMAP_VIEWPORT 0xffe7e75a
 #define COLOR_MINIMAP_DARK 0xff424242
@@ -88,6 +89,17 @@ typedef uint32_t color_t;
 #define COLOR_MINIMAP_TRADE_CARAVAN COLOR_FONT_ORANGE_LIGHT
 #define COLOR_MINIMAP_TRADE_SHIP COLOR_FONT_ORANGE_LIGHT
 
+#define COLOR_MASK_PASTEL_BLUE        0xffa8c5ff  // calm sky blue
+#define COLOR_MASK_PASTEL_GREEN       0xffb7e0a5  // soft mint green
+#define COLOR_MASK_PASTEL_PURPLE      0xffc8b5e1  // gentle lavender
+#define COLOR_MASK_PASTEL_ORANGE      0xfff6c79a  // peachy orange
+#define COLOR_MASK_PASTEL_OLIVE       0xffc1c08a  // muted olive green
+#define COLOR_MASK_PASTEL_TURQUOISE   0xffa9e5dc  // cool aqua pastel
+#define COLOR_MASK_PASTEL_CORAL       0xfff7a89e  // light coral
+#define COLOR_MASK_PASTEL_GRAY        0xffc0c0c0  // balanced neutral gray
+#define COLOR_MASK_PASTEL_BLACK       0xff3a3a3a  // soft black 
+#define COLOR_MASK_PASTEL_DARK_BLUE   0xff6d87b8  // desaturated navy blue
+
 #define COLOR_OVERLAY_NEUTRAL 0xccffffff
 #define COLOR_OVERLAY_NEGATIVE_STEP 0x00040505
 #define COLOR_OVERLAY_POSITIVE_STEP 0x00050504
@@ -99,6 +111,7 @@ typedef uint32_t color_t;
 #define ALPHA_OPAQUE 0xff000000
 #define ALPHA_FONT_SEMI_TRANSPARENT 0x99ffffff
 #define ALPHA_MASK_SEMI_TRANSPARENT 0x48ffffff
+#define ALPHA_MASK_CUSTOM_EARTHQUAKE 0x80ffffff
 #define ALPHA_TRANSPARENT 0x00000000
 
 #define COLOR_BITSHIFT_ALPHA 24

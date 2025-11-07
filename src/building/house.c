@@ -83,7 +83,7 @@ void building_house_change_to_vacant_lot(building *house)
     }
 }
 
-static void prepare_for_merge(int building_id, int num_tiles)
+static void prepare_for_merge(unsigned int building_id, int num_tiles)
 {
     for (resource_type r = 0; r < RESOURCE_MAX; r++) {
         merge_data.inventory[r] = 0;
@@ -129,7 +129,7 @@ static void merge(building *b)
     b->house_is_merged = 1;
     map_building_tiles_add(b->id, b->x, b->y, 2, building_image_get(b), TERRAIN_BUILDING);
     if (config_get(CONFIG_GP_CH_HOUSING_PRE_MERGE_VACANT_LOTS)) {
-        if (b->type == BUILDING_HOUSE_VACANT_LOT) {
+        if (b->type == BUILDING_HOUSE_VACANT_LOT && b->house_population == 0) {
             grid_slice *slice = map_grid_get_grid_slice_house(b->id, 0);
             for (int i = 0; i < slice->size; i++) {
                 int offset = slice->grid_offsets[i];

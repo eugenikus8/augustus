@@ -4,7 +4,7 @@
 #include "building/construction.h"
 #include "building/menu.h"
 #include "building/monument.h"
-#include "building/model.h"
+#include "building/properties.h"
 #include "building/rotation.h"
 #include "city/view.h"
 #include "city/warning.h"
@@ -137,7 +137,12 @@ int window_build_menu_image(void)
                 return image_base + 3;
             }
         case BUILD_MENU_HEALTH:
-            return image_base + 5;
+            if (config_get(CONFIG_UI_DRAW_ASCLEPIUS)) {
+                int image_id_asclepius = assets_lookup_image_id(ASSET_UI_ASCEPIUS);
+                return image_id_asclepius;
+            } else {
+                return image_base + 5;
+            }
         case BUILD_MENU_TEMPLES:
         case BUILD_MENU_SMALL_TEMPLES:
         case BUILD_MENU_LARGE_TEMPLES:
@@ -301,6 +306,7 @@ static void draw_menu_buttons(void)
 static void draw_foreground(void)
 {
     window_city_draw();
+    window_city_draw_custom_variables_text_display();
     draw_menu_buttons();
 }
 
