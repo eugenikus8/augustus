@@ -10,7 +10,6 @@
 #include "building/industry.h"
 #include "building/granary.h"
 #include "building/menu.h"
-#include "building/model.h"
 #include "building/monument.h"
 #include "building/properties.h"
 #include "building/rotation.h"
@@ -61,15 +60,17 @@ static struct {
     int unfixable_houses;
 } extra;
 
-building *building_get(int id)
+building *building_get(unsigned int id)
 {
     return array_item(data.buildings, id);
 }
+
 int building_can_repair_type(building_type type)
 {
-    if (building_monument_is_limited(type) || type == BUILDING_AQUEDUCT) {
+    if (building_monument_is_limited(type) || type == BUILDING_AQUEDUCT || building_is_fort(type)) {
         return 0; // limited monuments and aqueducts cannot be repaired at the moment, aqueducts require a rework,
     }   //and limited monuments are too complex to easily repair, and arent a common occurrence
+    // forts have the complexity of holding formations, so are also currently excluded
     building_type repair_type = building_clone_type_from_building_type(type);
     if (repair_type == BUILDING_NONE) {
         return 0;
@@ -306,7 +307,7 @@ void building_clear_related_data(building *b)
         building_storage_delete(b->storage_id);
         b->storage_id = 0;
     }
-    if (building_is_fort) {
+    if (building_is_fort(b->type)) {
         formation_legion_delete_for_fort(b);
     }
     if (b->type == BUILDING_TRIUMPHAL_ARCH) {
@@ -334,7 +335,7 @@ void building_trim(void)
     array_trim(data.buildings);
 }
 
-int building_was_tent(building *b)
+int building_was_tent(const building *b)
 {
     return b->data.rubble.og_type == BUILDING_HOUSE_LARGE_TENT || b->data.rubble.og_type == BUILDING_HOUSE_SMALL_TENT;
 }
@@ -394,7 +395,9 @@ int building_repair_cost(building *b)
     if (!b || !building_can_repair(b)) {
         return 0;
     }
-    int is_ruin = b->type == BUILDING_BURNING_RUIN;
+    int is_ruin = b->type == BUILDING_BURNING_RUIN || // ruins and collapsed warehouse parts all use rubble data 
+        b->type == BUILDING_WAREHOUSE_SPACE || b->type == BUILDING_WAREHOUSE;
+
     og_grid_offset = is_ruin ? b->data.rubble.og_grid_offset : b->grid_offset;
     og_size = is_ruin ? b->data.rubble.og_size : b->size;
     og_type = is_ruin ? b->data.rubble.og_type : b->type;
@@ -404,9 +407,15 @@ int building_repair_cost(building *b)
         int clear_cost = house_slice->size * (11 + 3); // 10.5 per new house tile + 3 per rubble tile to clear
         return clear_cost;
     }
+    if (b->type == BUILDING_WAREHOUSE_SPACE) {
+        og_size = 1; // dont charge for clearing the whole warehouse, just the collapsed part, otherwise its *9
+    }
     grid_slice *grid_slice = map_grid_get_grid_slice_square(og_grid_offset, og_size); // wont work correctly for hippo
     int clear_cost = building_construction_prepare_terrain(grid_slice, CLEAR_MODE_RUBBLE, COST_MEASURE);
     int placement_cost = model_get_building(og_type)->cost;
+    if (og_type == BUILDING_WAREHOUSE && b->type == BUILDING_WAREHOUSE_SPACE) {
+        placement_cost = 0; // collapsed warehouse parts only need clearing cost, no placement cost
+    }
     return clear_cost + placement_cost + placement_cost / 20; // +5% fee on a building price
 }
 
@@ -433,13 +442,38 @@ int building_repair(building *b)
     int og_size = 0, og_grid_offset = 0, og_orientation = 0, og_storage_id, wall = 0, is_house_lot = 0, success = 0;
     building_type og_type = BUILDING_NONE;
 
+    if (b->type == BUILDING_WAREHOUSE_SPACE) { // collapsed warehouse parts use the main warehouse data
+        building *main_warehouse = building_get(map_building_rubble_building_id(b->data.rubble.og_grid_offset));
+        if (main_warehouse) {
+            b = main_warehouse;
+        }
+    }
+    // TODO: wrap warehouse and granary repairs into a separate helper, to better control the storage transfer
     // --- Handle rubble recovery ---
-    if (b->type == BUILDING_BURNING_RUIN) {
+    if (b->data.rubble.og_size || b->data.rubble.og_grid_offset ||        // if there's rubble data, take it from there
+        b->data.rubble.og_orientation || b->data.rubble.og_type) {
         og_size = b->data.rubble.og_size;
         og_grid_offset = b->data.rubble.og_grid_offset;
         og_orientation = b->data.rubble.og_orientation;
         og_type = b->data.rubble.og_type;
     }
+    // --- Special handling for warehouse coordinates ---
+    // For warehouses, og_grid_offset points to the tower (entrance) corner, not the top-left
+    // We need to convert it to the top-left corner based on the orientation
+    if (og_type == BUILDING_WAREHOUSE && og_grid_offset && og_orientation >= 0) {
+        // Warehouse tower offset positions based on orientation (matches construction_building.c)
+        int x_offset[9] = { 0, 0, 1, 1, 0, 2, 1, 2, 2 };
+        int y_offset[9] = { 0, 1, 0, 1, 2, 0, 2, 1, 2 };
+        int corner = building_rotation_get_corner(2 * og_orientation);
+
+        // Convert from tower position to top-left corner
+        int tower_x = map_grid_offset_to_x(og_grid_offset);
+        int tower_y = map_grid_offset_to_y(og_grid_offset);
+        int top_left_x = tower_x - x_offset[corner];
+        int top_left_y = tower_y - y_offset[corner];
+        og_grid_offset = map_grid_offset(top_left_x, top_left_y);
+    }
+
     building_data_transfer_backup();
     building_data_transfer_copy(b, 1);
     //  Resolve placement data 
@@ -455,9 +489,15 @@ int building_repair(building *b)
         is_house_lot = 1;
         building_change_type(b, BUILDING_HOUSE_VACANT_LOT);
     }
+    int placement_cost = 0;
     og_storage_id = b->storage_id; //store the original storage id before clearing it
     // --- Clear terrain & place building ---
     grid_slice *grid_slice = map_grid_get_grid_slice_square(grid_offset, size);
+    if (building_construction_nearby_enemy_type(grid_slice) != FIGURE_NONE) {
+        city_warning_show(WARNING_ENEMY_NEARBY, NEW_WARNING_SLOT);
+        building_data_transfer_restore_and_clear_backup();
+        return 0;
+    }
     map_terrain_backup(); // backup the terrain in case of failure
     int cleared = building_construction_prepare_terrain(grid_slice, CLEAR_MODE_RUBBLE, COST_PROCESS);
     if (is_house_lot) {
@@ -465,7 +505,9 @@ int building_repair(building *b)
     } else if (type_to_place == BUILDING_WALL || type_to_place == BUILDING_TOWER) {
         wall = 1;
         for (int i = 0; i < grid_slice->size; i++) {
+
             success = building_construction_place_wall(grid_slice->grid_offsets[i]);
+            placement_cost += model_get_building(BUILDING_WALL)->cost * success; // TODO: confirm if wall cost is stored in model
         }
         if (type_to_place == BUILDING_TOWER) {
             map_tiles_update_all_walls(); // towers affect wall connections
@@ -491,7 +533,7 @@ int building_repair(building *b)
             b->storage_id = 0; // remove reference to the storage we just deleted
         }
     }
-    int placement_cost = model_get_building(type_to_place)->cost * success;
+    placement_cost += model_get_building(type_to_place)->cost * success;
     int full_cost = (placement_cost + placement_cost / 20);// +5%
 
     city_finance_process_construction(full_cost);
@@ -506,7 +548,7 @@ int building_repair(building *b)
     if (wall) {
         map_tiles_update_all_walls(); // towers affect wall connections
     }
-    building_delete(b);
+    b->state = BUILDING_STATE_DELETED_BY_GAME; // mark old building as deleted
     game_undo_disable(); // not accounting for undoing repairs
     return full_cost;
 }
@@ -552,7 +594,18 @@ void building_update_state(void)
                 city_population_remove_home_removed(b->house_population);
                 b->house_population = 0;
             }
+            if (building_is_fort(b->type) || b->type == BUILDING_FORT_GROUND) {
+                b->state = BUILDING_STATE_DELETED_BY_GAME;
+                map_building_tiles_remove(b->id, b->x, b->y);
+                map_building_set_rubble_grid_building_id(b->grid_offset, 0, b->size);
+            }
             // building_delete(b); // keep the rubbled building as a reference for reconstruction
+
+            // monuments clear
+            if (building_monument_is_limited(b->type) || building_monument_is_unfinished_monument(b)) {
+                building_delete(b);
+            }
+
         } else if (b->state == BUILDING_STATE_DELETED_BY_GAME) {
             building_delete(b);
         } else if (b->immigrant_figure_id) {
@@ -650,6 +703,46 @@ int building_is_primary_product_producer(building_type type)
 int building_is_house(building_type type)
 {
     return type >= BUILDING_HOUSE_VACANT_LOT && type <= BUILDING_HOUSE_LUXURY_PALACE;
+}
+
+int building_get_house_group(building_type type)
+{
+    switch (type) {
+        case BUILDING_HOUSE_SMALL_TENT:
+        case BUILDING_HOUSE_LARGE_TENT:
+            return HOUSE_GROUP_TENT;
+        case BUILDING_HOUSE_SMALL_SHACK:
+        case BUILDING_HOUSE_LARGE_SHACK:
+            return HOUSE_GROUP_SHACK;
+        case BUILDING_HOUSE_SMALL_HOVEL:
+        case BUILDING_HOUSE_LARGE_HOVEL:
+            return HOUSE_GROUP_HOVEL;
+        case BUILDING_HOUSE_SMALL_CASA:
+        case BUILDING_HOUSE_LARGE_CASA:
+            return HOUSE_GROUP_CASA;
+        case BUILDING_HOUSE_SMALL_INSULA:
+        case BUILDING_HOUSE_MEDIUM_INSULA:
+        case BUILDING_HOUSE_LARGE_INSULA:
+        case BUILDING_HOUSE_GRAND_INSULA:
+            return HOUSE_GROUP_INSULA;
+        case BUILDING_HOUSE_SMALL_VILLA:
+        case BUILDING_HOUSE_MEDIUM_VILLA:
+        case BUILDING_HOUSE_LARGE_VILLA:
+        case BUILDING_HOUSE_GRAND_VILLA:
+            return HOUSE_GROUP_VILLA;
+        case BUILDING_HOUSE_SMALL_PALACE:
+        case BUILDING_HOUSE_MEDIUM_PALACE:
+        case BUILDING_HOUSE_LARGE_PALACE:
+        case BUILDING_HOUSE_LUXURY_PALACE:
+            return HOUSE_GROUP_PALACE;
+        default:
+            return 0; // Not a house
+    }
+}
+
+int building_is_house_group(house_groups group, building_type type)
+{
+    return building_get_house_group(type) == group;
 }
 
 // For Venus GT base bonus

@@ -5,8 +5,8 @@
 #include "building/count.h"
 #include "building/granary.h"
 #include "building/industry.h"
-#include "building/model.h"
 #include "building/monument.h"
+#include "building/properties.h"
 #include "building/warehouse.h"
 #include "city/buildings.h"
 #include "city/data_private.h"
@@ -86,12 +86,15 @@ int city_resource_get_amount_including_granaries(resource_type resource, int amo
 
 int city_resource_get_amount_for_request(resource_type resource, int amount)
 {
+    if (resource == RESOURCE_DENARII) {
+        return city_finance_treasury();
+    }
     int respect_maintaining = config_get(CONFIG_GP_CH_STORAGE_REQUESTS_RESPECT_MAINTAIN);
     int total = building_warehouses_count_available_resource(resource, respect_maintaining, 1);
+
     if (total >= amount) {
         return total;
     }
-
     if (resource_is_food(resource)) {
         int granary_total = building_granaries_count_available_resource(resource, respect_maintaining, 1);
         total += granary_total;

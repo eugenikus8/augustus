@@ -1,5 +1,6 @@
 #include "message_dialog.h"
 
+#include "city/emperor.h"
 #include "city/message.h"
 #include "city/resource.h"
 #include "city/sentiment.h"
@@ -140,9 +141,9 @@ static void button_dispatch_request(const complex_button *button)
 {
     int request_id = button->parameters[0];
     scenario_request_dispatch(request_id);
-    scenario_request *req = scenario_request_get(request_id);
+    const scenario_request *req = scenario_request_get(request_id);
     complex_button_dispatch_request.is_hidden = 1;
-    if (city_resource_is_stockpiled(req->resource)){
+    if (city_resource_is_stockpiled(req->resource)) {
         city_resource_toggle_stockpiled(req->resource);
     }
     button_close(0, 0);
@@ -404,10 +405,29 @@ static void draw_city_message_text(const lang_message *msg)
                 data.text_height_blocks - 1, 0);
             break;
         }
+        case MESSAGE_TYPE_RANK_CHANGE:
+        {
+            int old_rank = player_message.param1;
+            int new_rank = player_message.param2;
+
+            static lang_fragment rank_frag[3];
+            rank_frag[0] = (lang_fragment)
+            { .type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_MESSAGE_PROMOTE_RANK_PREFIX };
+            rank_frag[1] = (lang_fragment) { .type = LANG_FRAG_LABEL, .text_group = 32, .text_id = new_rank, .space_width = 0 };
+            rank_frag[2] = (lang_fragment)
+            { .type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_MESSAGE_PROMOTE_RANK_SUFFIX };
+            if (new_rank < old_rank) {
+                rank_frag[0].text_id = TR_MESSAGE_DEMOTE_RANK_PREFIX;
+                rank_frag[2].text_id = TR_MESSAGE_DEMOTE_RANK_SUFFIX;
+            }
+            lang_text_draw_sequence_multiline(rank_frag, 3, data.x + 30, data.y_text + 44,
+                BLOCK_SIZE * (data.text_width_blocks) - 20, 0, FONT_NORMAL_WHITE, COLOR_MASK_NONE);
+            break;
+        }
+
         case MESSAGE_TYPE_TUTORIAL:
             rich_text_draw(msg->content.text,
-                data.x_text + 8, data.y_text + 6, BLOCK_SIZE * (data.text_width_blocks),
-                data.text_height_blocks - 1, 0);
+            data.x_text + 8, data.y_text + 6, BLOCK_SIZE * (data.text_width_blocks), data.text_height_blocks - 1, 0);
             break;
 
         case MESSAGE_TYPE_TRADE_CHANGE:
@@ -635,8 +655,6 @@ static void draw_background_video(void)
     if (msg->message_type != MESSAGE_TYPE_CUSTOM) {
         if (small_font) {
             // Draw in black and then white to create shadow effect
-           // rich_text_draw_colored(msg->content.text,
-           //     data.x + 16 + 1, y_base + 24 + 1, 384, data.text_height_blocks - 1, COLOR_BLACK);
             rich_text_draw_colored(msg->content.text,
                 data.x + 16, y_base + 24, 384, data.text_height_blocks - 1, 0); //COLOR_WHITE
         } else {

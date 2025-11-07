@@ -1,7 +1,7 @@
 #include "granary.h"
 
 #include "building/destruction.h"
-#include "building/model.h"
+#include "building/properties.h"
 #include "building/storage.h"
 #include "building/warehouse.h"
 #include "city/finance.h"
@@ -61,6 +61,7 @@ int building_granary_add_import(building *granary, int resource, int amount, int
     }
     building_storage_permission_states permission;
     switch (land_trader) {
+        default:
         case 0: // sea trader
             permission = BUILDING_STORAGE_PERMISSION_DOCK;
             break;
@@ -92,6 +93,7 @@ int building_granary_remove_export(building *granary, int resource, int amount, 
     }
     building_storage_permission_states permission;
     switch (land_trader) {
+        default:
         case 0: // sea trader
             permission = BUILDING_STORAGE_PERMISSION_DOCK;
             break;
@@ -432,7 +434,7 @@ building *building_granary_get_granary_needing_food(building *source, int resour
         if (b->road_network_id != source->road_network_id || !building_granary_accepts_storage(b, resource, 0)) {
             continue;
         }
-        if ((building_storage_get_state(b, resource, 1) == BUILDING_STORAGE_STATE_GETTING) && getting ||
+        if ((building_storage_get_state(b, resource, 1) == BUILDING_STORAGE_STATE_GETTING && getting) ||
             (building_storage_get_state(b, resource, 1) != BUILDING_STORAGE_STATE_GETTING && !getting)) {
             //'not accepting' is already filtered out by building_granary_accepts_storage
             //if getting is 1, then we are looking only for granaries that are getting the resource, otherwise only accepting

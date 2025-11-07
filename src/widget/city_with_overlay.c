@@ -5,7 +5,7 @@
 #include "building/construction.h"
 #include "building/granary.h"
 #include "building/industry.h"
-#include "building/model.h"
+#include "building/properties.h"
 #include "building/storage.h"
 #include "building/type.h"
 #include "city/view.h"
@@ -229,12 +229,12 @@ static color_t get_building_color_mask(const building *b)
     return color_mask;
 }
 
-static int is_building_selected(const building *b)
+static int is_building_selected(building *b)
 {
     if (!config_get(CONFIG_UI_HIGHLIGHT_SELECTED_BUILDING)) { // if option not selected in config, abandon
         return 0;
     }
-    int main_part_id = building_main(b)->id; //check if side or main part is selected
+    unsigned int main_part_id = building_main(b)->id; //check if side or main part is selected
     if (b->id == city_roamer_preview_selected_building_id || main_part_id == city_roamer_preview_selected_building_id) {
         return 1;
     } else {
@@ -491,7 +491,7 @@ static void draw_footprint(int x, int y, int grid_offset)
     if (map_property_is_draw_tile(grid_offset)) {
         int terrain = map_terrain_get(grid_offset);
         if (terrain & TERRAIN_HIGHWAY && !(terrain & TERRAIN_GATEHOUSE)) {
-            city_draw_highway_footprint(x, y, scale, grid_offset);
+            city_draw_highway_footprint(x, y, scale, grid_offset, COLOR_MASK_NONE);
         } else if (terrain & (TERRAIN_AQUEDUCT | TERRAIN_WALL)) {
             if (terrain & TERRAIN_ROAD) {
                 // Draw the equivalent road tile.

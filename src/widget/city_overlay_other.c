@@ -4,8 +4,8 @@
 #include "building/animation.h"
 #include "building/building.h"
 #include "building/industry.h"
-#include "building/model.h"
 #include "building/monument.h"
+#include "building/properties.h"
 #include "building/roadblock.h"
 #include "building/rotation.h"
 #include "building/storage.h"
@@ -32,6 +32,8 @@
 #include "widget/city_draw_highway.h"
 
 #include <stdio.h>
+
+#define HIGHWAY_LEVY_MONTHLY 1
 
 static void draw_storage_ids(int x, int y, float scale, int grid_offset);
 
@@ -510,6 +512,20 @@ static int get_tooltip_levy(tooltip_context *c, const building *b)
     return 0;
 }
 
+static int get_offset_tooltip_levy(tooltip_context *c, int grid_offset)
+{
+    if (map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
+        return get_tooltip_levy(c, building_get(map_building_at(grid_offset)));
+    }
+    if (map_terrain_is(grid_offset, TERRAIN_HIGHWAY)) {
+        c->has_numeric_prefix = 1;
+        c->numeric_prefix = 1;
+        c->translation_key = TR_TOOLTIP_OVERLAY_LEVY_PER_TILE;
+        return 1;
+    }
+    return 0;
+}
+
 static int get_tooltip_sentiment(tooltip_context *c, int grid_offset)
 {
     if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
@@ -639,7 +655,7 @@ static int draw_footprint_water(int x, int y, float scale, int grid_offset)
     }
     int is_building = map_terrain_is(grid_offset, TERRAIN_BUILDING);
     if (map_terrain_is(grid_offset, TERRAIN_HIGHWAY) && !map_terrain_is(grid_offset, TERRAIN_GATEHOUSE)) {
-        city_draw_highway_footprint(x, y, scale, grid_offset);
+        city_draw_highway_footprint(x, y, scale, grid_offset, COLOR_MASK_NONE);
     } else if (map_terrain_is(grid_offset, terrain_on_water_overlay()) && !is_building) {
         image_draw_isometric_footprint_from_draw_tile(map_image_at(grid_offset), x, y, 0, scale);
     } else if (map_terrain_is(grid_offset, TERRAIN_WALL)) {
@@ -856,9 +872,9 @@ static int draw_footprint_desirability(int x, int y, float scale, int grid_offse
 {
     color_t color_mask = map_property_is_deleted(grid_offset) ? COLOR_MASK_RED : 0;
     if (map_terrain_is(grid_offset, TERRAIN_HIGHWAY) && !map_terrain_is(grid_offset, TERRAIN_GATEHOUSE)) {
-        city_draw_highway_footprint(x, y, scale, grid_offset);
-    } else if (map_terrain_is(grid_offset, terrain_on_desirability_overlay())
-        && !map_terrain_is(grid_offset, TERRAIN_BUILDING) || map_is_bridge(grid_offset)) {
+        city_draw_highway_footprint(x, y, scale, grid_offset, COLOR_MASK_NONE);
+    } else if ((map_terrain_is(grid_offset, terrain_on_desirability_overlay())
+        && !map_terrain_is(grid_offset, TERRAIN_BUILDING)) || map_is_bridge(grid_offset)) {
         // display normal tile
         if (map_property_is_draw_tile(grid_offset)) {
             image_draw_isometric_footprint_from_draw_tile(map_image_at(grid_offset), x, y, color_mask, scale);
@@ -898,8 +914,8 @@ static int draw_footprint_desirability(int x, int y, float scale, int grid_offse
 static int draw_top_desirability(int x, int y, float scale, int grid_offset)
 {
     color_t color_mask = map_property_is_deleted(grid_offset) ? COLOR_MASK_RED : 0;
-    if (map_terrain_is(grid_offset, terrain_on_desirability_overlay())
-        && !map_terrain_is(grid_offset, TERRAIN_BUILDING) || map_is_bridge(grid_offset)) {
+    if ((map_terrain_is(grid_offset, terrain_on_desirability_overlay())
+        && !map_terrain_is(grid_offset, TERRAIN_BUILDING)) || map_is_bridge(grid_offset)) {
         // display normal tile
         if (map_property_is_draw_tile(grid_offset)) {
             image_draw_isometric_top_from_draw_tile(map_image_at(grid_offset), x, y, color_mask, scale);
@@ -965,8 +981,8 @@ const city_overlay *city_overlay_for_levy(void)
         show_building_none,
         show_figure_none,
         get_column_height_levy,
+        get_offset_tooltip_levy,
         0,
-        get_tooltip_levy,
         0,
         0
     };
