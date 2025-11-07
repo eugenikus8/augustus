@@ -173,6 +173,7 @@ static void destroy_linked_parts(building *b, int destruction_method, int plague
                 break;
             case DESTROY_EARTHQUAKE:
                 part->state = BUILDING_STATE_DELETED_BY_GAME;
+                break;
             default:
                 map_building_tiles_set_rubble(part_id, part->x, part->y, part->size);
                 part->state = BUILDING_STATE_RUBBLE;
@@ -207,6 +208,7 @@ void building_destroy_by_earthquake(building *b)
 {
     int grid_offset = b->grid_offset; // save before destroying building
     int size = b->size;
+    b->state = BUILDING_STATE_DELETED_BY_GAME;
     map_building_tiles_set_rubble(b->id, b->x, b->y, b->size);
     destroy_linked_parts(b, DESTROY_EARTHQUAKE, 0);
     map_building_set_rubble_grid_building_id(grid_offset, 0, size);

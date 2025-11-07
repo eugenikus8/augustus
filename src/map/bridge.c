@@ -265,13 +265,19 @@ int map_bridge_is_ramp_sprite(int sprite)
     return (sprite >= 1 && sprite <= 4) || (sprite >= 7 && sprite <= 10);
 }
 
+/***
+ *  old way for checking for bridges - check if it's sprite, and check if it's on water
+ *  checking just for sprites is misleading, as on land buildings also have sprites - it's their animation frame
+ *  this function is not currently used in this module, but leaving it here as a precaution, as a comment to prevent
+ *  a compiler warning about unused function.
+ *
+
 static int legacy_map_is_bridge(int grid_offset)
 {
-    //old way for checking for bridges - check if it's sprite, and check if it's on water
-    //checking just for sprites is misleading, as on land buildings also have sprites - it's their animation frame
-    //this function is not currently used in this module, but leaving it here as a precaution
     return (map_sprite_bridge_at(grid_offset)) && map_terrain_is(grid_offset, TERRAIN_WATER);
 }
+
+***/
 
 int map_bridge_find_start_and_direction(int grid_offset, int *axis, int *axis_direction)
 {
@@ -283,7 +289,7 @@ int map_bridge_find_start_and_direction(int grid_offset, int *axis, int *axis_di
     if (!b) return -1;
 
     int start = map_grid_offset(b->x, b->y);
-    int building_id = b->id;
+    unsigned int building_id = b->id;
 
     static const int dirs[4][2] = {
         {  0, -1 }, // north
@@ -327,7 +333,7 @@ void map_bridge_remove(int grid_offset, int mark_deleted)
         ? map_grid_delta(dir, 0)  // horizontal
         : map_grid_delta(0, dir); // vertical
 
-    int building_id = map_building_at(start);
+    unsigned int building_id = map_building_at(start);
     int current = start;
 
     int bridge_x_start = map_grid_offset_to_x(start);
@@ -370,7 +376,7 @@ int map_bridge_count_figures(int grid_offset)
         ? map_grid_delta(dir, 0)  // horizontal
         : map_grid_delta(0, dir); // vertical
 
-    int building_id = map_building_at(start);
+    unsigned int building_id = map_building_at(start);
     int current = start;
     int figures = 0;
     // find lower end of the bridge

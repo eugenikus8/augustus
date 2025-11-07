@@ -13,6 +13,7 @@
 #include "sound/device.h"
 #include "sound/speech.h"
 #include "time.h"
+#include "window/city.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -251,7 +252,7 @@ static void draw_snow(void)
         count = max_particles;
     }
     for (int i = 0; i < count; ++i) {
-        if (window_is(WINDOW_CITY)) {
+        if (window_city_is_window_cityview()) {
             int drift = ((data.elements[i].y + data.elements[i].drift_offset) % 10) - 5;
             data.elements[i].x += (drift / 10) * data.elements[i].drift_direction;
             data.elements[i].y += data.elements[i].speed;
@@ -291,7 +292,7 @@ static void draw_sandstorm(void)
     }
 
     for (int i = 0; i < count; ++i) {
-        if (window_is(WINDOW_CITY)) {
+        if (window_city_is_window_cityview()) {
             int wave = ((data.elements[i].y + data.elements[i].offset) % 10) - 5;
             data.elements[i].x += data.elements[i].speed + (wave / 10);
         }
@@ -316,7 +317,7 @@ static void draw_rain(void)
         return;
     }
 
-    if (data.weather_config.intensity < 600 && window_is(WINDOW_CITY)) {
+    if (data.weather_config.intensity < 600 && window_city_is_window_cityview()) {
         update_wind();
     }
 
@@ -344,7 +345,7 @@ static void draw_rain(void)
             data.elements[i].y + data.elements[i].length,
             COLOR_WEATHER_DROPS);
 
-        if (window_is(WINDOW_CITY)) {
+        if (window_city_is_window_cityview()) {
             data.elements[i].x += dx;
 
             int dy = base_speed + data.elements[i].speed + (((data.elements[i].x + data.elements[i].y) % 10) / 10);
@@ -476,7 +477,12 @@ void city_weather_update(int month)
             type = WEATHER_SAND;
         } else {
             if (month == 10 || month == 11 || month == 0 || month == 1) {
-                type = (random_from_stdlib() % 2 == 0) ? WEATHER_RAIN : WEATHER_SNOW;
+                if (config_get(CONFIG_UI_WT_ENABLE_SNOW_CENTRAL)) {
+                    type = (random_from_stdlib() % 2 == 0) ? WEATHER_RAIN : WEATHER_SNOW;
+                } else {
+                    type = WEATHER_RAIN;
+                }
+
             }
             if (WEATHER_RAIN == type) {
                 intensity = random_between_from_stdlib(250, 1000);
