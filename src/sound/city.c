@@ -2,7 +2,6 @@
 
 #include "graphics/window.h"
 
-#include "building/model.h"
 #include "building/properties.h"
 #include "city/figures.h"
 #include "city/population.h"
