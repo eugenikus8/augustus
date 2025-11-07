@@ -2,7 +2,7 @@
 
 #include "core/calc.h"
 #include "building/construction.h"
-#include "building/model.h"
+#include "building/properties.h"
 #include "game/undo.h"
 #include "map/building.h"
 #include "map/building_tiles.h"
@@ -45,9 +45,6 @@ static int place_routed_building(int x_start, int y_start, int x_end, int y_end,
             default:
             case ROUTED_BUILDING_ROAD:
                 *items += map_tiles_set_road(x_end, y_end);
-                break;
-            case ROUTED_BUILDING_WALL:
-                *items += map_tiles_set_wall(x_end, y_end);
                 break;
             case ROUTED_BUILDING_AQUEDUCT:
                 *items += map_building_tiles_add_aqueduct(x_end, y_end);

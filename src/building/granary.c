@@ -1,7 +1,7 @@
 #include "granary.h"
 
 #include "building/destruction.h"
-#include "building/model.h"
+#include "building/properties.h"
 #include "building/storage.h"
 #include "building/warehouse.h"
 #include "city/finance.h"
@@ -61,6 +61,7 @@ int building_granary_add_import(building *granary, int resource, int amount, int
     }
     building_storage_permission_states permission;
     switch (land_trader) {
+        default:
         case 0: // sea trader
             permission = BUILDING_STORAGE_PERMISSION_DOCK;
             break;
@@ -92,6 +93,7 @@ int building_granary_remove_export(building *granary, int resource, int amount, 
     }
     building_storage_permission_states permission;
     switch (land_trader) {
+        default:
         case 0: // sea trader
             permission = BUILDING_STORAGE_PERMISSION_DOCK;
             break;
@@ -180,7 +182,7 @@ int building_granary_try_remove_resource(building *granary, int resource, int de
 
 int building_granaries_remove_resource(int resource, int amount)
 {
-    // first go for non-getting, non-maintaining granaries
+    // first go for non-getting, non-maintaining granaries that allow caesar to take resources
     for (building *b = building_first_of_type(BUILDING_GRANARY); b && amount; b = b->next_of_type) {
         if (b->state == BUILDING_STATE_IN_USE) {
             if (building_storage_get_state(b, resource, 1) < BUILDING_STORAGE_STATE_GETTING) {
@@ -190,7 +192,7 @@ int building_granaries_remove_resource(int resource, int amount)
     }
     // if that doesn't work, take it anyway
     for (building *b = building_first_of_type(BUILDING_GRANARY); b && amount; b = b->next_of_type) {
-        if (b->state == BUILDING_STATE_IN_USE) {
+        if (b->state == BUILDING_STATE_IN_USE && building_storage_get_permission(BUILDING_STORAGE_PERMISSION_CAESAR, b)) {
             amount -= building_granary_try_remove_resource(b, resource, amount);
         }
     }
@@ -209,12 +211,14 @@ int building_granary_count_available_resource(building *b, int resource, int res
     }
 }
 
-int building_granaries_count_available_resource(int resource, int respect_maintaining)
+int building_granaries_count_available_resource(int resource, int respect_maintaining, int caesars_request)
 {
     int total = 0;
 
     for (building *b = building_first_of_type(BUILDING_GRANARY); b; b = b->next_of_type) {
-
+        if (caesars_request && !building_storage_get_permission(BUILDING_STORAGE_PERMISSION_CAESAR, b)) {
+            continue;
+        }
         total += building_granary_count_available_resource(b, resource, respect_maintaining);
     }
 
@@ -235,10 +239,11 @@ static void try_create_cart_to_rome(building *b, int resource, int loads)
 
 int building_granaries_send_resources_to_rome(int resource, int amount)
 {
-    // first go for non-getting, non-maintaining granaries
+    // first go for non-getting, non-maintaining granaries with caesar permission
     for (building *b = building_first_of_type(BUILDING_GRANARY); b && amount; b = b->next_of_type) {
         if (b->state == BUILDING_STATE_IN_USE) {
-            if (building_storage_get_state(b, resource, 1) < BUILDING_STORAGE_STATE_GETTING) {
+            if (building_storage_get_state(b, resource, 1) < BUILDING_STORAGE_STATE_GETTING &&
+                building_storage_get_permission(BUILDING_STORAGE_PERMISSION_CAESAR, b)) {
                 int taken_loads = building_granary_try_remove_resource(b, resource, amount);
                 amount -= taken_loads;
                 if (taken_loads) {
@@ -250,10 +255,11 @@ int building_granaries_send_resources_to_rome(int resource, int amount)
     if (amount <= 0) {
         return 0;
     }
-    // if that doesn't work, take it anyway, but not from maintaining granaries
+    // if that doesn't work, take it anyway, but not from maintaining and no caesar permission granaries
     for (building *b = building_first_of_type(BUILDING_GRANARY); b && amount; b = b->next_of_type) {
         if (b->state == BUILDING_STATE_IN_USE) {
-            if (building_storage_get_state(b, resource, 1) < BUILDING_STORAGE_STATE_MAINTAINING) {
+            if ((building_storage_get_state(b, resource, 1) < BUILDING_STORAGE_STATE_MAINTAINING) &&
+                building_storage_get_permission(BUILDING_STORAGE_PERMISSION_CAESAR, b)) {
                 int taken_loads = building_granary_try_remove_resource(b, resource, amount);
                 amount -= taken_loads;
                 if (taken_loads) {
@@ -428,7 +434,7 @@ building *building_granary_get_granary_needing_food(building *source, int resour
         if (b->road_network_id != source->road_network_id || !building_granary_accepts_storage(b, resource, 0)) {
             continue;
         }
-        if ((building_storage_get_state(b, resource, 1) == BUILDING_STORAGE_STATE_GETTING) && getting ||
+        if ((building_storage_get_state(b, resource, 1) == BUILDING_STORAGE_STATE_GETTING && getting) ||
             (building_storage_get_state(b, resource, 1) != BUILDING_STORAGE_STATE_GETTING && !getting)) {
             //'not accepting' is already filtered out by building_granary_accepts_storage
             //if getting is 1, then we are looking only for granaries that are getting the resource, otherwise only accepting

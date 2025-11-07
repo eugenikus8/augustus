@@ -22,8 +22,9 @@ static void find_minimum_road_tile(int x, int y, int size, int *min_value, int *
         if (!map_terrain_is(grid_offset, TERRAIN_BUILDING) ||
             building_get(map_building_at(grid_offset))->type != BUILDING_GATEHOUSE) {
             if (map_terrain_is(grid_offset, TERRAIN_ROAD)) {
-                if (building_type_is_roadblock(building_get(map_building_at(grid_offset))->type)) {
-                    continue;
+                int roadblock_type = building_type_is_roadblock(building_get(map_building_at(grid_offset))->type);
+                if (roadblock_type == 1 || roadblock_type == 2) {
+                    continue; // ignore non-bridge roadblocks
                 }
                 int road_index = city_map_road_network_index(map_road_network_get(grid_offset));
                 if (road_index < *min_value) {
@@ -499,49 +500,6 @@ static int terrain_is_road_like(int grid_offset)
 {
     // highways don't count for roamers or for building road access, so they aren't checked here
     return map_terrain_is(grid_offset, TERRAIN_ROAD | TERRAIN_ACCESS_RAMP) ? 1 : 0;
-}
-
-static int tile_has_adjacent_road_tiles(int grid_offset, roadblock_permission perm)
-{
-    int tiles[4];
-    tiles[0] = grid_offset + map_grid_delta(0, -1);
-    tiles[1] = grid_offset + map_grid_delta(1, 0);
-    tiles[2] = grid_offset + map_grid_delta(0, 1);
-    tiles[3] = grid_offset + map_grid_delta(-1, 0);
-    int adjacent_roads = 0;
-    for (int i = 0; i < 4; i++) {
-        building *b = building_get(map_building_at(tiles[i]));
-        if (building_type_is_roadblock(b->type) && !building_roadblock_get_permission(perm, b)) {
-
-            continue;
-        } else if (!(map_routing_citizen_is_passable_terrain(grid_offset) || map_routing_citizen_is_road(grid_offset))) {
-            continue;
-        }
-        adjacent_roads += terrain_is_road_like(tiles[i]);
-    }
-    return adjacent_roads;
-}
-
-static int tile_has_adjacent_granary_road(int grid_offset)
-{
-    int tiles[4];
-    tiles[0] = grid_offset + map_grid_delta(0, -1);
-    tiles[1] = grid_offset + map_grid_delta(1, 0);
-    tiles[2] = grid_offset + map_grid_delta(0, 1);
-    tiles[3] = grid_offset + map_grid_delta(-1, 0);
-    for (int i = 0; i < 4; i++) {
-        if (building_get(map_building_at(tiles[i]))->type != BUILDING_GRANARY) {
-            continue;
-        }
-        switch (map_property_multi_tile_xy(tiles[i])) {
-            case EDGE_X1Y0:
-            case EDGE_X0Y1:
-            case EDGE_X2Y1:
-            case EDGE_X1Y2:
-                return 1;
-        }
-    }
-    return 0;
 }
 
 int map_road_get_granary_inner_road_tiles_count(building *b)

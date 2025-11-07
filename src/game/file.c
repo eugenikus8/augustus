@@ -323,10 +323,10 @@ static int start_scenario(const uint8_t *scenario_name, const char *scenario_fil
         return 0;
     }
     if (!load_custom_scenario(scenario_name, full_scenario_file)) {
+        uint8_t scenario_mapx_name[FILE_NAME_MAX];
+        string_copy(scenario_name, scenario_mapx_name, FILE_NAME_MAX);
         if (game_file_load_saved_game(full_scenario_file) == FILE_LOAD_SUCCESS) {
             is_save_game = 1;
-            uint8_t scenario_mapx_name[FILE_NAME_MAX];
-            string_copy(scenario_name, scenario_mapx_name, FILE_NAME_MAX);
             scenario_set_name(scenario_mapx_name);
         } else {
             return 0;
@@ -478,11 +478,13 @@ int game_file_make_yearly_autosave(void)
         next_autosave_slot, ".svx");
 
     platform_file_manager_copy_file(current_save_name, backup_save_name);
-    game_file_write_saved_game(current_save_name);
+    int result = game_file_write_saved_game(current_save_name);
 
     next_autosave_slot++;
-    config_set(CONFIG_GENERAL_NEXT_AUTOSAVE_SLOT,next_autosave_slot);
+    config_set(CONFIG_GENERAL_NEXT_AUTOSAVE_SLOT, next_autosave_slot);
     config_save();
+
+    return result;
 }
 
 int game_file_delete_saved_game(const char *filename)

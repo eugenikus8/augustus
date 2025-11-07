@@ -5,7 +5,7 @@
 #include "building/granary.h"
 #include "building/industry.h"
 #include "building/monument.h"
-#include "building/model.h"
+#include "building/properties.h"
 #include "building/storage.h"
 #include "city/finance.h"
 #include "city/resource.h"
@@ -309,8 +309,20 @@ int building_warehouse_add_import(building *warehouse, int resource, int amount,
             // account for fetched warehouse space instead of main warehouse
         }
     }
-    building_storage_permission_states permission = land_trader ?
-        BUILDING_STORAGE_PERMISSION_TRADERS : BUILDING_STORAGE_PERMISSION_DOCK;
+    building_storage_permission_states permission;
+    switch (land_trader) {
+        default:
+        case 0: // sea trader
+            permission = BUILDING_STORAGE_PERMISSION_DOCK;
+            break;
+        case 1: // land trader
+            permission = BUILDING_STORAGE_PERMISSION_TRADERS;
+            break;
+        case -1: //native trader
+            permission = BUILDING_STORAGE_PERMISSION_NATIVES;
+            land_trader = 1; // native trader is always land trader
+            break;
+    }
     if (!building_storage_get_permission(permission, warehouse)) {
         return 0; // cannot import to this warehouse
     }
@@ -340,6 +352,7 @@ int building_warehouse_remove_export(building *warehouse, int resource, int amou
     }
     building_storage_permission_states permission;
     switch (land_trader) {
+        default:
         case 0: // sea trader
             permission = BUILDING_STORAGE_PERMISSION_DOCK;
             break;
@@ -450,31 +463,24 @@ int building_warehouse_maximum_receptible_amount(building *b, int resource)
     unsigned char max_receptible = MIN(remaining_allowed, available_space);
     // Max the building is allowed to receive, considering all limits
     // allowed remaining is the amount that can be added to the warehouse considering set limit and current storage
-    max_receptible = max_receptible < 0 ? 0 : max_receptible; // in case current storage exceeds limits, 0
 
     return max_receptible;
 }
 
-int building_warehouses_count_available_resource(int resource, int respect_maintaining)
+int building_warehouses_count_available_resource(int resource, int respect_maintaining, int caesars_request)
 {
     int total = 0;
-    building *b = get_next_warehouse();
-    if (!b) {
-        return 0;
-    }
-    building *initial_warehouse = b;
-
-    do {
-        if (b->state == BUILDING_STATE_IN_USE) {
-            if (!respect_maintaining ||
-                building_storage_get_state(b, resource, 1) != BUILDING_STORAGE_STATE_MAINTAINING ||
-                building_storage_get_empty_all(b->id)) {
-                total += building_warehouse_get_amount(b, resource);
-            }
+    for (building *b = building_first_of_type(BUILDING_WAREHOUSE); b; b = b->next_of_type) {
+        if (b->state != BUILDING_STATE_IN_USE || (caesars_request &&
+            !building_storage_get_permission(BUILDING_STORAGE_PERMISSION_CAESAR, b))) {
+            continue;
         }
-        b = b->next_of_type ? b->next_of_type : building_first_of_type(BUILDING_WAREHOUSE);
-    } while (b != initial_warehouse);
-
+        if (!respect_maintaining ||
+            building_storage_get_state(b, resource, 1) != BUILDING_STORAGE_STATE_MAINTAINING ||
+            building_storage_get_empty_all(b->id)) {
+            total += building_warehouse_get_amount(b, resource);
+        }
+    }
     return total;
 }
 
@@ -492,17 +498,11 @@ static void try_create_cart_to_rome(building *b, int resource, int loads)
 
 int building_warehouses_send_resources_to_rome(int resource, int amount)
 {
-    building *b = get_next_warehouse();
-    if (!b) {
-        return amount;
-    }
-    building *initial_warehouse = b;
-
-    // First go for non-getting warehouses
-    do {
+    // first go for non-getting, non-maintaining warehouses with caesar permission
+    for (building *b = building_first_of_type(BUILDING_WAREHOUSE); b && amount; b = b->next_of_type) {
         if (b->state == BUILDING_STATE_IN_USE) {
-            if (warehouse_allows_getting(b, resource)) {
-                city_resource_set_last_used_warehouse(b->id);
+            if (building_storage_get_state(b, resource, 1) < BUILDING_STORAGE_STATE_GETTING &&
+                building_storage_get_permission(BUILDING_STORAGE_PERMISSION_CAESAR, b)) {
                 int taken_loads = building_warehouse_try_remove_resource(b, resource, amount);
                 amount -= taken_loads;
                 if (taken_loads) {
@@ -510,27 +510,23 @@ int building_warehouses_send_resources_to_rome(int resource, int amount)
                 }
             }
         }
-        b = b->next_of_type ? b->next_of_type : building_first_of_type(BUILDING_WAREHOUSE);
-    } while (b != initial_warehouse && amount > 0);
-
+    }
     if (amount <= 0) {
         return 0;
     }
-
-    // If that doesn't work, take it anyway
-    do {
-        if ((b->state == BUILDING_STATE_IN_USE) &&
-         (building_storage_get_state(b, resource, 1) < BUILDING_STORAGE_STATE_MAINTAINING)) {
-            city_resource_set_last_used_warehouse(b->id);
-            int taken_loads = building_warehouse_try_remove_resource(b, resource, amount);
-            amount -= taken_loads;
-            if (taken_loads) {
-                try_create_cart_to_rome(b, resource, taken_loads);
+    // if that doesn't work, take it anyway, but not from maintaining and no caesar permission warehouses
+    for (building *b = building_first_of_type(BUILDING_WAREHOUSE); b && amount; b = b->next_of_type) {
+        if (b->state == BUILDING_STATE_IN_USE) {
+            if ((building_storage_get_state(b, resource, 1) < BUILDING_STORAGE_STATE_MAINTAINING) &&
+                building_storage_get_permission(BUILDING_STORAGE_PERMISSION_CAESAR, b)) {
+                int taken_loads = building_warehouse_try_remove_resource(b, resource, amount);
+                amount -= taken_loads;
+                if (taken_loads) {
+                    try_create_cart_to_rome(b, resource, taken_loads);
+                }
             }
         }
-        b = b->next_of_type ? b->next_of_type : building_first_of_type(BUILDING_WAREHOUSE);
-    } while (b != initial_warehouse && amount > 0);
-
+    }
     return amount;
 }
 
@@ -598,7 +594,7 @@ int building_warehouse_for_storing(int src_building_id, int x, int y, int resour
     int min_dist = INFINITE;
     int min_building_id = 0;
     for (building *b = building_first_of_type(BUILDING_WAREHOUSE); b; b = b->next_of_type) {
-        if (b->id == src_building_id || (road_network_id != -1 && b->road_network_id != road_network_id) ||
+        if (b->id == (unsigned int) src_building_id || (road_network_id != -1 && b->road_network_id != road_network_id) ||
             !building_warehouse_accepts_storage(b, resource, understaffed) ||
             (building_warehouse_maximum_receptible_amount(b, resource) <= 0)) {
             continue;

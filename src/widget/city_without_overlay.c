@@ -4,11 +4,11 @@
 #include "building/animation.h"
 #include "building/connectable.h"
 #include "building/construction.h"
+#include "building/construction_clear.h"
 #include "building/dock.h"
 #include "building/granary.h"
 #include "building/image.h"
 #include "building/industry.h"
-#include "building/model.h"
 #include "building/monument.h"
 #include "building/properties.h"
 #include "building/rotation.h"
@@ -34,6 +34,7 @@
 #include "graphics/weather.h"
 #include "graphics/renderer.h"
 #include "graphics/window.h"
+#include "input/scroll.h"
 #include "map/building.h"
 #include "map/figure.h"
 #include "map/grid.h"
@@ -74,9 +75,11 @@ static struct {
 
     int image_id_water_first;
     int image_id_water_last;
-    int selected_figure_id;
-    int highlighted_formation;
+    unsigned int selected_figure_id;
+    unsigned int highlighted_formation;
     unsigned int selected_building_id;
+    unsigned int hovered_building_id;
+    const map_tile *cursor_tile;
     pixel_coordinate *selected_figure_coord;
 
     float scale;
@@ -98,6 +101,18 @@ static void init_draw_context(int selected_figure_id, pixel_coordinate *figure_c
     draw_context.selected_figure_coord = figure_coord;
     draw_context.highlighted_formation = highlighted_formation;
     draw_context.scale = city_view_get_scale() / 100.0f;
+
+    // Determine hovered building - only if config enabled and not scrolling
+    draw_context.hovered_building_id = 0;
+    if (config_get(CONFIG_UI_CV_CURSOR_SHADOW) && draw_context.cursor_tile && draw_context.cursor_tile->grid_offset &&
+        !scroll_in_progress()) {
+        int building_id = map_building_at(draw_context.cursor_tile->grid_offset);
+        if (building_id) {
+            building *b = building_get(building_id);
+            draw_context.hovered_building_id = building_main(b)->id;
+
+        }
+    }
 }
 
 static int draw_building_as_deleted(building *b)
@@ -167,7 +182,7 @@ static color_t get_building_color_mask(const building *b)
     return color_mask;
 }
 
-static int is_building_selected(const building *b)
+static int is_building_selected(building *b)
 {
     if (!config_get(CONFIG_UI_HIGHLIGHT_SELECTED_BUILDING)) {
         return 0;
@@ -182,6 +197,16 @@ static int is_building_selected(const building *b)
 
 }
 
+static int is_building_hovered(building *b)
+{
+    if (!draw_context.hovered_building_id) {
+        return 0;
+    }
+    building *main_building = building_main(b);
+    unsigned int main_part_id = main_building->id;
+    return (b->id == draw_context.hovered_building_id || main_part_id == draw_context.hovered_building_id);
+}
+
 static void draw_footprint(int x, int y, int grid_offset)
 {
     sound_city_progress_ambient();
@@ -192,12 +217,17 @@ static void draw_footprint(int x, int y, int grid_offset)
     // Valid grid_offset and leftmost tile -> draw
     int building_id = map_building_at(grid_offset);
     color_t color_mask = 0;
+    int is_cursor_tile = (draw_context.cursor_tile && grid_offset == draw_context.cursor_tile->grid_offset);
+
     if (building_id) {
         building *b = building_get(building_id);
         if (draw_building_as_deleted(b)) {
-            color_mask = COLOR_MASK_RED;
+            color_mask = building_construction_clear_color();
         } else if (is_building_selected(b)) {
             color_mask = get_building_color_mask(b);
+        } else if (is_building_hovered(b)) {
+            // Hover effect - only if not deleted or selected
+            color_mask = COLOR_MASK_HOVER;
         }
         int view_x, view_y, view_width, view_height;
         city_view_get_viewport(&view_x, &view_y, &view_width, &view_height);
@@ -221,6 +251,13 @@ static void draw_footprint(int x, int y, int grid_offset)
     if (map_terrain_is(grid_offset, TERRAIN_GARDEN)) {
         sound_city_mark_building_view(BUILDING_GARDENS, 0, SOUND_DIRECTION_CENTER);
     }
+
+    // Apply hover effect to non-building tiles if cursor is on them, config enabled, and not scrolling
+    if (!building_id && is_cursor_tile && !map_property_is_deleted(grid_offset) &&
+        config_get(CONFIG_UI_CV_CURSOR_SHADOW) && !scroll_in_progress()) {
+        color_mask = COLOR_MASK_HOVER;
+    }
+
     int image_id = map_image_at(grid_offset);
     if (map_property_is_constructing(grid_offset)) { //&&
         //  !building_is_connectable(building_construction_type())) {
@@ -236,7 +273,7 @@ static void draw_footprint(int x, int y, int grid_offset)
         map_image_set(grid_offset, image_id);
     }
     if (map_terrain_is(grid_offset, TERRAIN_HIGHWAY) && !map_terrain_is(grid_offset, TERRAIN_GATEHOUSE)) {
-        city_draw_highway_footprint(x, y, draw_context.scale, grid_offset);
+        city_draw_highway_footprint(x, y, draw_context.scale, grid_offset, color_mask);
     } else {
         image_draw_isometric_footprint_from_draw_tile(image_id, x, y, color_mask, draw_context.scale);
     }
@@ -486,9 +523,12 @@ static void draw_top(int x, int y, int grid_offset)
     int image_id = map_image_at(grid_offset);
     color_t color_mask = 0;
     if (draw_building_as_deleted(b) || (map_property_is_deleted(grid_offset) && !is_multi_tile_terrain(grid_offset))) {
-        color_mask = COLOR_MASK_RED;
+        color_mask = building_construction_clear_color();
     } else if (is_building_selected(b)) {
         color_mask = get_building_color_mask(b);
+    } else if (is_building_hovered(b)) {
+        // Hover effect for tops - only if not deleted or selected
+        color_mask = COLOR_MASK_HOVER;
     }
 
     image_draw_isometric_top_from_draw_tile(image_id, x, y, color_mask, draw_context.scale);
@@ -504,7 +544,7 @@ static void draw_top(int x, int y, int grid_offset)
 
 static void draw_figures(int x, int y, int grid_offset)
 {
-    int figure_id = map_figure_at(grid_offset);
+    unsigned int figure_id = map_figure_at(grid_offset);
     while (figure_id) {
         figure *f = figure_get(figure_id);
         if (figure_id == draw_context.selected_figure_id) {
@@ -772,9 +812,12 @@ static void draw_animation(int x, int y, int grid_offset)
     building *b = building_get(building_id);
     color_t color_mask = 0;
     if (draw_building_as_deleted(b) || map_property_is_deleted(grid_offset)) {
-        color_mask = COLOR_MASK_RED;
+        color_mask = building_construction_clear_color();
     } else if (is_building_selected(b)) {
         color_mask = get_building_color_mask(b);
+    } else if (is_building_hovered(b)) {
+        // Hover effect for animations - only if not deleted or selected
+        color_mask = COLOR_MASK_HOVER;
     }
     if (img->animation) {
         if (map_property_is_draw_tile(grid_offset)) {
@@ -860,7 +903,7 @@ static void draw_animation(int x, int y, int grid_offset)
                 }
             }
             image_draw(image_id, x + 81, y + 5,
-                draw_building_as_deleted(fort) ? COLOR_MASK_RED : COLOR_MASK_NONE, draw_context.scale);
+                draw_building_as_deleted(fort) ? building_construction_clear_color() : COLOR_MASK_NONE, draw_context.scale);
         }
     } else if (b->type == BUILDING_GATEHOUSE) {
         int xy = map_property_multi_tile_xy(grid_offset);
@@ -871,7 +914,7 @@ static void draw_animation(int x, int y, int grid_offset)
             (orientation == DIR_6_LEFT && xy == EDGE_X1Y0)) {
             building *gate = building_get(map_building_at(grid_offset));
             image_id = image_group(GROUP_BUILDING_GATEHOUSE);
-            color_mask = draw_building_as_deleted(gate) ? COLOR_MASK_RED : 0;
+            color_mask = draw_building_as_deleted(gate) ? building_construction_clear_color() : 0;
             if (gate->subtype.orientation == 1) {
                 if (orientation == DIR_0_TOP || orientation == DIR_4_BOTTOM) {
                     image_draw(image_id, x - 22, y - 80, color_mask, draw_context.scale);
@@ -900,7 +943,7 @@ static void draw_elevated_figures(int x, int y, int grid_offset)
         if ((f->use_cross_country && !f->is_ghost && !f->dont_draw_elevated) || f->height_adjusted_ticks) {
             int highlight = f->formation_id > 0 && f->formation_id == draw_context.highlighted_formation;
             city_draw_figure(f, x, y, draw_context.scale, highlight);
-        } else if (f->building_id == draw_context.selected_building_id) { //figure originates from selected building
+        } else if ((unsigned int) f->building_id == draw_context.selected_building_id) { //figure originates from selected building
             if (config_get(CONFIG_UI_SHOW_ROAMING_PATH)) {
                 int highlight = FIGURE_HIGHLIGHT_GREEN;
                 if (f->type == FIGURE_MARKET_SUPPLIER || f->type == FIGURE_DELIVERY_BOY) {
@@ -924,7 +967,7 @@ static void draw_hippodrome_ornaments(int x, int y, int grid_offset)
         image_draw(image_id + 1,
             x + img->animation->sprite_offset_x,
             y + img->animation->sprite_offset_y - top_height + FOOTPRINT_HALF_HEIGHT,
-            draw_building_as_deleted(b) ? COLOR_MASK_RED : COLOR_MASK_NONE, draw_context.scale
+            draw_building_as_deleted(b) ? building_construction_clear_color() : COLOR_MASK_NONE, draw_context.scale
         );
     }
 }
@@ -944,7 +987,15 @@ static void deletion_draw_terrain_top(int x, int y, int grid_offset)
 static void deletion_draw_figures_animations(int x, int y, int grid_offset)
 {
     if (map_property_is_deleted(grid_offset) || draw_building_as_deleted(building_get(map_building_at(grid_offset)))) {
-        image_blend_footprint_color(x, y, COLOR_MASK_RED, draw_context.scale);
+        color_t color = building_construction_clear_color();
+        if (color == COLOR_MASK_RED || color == COLOR_MASK_GREEN) {
+            image_blend_footprint_color(x, y, color, draw_context.scale);
+            // blending mode only work in standard RED or GREEN, any other colors have to be drawn flat.
+            // passing a different color will just draw the red blending by default
+        } else {
+            image_draw_isometric_footprint(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, color, draw_context.scale);
+            // no blending, just draw the flat tile
+        }
     }
     if (map_property_is_draw_tile(grid_offset) && !should_draw_top_before_deletion(grid_offset)) {
         draw_top(x, y, grid_offset);
@@ -1092,7 +1143,9 @@ static void update_clouds(void)
 void city_without_overlay_draw(int selected_figure_id, pixel_coordinate *figure_coord, const map_tile *tile, unsigned int roamer_preview_building_id)
 {
     int highlighted_formation_id = get_highlighted_formation_id(tile);
+    draw_context.cursor_tile = (map_tile *) tile;//store the tile under the cursor
     init_draw_context(selected_figure_id, figure_coord, highlighted_formation_id);
+
     if (roamer_preview_building_id) {
         draw_context.selected_building_id = roamer_preview_building_id;//store the clicked building id
     }

@@ -7,6 +7,7 @@
 #include "building/market.h"
 #include "building/storage.h"
 #include "building/warehouse.h"
+#include "core/config.h"
 #include "core/image.h"
 #include "city/data_private.h"
 #include "figure/combat.h"
@@ -15,10 +16,9 @@
 #include "figure/route.h"
 #include "figuretype/wall.h"
 #include "game/resource.h"
+#include "map/data.h"
 #include "map/road_access.h"
 #include "map/road_network.h"
-
-#define MAX_DISTANCE 40
 
 int figure_supplier_max_stocked_mess_hall_adjusted(void)
 {
@@ -156,7 +156,7 @@ static int change_market_supplier_destination(figure *f, int dst_building_id)
     figure_route_remove(f);
     f->destination_building_id = dst_building_id;
     building *b_dst = building_get(dst_building_id);
-    map_point road;
+    map_point road = { 0 };
     int has_road_access = 0;
     if (b_dst->type == BUILDING_WAREHOUSE) {
         has_road_access = map_has_road_access_warehouse(b_dst->x, b_dst->y, &road);
@@ -204,7 +204,7 @@ static int recalculate_market_supplier_destination(figure *f)
     int road_network = market->road_network_id;
 
     if (!building_market_get_needed_inventory(market, info) ||
-        !building_distribution_get_resource_storages_for_figure(info, BUILDING_MARKET, road_network, f, MAX_DISTANCE)) {
+        !building_distribution_get_resource_storages_for_figure(info, BUILDING_MARKET, road_network, f, config_get(CONFIG_GP_CH_MARKET_RANGE) ? MARKET_MAX_DISTANCE : map_data.width)) {
         return 0;
     }
 

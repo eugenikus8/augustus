@@ -9,7 +9,6 @@
 #include "building/industry.h"
 #include "building/market.h"
 #include "building/monument.h"
-#include "building/model.h"
 #include "building/properties.h"
 #include "building/rotation.h"
 #include "building/type.h"
@@ -31,6 +30,7 @@
 #include "map/bridge.h"
 #include "map/building.h"
 #include "map/building_tiles.h"
+#include "map/data.h"
 #include "map/figure.h"
 #include "map/grid.h"
 #include "map/image_context.h"
@@ -68,7 +68,7 @@ enum farm_ghost_object {
     FARM_GHOST_CROP
 };
 
-static enum {
+enum {
     TILE_FORBIDDEN = 1,
     TILE_ALLOWED = 0,
     TILE_DISCOURAGED = -1
@@ -220,6 +220,11 @@ void city_building_ghost_draw_fountain_range(int x, int y, int grid_offset)
     image_draw(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, COLOR_MASK_BLUE, data.scale);
 }
 
+void city_building_ghost_draw_reservoir_range(int x, int y, int grid_offset)
+{
+    image_draw(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, COLOR_MASK_RESERVOIR_RANGE, data.scale);
+}
+
 void city_building_ghost_draw_latrines_range(int x, int y, int grid_offset)
 {
     image_draw(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, COLOR_MASK_DARK_GREEN & ALPHA_FONT_SEMI_TRANSPARENT, data.scale);
@@ -287,7 +292,7 @@ static void draw_regular_building(building_type type, int image_id, int x, int y
         } else {
             image_draw(image_id + 1, x - 33, y - 56, color, data.scale);
         }
-    } else if (type != BUILDING_CLEAR_LAND) {
+    } else if (type != BUILDING_CLEAR_LAND && type != BUILDING_REPAIR_LAND) {
         draw_building(image_id, x, y, color);
     }
     draw_building_tiles(x, y, num_tiles, blocked_tiles);
@@ -519,8 +524,8 @@ static void draw_default(const map_tile *tile, int x_view, int y_view, building_
                 discouraged_terrain &= ~(TERRAIN_HIGHWAY | TERRAIN_WALL | TERRAIN_ROAD);
             }
             if (type == BUILDING_TOWER) {
-                forbidden_terrain &= ~TERRAIN_WALL;
-                discouraged_terrain &= ~TERRAIN_WALL;
+                forbidden_terrain &= ~TERRAIN_WALL & ~TERRAIN_BUILDING;
+                discouraged_terrain &= ~TERRAIN_WALL & ~TERRAIN_BUILDING;
             }
             if (config_get(CONFIG_GP_CH_WAREHOUSES_GRANARIES_OVER_ROAD_PLACEMENT)) {
                 if (type == BUILDING_WAREHOUSE) {
@@ -605,7 +610,7 @@ static void draw_first_reservoir_range(int x, int y, int grid_offset)
         data.reservoir_range.offsets[data.reservoir_range.total] = grid_offset;
         data.reservoir_range.total++;
     }
-    int color_mask = data.reservoir_range.blocked ? COLOR_MASK_GREY : COLOR_MASK_BLUE;
+    int color_mask = data.reservoir_range.blocked ? COLOR_MASK_GRAY : COLOR_MASK_BLUE;
     image_draw(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, color_mask, data.scale);
 }
 
@@ -616,7 +621,7 @@ static void draw_second_reservoir_range(int x, int y, int grid_offset)
             return;
         }
     }
-    int color_mask = data.reservoir_range.blocked ? COLOR_MASK_GREY : COLOR_MASK_BLUE;
+    int color_mask = data.reservoir_range.blocked ? COLOR_MASK_GRAY : COLOR_MASK_BLUE;
     image_draw(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, color_mask, data.scale);
 }
 
@@ -1099,7 +1104,6 @@ static void draw_hippodrome(const map_tile *tile, int x, int y)
     int x_part3 = x_part2 + HIPPODROME_X_VIEW_OFFSETS[orientation_index];
     int y_part3 = y_part2 + HIPPODROME_Y_VIEW_OFFSETS[orientation_index];
 
-
     color_t color_mask;
     if (blocked) {
         color_mask = COLOR_MASK_BUILDING_GHOST_RED;
@@ -1245,7 +1249,7 @@ static void draw_road(const map_tile *tile, int x, int y)
 
 static void draw_market_range(int x, int y, int grid_offset)
 {
-    image_draw(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, COLOR_MASK_GREY, data.scale);
+    image_draw(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, COLOR_MASK_GRAY, data.scale);
 }
 
 static void draw_market(const map_tile *tile, int x, int y)
@@ -1263,7 +1267,7 @@ static void draw_market(const map_tile *tile, int x, int y)
     } else {
         blocked = is_blocked_for_building(grid_offset, building_size, blocked_tiles, 1);
     }
-    if (config_get(CONFIG_UI_SHOW_MARKET_RANGE)) {
+    if (config_get(CONFIG_UI_SHOW_MARKET_RANGE) && config_get(CONFIG_GP_CH_MARKET_RANGE)) {
         city_view_foreach_tile_in_range(tile->grid_offset, 2, MARKET_MAX_DISTANCE, draw_market_range);
     }
     int image_id = image_group(building_properties_for_type(BUILDING_MARKET)->image_group);
@@ -1374,14 +1378,18 @@ static void draw_concrete_maker(const map_tile *tile, int x, int y)
 int city_building_ghost_mark_deleting(const map_tile *tile)
 {
     int construction_type = building_construction_type();
-    if (!tile->grid_offset || building_construction_draw_as_constructing() ||
-        scroll_in_progress() || construction_type != BUILDING_CLEAR_LAND) {
-        return (construction_type == BUILDING_CLEAR_LAND);
+    int is_land_work = (construction_type == BUILDING_CLEAR_LAND || construction_type == BUILDING_REPAIR_LAND);
+    if (!is_land_work) {    // bail out early if not a land-work type
+        return 0;
     }
-    if (!building_construction_in_progress()) {
+    if (!tile->grid_offset || building_construction_draw_as_constructing() || scroll_in_progress()) {
+        return 1;
+    }
+    if (!building_construction_in_progress()) { // no construction, clear bits
         map_property_clear_constructing_and_deleted();
     }
     map_building_tiles_mark_deleting(tile->grid_offset);
+
     if (map_terrain_is(tile->grid_offset, TERRAIN_HIGHWAY) && !map_terrain_is(tile->grid_offset, TERRAIN_AQUEDUCT)) {
         map_tiles_clear_highway(tile->grid_offset, 1);
     }
@@ -1508,7 +1516,8 @@ void city_building_ghost_draw(const map_tile *tile)
     }
     building_type type = building_construction_type();
     data.ghost_building.type = type;
-    if (building_construction_draw_as_constructing() || type == BUILDING_NONE || type == BUILDING_CLEAR_LAND) {
+    if (building_construction_draw_as_constructing() || type == BUILDING_NONE
+        || type == BUILDING_CLEAR_LAND || type == BUILDING_REPAIR_LAND) {
         return;
     }
     create_tile_offsets();
@@ -1525,8 +1534,24 @@ void city_building_ghost_draw(const map_tile *tile)
             draw_hippodrome_desirability(tile);
         } else if (type == BUILDING_DRAGGABLE_RESERVOIR) {
             map_tile shifted_tile = *tile;
-            shifted_tile.x -= 1;
-            shifted_tile.y -= 1;
+            switch (city_view_orientation()) {
+                case DIR_0_TOP:
+                    shifted_tile.x -= 1;
+                    shifted_tile.y -= 1;
+                    break;
+                case DIR_2_RIGHT:
+                    shifted_tile.x += 1;
+                    shifted_tile.y -= 1;
+                    break;
+                case DIR_4_BOTTOM:
+                    shifted_tile.x += 1;
+                    shifted_tile.y += 1;
+                    break;
+                case DIR_6_LEFT:
+                    shifted_tile.x -= 1;
+                    shifted_tile.y += 1;
+                    break;
+            }
             shifted_tile.grid_offset = map_grid_offset(shifted_tile.x, shifted_tile.y);
             draw_desirability_range(&shifted_tile, type, building_size);
         } else {
@@ -1546,12 +1571,18 @@ void city_building_ghost_draw(const map_tile *tile)
             draw_aqueduct(tile, x, y);
             break;
         case BUILDING_FOUNTAIN:
+            if (config_get(CONFIG_UI_BUILD_SHOW_RESERVOIR_RANGES)) {
+                city_water_ghost_draw_reservoir_ranges();
+            }
             draw_fountain(tile, x, y);
             break;
         case BUILDING_WELL:
             draw_well(tile, x, y);
             break;
         case BUILDING_BATHHOUSE:
+            if (config_get(CONFIG_UI_BUILD_SHOW_RESERVOIR_RANGES)) {
+                city_water_ghost_draw_reservoir_ranges();
+            }
             draw_bathhouse(tile, x, y);
             break;
         case BUILDING_SMALL_POND:
@@ -1584,6 +1615,9 @@ void city_building_ghost_draw(const map_tile *tile)
             draw_market(tile, x, y);
             break;
         case BUILDING_CONCRETE_MAKER:
+            if (config_get(CONFIG_UI_BUILD_SHOW_RESERVOIR_RANGES)) {
+                city_water_ghost_draw_reservoir_ranges();
+            }
             draw_concrete_maker(tile, x, y);
             break;
         case BUILDING_HOUSE_VACANT_LOT:

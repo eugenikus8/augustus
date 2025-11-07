@@ -78,7 +78,6 @@ static void advance_year(void)
 
 static void advance_month(void)
 {
-    int new_year = 0;
     city_migration_reset_newcomers();
     city_health_update();
     scenario_random_event_process();
@@ -106,7 +105,6 @@ static void advance_month(void)
 
     if (game_time_advance_month()) {
         advance_year();
-        new_year = 1;
     } else {
         city_ratings_update(0, 1);
     }
@@ -116,13 +114,8 @@ static void advance_month(void)
     city_games_decrement_month_counts();
     city_gods_update_blessings();
     tutorial_on_month_tick();
-    scenario_events_progress_paused(1);
-    scenario_events_process_all();
     if (setting_monthly_autosave()) {
         game_file_write_saved_game(dir_append_location("autosave.svx", PATH_LOCATION_SAVEGAME));
-    }
-    if (new_year && config_get(CONFIG_GP_CH_YEARLY_AUTOSAVE)) {
-        game_file_make_yearly_autosave();
     }
 
     city_weather_update(game_time_month());
@@ -133,6 +126,7 @@ static void advance_day(void)
     if (game_time_advance_day()) {
         advance_month();
     }
+
     if (game_time_day() == 0 || game_time_day() == 8) {
         city_sentiment_update();
     }
@@ -140,6 +134,12 @@ static void advance_day(void)
         building_lighthouse_consume_timber();
     }
     tutorial_on_day_tick();
+    if (config_get(CONFIG_GP_CH_YEARLY_AUTOSAVE) && game_time_month() == 11 && game_time_day() == 15) {
+        // 0-based index so 11 = December, 15 = last day of the month
+        game_file_make_yearly_autosave();
+    }
+    scenario_events_progress_paused(1);
+    scenario_events_process_all();
 }
 
 static void advance_tick(void)

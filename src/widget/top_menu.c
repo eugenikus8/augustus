@@ -2,6 +2,7 @@
 
 #include "assets/assets.h"
 #include "building/construction.h"
+#include "building/properties.h"
 #include "city/constants.h"
 #include "city/emperor.h"
 #include "city/finance.h"
@@ -795,14 +796,17 @@ static int handle_mouse_menu(const mouse *m)
             if (m->left.went_up) {
                 ratings_advisors_go_to(ADVISOR_FINANCIAL);
             }
+            break;
         case INFO_PERSONAL:
             if (m->left.went_up) {
                 ratings_advisors_go_to(ADVISOR_IMPERIAL);
             }
+            break;
         case INFO_POPULATION:
             if (m->left.went_up) {
                 ratings_advisors_go_to(ADVISOR_POPULATION);
             }
+            break;
         case INFO_CULTURE:
         case INFO_PROSPERITY:
         case INFO_PEACE:
@@ -810,10 +814,12 @@ static int handle_mouse_menu(const mouse *m)
             if (m->left.went_up) {
                 ratings_advisors_go_to(ADVISOR_RATINGS);
             }
+            break;
         case INFO_HEALTH:
             if (m->left.went_up) {
                 ratings_advisors_go_to(ADVISOR_HEALTH);
             }
+            break;
     }
     if (menu_id && m->left.went_up) {
         data.open_sub_menu = menu_id;
@@ -859,9 +865,6 @@ int widget_top_menu_get_tooltip_text(tooltip_context *c)
         }
         if (button_id < 4) {
             return 59 + button_id;
-        } else if (button_id == INFO_PERSONAL) {
-            c->text_group = CUSTOM_TRANSLATION;
-            return TR_TOOLTIP_PERSONAL_SAVINGS;
         } else {
             c->text_group = 53;
             c->num_extra_texts = 1;
@@ -879,10 +882,22 @@ int widget_top_menu_get_tooltip_text(tooltip_context *c)
                     c->extra_text_ids[0] = (city_rating_peace() <= 90)
                         ? 41 + city_rating_explanation_for(SELECTED_RATING_PEACE) : 52;
                     return 3;
+                case INFO_PERSONAL:
                 case INFO_FAVOR:
-                    c->extra_text_ids[0] = (city_rating_favor() <= 90)
-                        ? 27 + city_rating_explanation_for(SELECTED_RATING_FAVOR) : 53;
-                    return 4;
+                {
+                    const uint8_t *original_text = lang_get_string(53, (city_rating_favor() <= 90)
+                        ? 27 + city_rating_explanation_for(SELECTED_RATING_FAVOR) : 53);
+                    if (button_id == INFO_PERSONAL) {
+                        original_text = lang_get_string(CUSTOM_TRANSLATION, TR_TOOLTIP_PERSONAL_SAVINGS);
+                    }
+                    const uint8_t *gift_text = lang_get_string(52, 50);
+                    int value = city_emperor_months_since_gift();
+                    const uint8_t *months_text = lang_get_string(8, 4 + (value != 1));
+                    static char formatted_text[128];
+                    snprintf(formatted_text, sizeof(formatted_text), "%s\n%s: %d %s", original_text, gift_text, value, months_text);
+                    c->precomposed_text = (const uint8_t *) formatted_text;
+                    return 1;
+                }
                 case INFO_HEALTH:
                     c->text_group = CUSTOM_TRANSLATION;
                     c->extra_text_groups[0] = 56;
@@ -915,6 +930,7 @@ static void replay_map_confirmed(int confirmed, int checked)
         scenario_save_campaign_player_name();
         window_mission_selection_show_again();
     }
+    model_reset();
     scenario_events_process_all();
 }
 

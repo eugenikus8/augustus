@@ -5,7 +5,7 @@
 #include "building/construction.h"
 #include "building/granary.h"
 #include "building/industry.h"
-#include "building/model.h"
+#include "building/properties.h"
 #include "building/storage.h"
 #include "building/type.h"
 #include "city/view.h"
@@ -34,6 +34,7 @@
 #include "widget/city_overlay_education.h"
 #include "widget/city_overlay_entertainment.h"
 #include "widget/city_overlay_health.h"
+#include "widget/city_overlay_housing.h"
 #include "widget/city_overlay_other.h"
 #include "widget/city_overlay_risks.h"
 #include "widget/city_without_overlay.h"
@@ -136,6 +137,60 @@ static const city_overlay *get_city_overlay(void)
             return city_overlay_for_logistics();
         case OVERLAY_STORAGES:
             return city_overlay_for_storages();
+        case OVERLAY_HOUSE_SMALL_TENT:
+            return city_overlay_for_small_tent();
+        case OVERLAY_HOUSE_LARGE_TENT:
+            return city_overlay_for_large_tent();
+        case OVERLAY_HOUSE_SMALL_SHACK:
+            return city_overlay_for_small_shack();
+        case OVERLAY_HOUSE_LARGE_SHACK:
+            return city_overlay_for_large_shack();
+        case OVERLAY_HOUSE_SMALL_HOVEL:
+            return city_overlay_for_small_hovel();
+        case OVERLAY_HOUSE_LARGE_HOVEL:
+            return city_overlay_for_large_hovel();
+        case OVERLAY_HOUSE_SMALL_CASA:
+            return city_overlay_for_small_casa();
+        case OVERLAY_HOUSE_LARGE_CASA:
+            return city_overlay_for_large_casa();
+        case OVERLAY_HOUSE_SMALL_INSULA:
+            return city_overlay_for_small_insula();
+        case OVERLAY_HOUSE_MEDIUM_INSULA:
+            return city_overlay_for_medium_insula();
+        case OVERLAY_HOUSE_LARGE_INSULA:
+            return city_overlay_for_large_insula();
+        case OVERLAY_HOUSE_GRAND_INSULA:
+            return city_overlay_for_grand_insula();
+        case OVERLAY_HOUSE_SMALL_VILLA:
+            return city_overlay_for_small_villa();
+        case OVERLAY_HOUSE_MEDIUM_VILLA:
+            return city_overlay_for_medium_villa();
+        case OVERLAY_HOUSE_LARGE_VILLA:
+            return city_overlay_for_large_villa();
+        case OVERLAY_HOUSE_GRAND_VILLA:
+            return city_overlay_for_grand_villa();
+        case OVERLAY_HOUSE_SMALL_PALACE:
+            return city_overlay_for_small_palace();
+        case OVERLAY_HOUSE_MEDIUM_PALACE:
+            return city_overlay_for_medium_palace();
+        case OVERLAY_HOUSE_LARGE_PALACE:
+            return city_overlay_for_large_palace();
+        case OVERLAY_HOUSE_LUXURY_PALACE:
+            return city_overlay_for_luxury_palace();
+        case OVERLAY_HOUSING_GROUPS_TENTS:
+            return city_overlay_for_housing_groups_tents();
+        case OVERLAY_HOUSING_GROUPS_SHACKS:
+            return city_overlay_for_housing_groups_shacks();
+        case OVERLAY_HOUSING_GROUPS_HOVELS:
+            return city_overlay_for_housing_groups_hovels();
+        case OVERLAY_HOUSING_GROUPS_CASAE:
+            return city_overlay_for_housing_groups_casae();
+        case OVERLAY_HOUSING_GROUPS_INSULAE:
+            return city_overlay_for_housing_groups_insulae();
+        case OVERLAY_HOUSING_GROUPS_VILLAS:
+            return city_overlay_for_housing_groups_villas();
+        case OVERLAY_HOUSING_GROUPS_PALACES:
+            return city_overlay_for_housing_groups_palaces();
         default:
             return 0;
     }
@@ -159,30 +214,27 @@ static color_t get_building_color_mask(const building *b)
     color_t color_mask = COLOR_MASK_NONE;
     const model_building *model = model_get_building(b->type);
     int labor_needed = model->laborers;
-    if (!labor_needed && b->type != BUILDING_WAREHOUSE_SPACE) {
-        // account for warehouse case
+    if (!labor_needed && b->type != BUILDING_WAREHOUSE_SPACE) { // account for warehouse case
         color_mask = COLOR_MASK_NONE;
     } else {
-        switch (b->type) {
-            //buildings that have labor but no walkers
+        switch (b->type) { //buildings that have labor but no walkers
             case BUILDING_LATRINES:
             case BUILDING_FOUNTAIN:
                 color_mask = COLOR_MASK_NONE;
                 break;
-                //all other buildings
-            default:
+            default: //all other buildings
                 color_mask = SELECTED_BUILDING_COLOR_MASK;
         }
     }
     return color_mask;
 }
 
-static int is_building_selected(const building *b)
+static int is_building_selected(building *b)
 {
     if (!config_get(CONFIG_UI_HIGHLIGHT_SELECTED_BUILDING)) { // if option not selected in config, abandon
         return 0;
     }
-    int main_part_id = building_main(b)->id; //check if side or main part is selected
+    unsigned int main_part_id = building_main(b)->id; //check if side or main part is selected
     if (b->id == city_roamer_preview_selected_building_id || main_part_id == city_roamer_preview_selected_building_id) {
         return 1;
     } else {
@@ -439,7 +491,7 @@ static void draw_footprint(int x, int y, int grid_offset)
     if (map_property_is_draw_tile(grid_offset)) {
         int terrain = map_terrain_get(grid_offset);
         if (terrain & TERRAIN_HIGHWAY && !(terrain & TERRAIN_GATEHOUSE)) {
-            city_draw_highway_footprint(x, y, scale, grid_offset);
+            city_draw_highway_footprint(x, y, scale, grid_offset, COLOR_MASK_NONE);
         } else if (terrain & (TERRAIN_AQUEDUCT | TERRAIN_WALL)) {
             if (terrain & TERRAIN_ROAD) {
                 // Draw the equivalent road tile.
@@ -695,7 +747,7 @@ static void draw_top(int x, int y, int grid_offset)
         if (!map_terrain_is(grid_offset, TERRAIN_WALL | TERRAIN_AQUEDUCT | TERRAIN_ROAD)) {
             color_t color_mask = 0;
             if (map_property_is_deleted(grid_offset) && !is_multi_tile_terrain(grid_offset)) {
-                color_mask = COLOR_MASK_RED;
+                color_mask = building_construction_type() == BUILDING_CLEAR_LAND ? COLOR_MASK_RED : COLOR_MASK_GREEN;
             }
             // terrain
             image_draw_isometric_top_from_draw_tile(map_image_at(grid_offset), x, y, color_mask, scale);

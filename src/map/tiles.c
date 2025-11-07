@@ -387,7 +387,7 @@ static int get_gatehouse_building_id(int grid_offset)
     return 0;
 }
 
-static int get_gatehouse_position(int grid_offset, int direction, int building_id)
+static int get_gatehouse_position(int grid_offset, int direction, unsigned int building_id)
 {
     int result = 0;
     if (direction == DIR_0_TOP) {
@@ -642,8 +642,7 @@ static void set_wall_gatehouse_image_manually(int grid_offset)
 
 static void set_wall_image(int x, int y, int grid_offset)
 {
-    if (!map_terrain_is(grid_offset, TERRAIN_WALL) ||
-        map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
+    if (!map_terrain_is(grid_offset, TERRAIN_WALL)) {
         return;
     }
     const terrain_image *img = map_image_context_get_wall(grid_offset);
