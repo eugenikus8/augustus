@@ -225,7 +225,6 @@ static void on_sidebar_city_click(const grid_box_item *item);
 //buttons position registrators to enable dynamic positioning
 static void register_resource_button(int x, int y, int width, int height, resource_type r, int highlight);
 static void register_open_trade_button(int x, int y, int width, int height, int route_id, int highlight);
-static void sorting_order(int is_down, int param2);
 
 //arrays and counts for sidebar trade, resource and sorting buttons
 static trade_open_button trade_open_buttons[MAX_TRADE_OPEN_BUTTONS];
@@ -1526,6 +1525,9 @@ static void draw_empire_object(const empire_object *obj)
             image_id = assets_lookup_image_id(ASSET_FIRST_ORNAMENT) - 1 - image_id;
         }
     }
+    if (obj->type == EMPIRE_OBJECT_CITY && obj->empire_city_icon != EMPIRE_CITY_ICON_DEFAULT) {
+        image_id = empire_city_get_icon_image_id(obj->empire_city_icon); // fetch custom city icon
+    }
     const image *img = image_get(image_id);
     if ((((unsigned int) data.hovered_object == obj->id + 1) && obj->type == EMPIRE_OBJECT_CITY) ||
         ((empire_selected_object() == obj->id + 1) && obj->type == EMPIRE_OBJECT_CITY)) {
@@ -2144,10 +2146,7 @@ static void button_return_to_city(int param1, int param2)
 {
     window_city_show();
 }
-static void sorting_order(int is_down, int param2)
-{
-    window_empire_sidebar_sort_set_sorting_reversed(is_down);
-}
+
 static void button_advisor(int advisor, int param2)
 {
     window_advisors_show_advisor(advisor);
@@ -2172,8 +2171,6 @@ static void confirmed_open_trade_by_route(int accepted, int checked)
         building_menu_update();
         window_trade_opened_show(city_id);
     }
-
-    data.selected_trade_route = 0;  // Always clear
 }
 
 static void button_open_trade_by_route(int route_id)
