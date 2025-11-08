@@ -2228,8 +2228,8 @@ void model_reset(void)
     for (building_type type = BUILDING_ANY; type < BUILDING_TYPE_MAX; type++) {
         const building_properties *props = &properties[type];
         if ((props->size && props->event_data.attr) &&
-            type != BUILDING_GRAND_GARDEN && type != BUILDING_DOLPHIN_FOUNTAIN ||
-            type == BUILDING_CLEAR_LAND || type == BUILDING_REPAIR_LAND) {
+            ((type != BUILDING_GRAND_GARDEN && type != BUILDING_DOLPHIN_FOUNTAIN) ||
+            type == BUILDING_CLEAR_LAND || type == BUILDING_REPAIR_LAND)) {
             buildings[type] = props->building_model_data;
         } else {
             buildings[type] = NOTHING;
