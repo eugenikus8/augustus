@@ -313,7 +313,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
             .water = 2,
             .religion = 1,
             .education = 1,
-            .barber = 0,
+            .barber = 1,
             .bathhouse = 1,
             .health = 1,
             .food_types = 1,
@@ -748,6 +748,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
         .fire_proof = 1,
         .image_group = 61,
         .image_offset = 2,
+        .sound_id = SOUND_CITY_AQUEDUCT, //if has_water_access
         .event_data.attr = "large_statue",
         .building_model_data = {.cost = 150, .desirability_value = 14, .desirability_step = 2,
             .desirability_step_size = -2, .desirability_range = 5, .laborers = 0}
@@ -1138,7 +1139,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
         .size = 1,
         .fire_proof = 1,
         .image_group = 23,
-        // .sound_id = SOUND_CITY_WELL, // Disabled in original
+        .sound_id = SOUND_CITY_WELL, // Disabled in original
         .event_data.attr = "well",
         .building_model_data = {.cost = 5, .desirability_value = -1, .desirability_step = 1,
             .desirability_step_size = 2, .desirability_range = 1, .laborers = 0}
