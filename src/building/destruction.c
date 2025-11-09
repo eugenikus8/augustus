@@ -112,7 +112,7 @@ static void destroy_on_fire(building *b, int plagued)
     static const int y_tiles[] = {
         0, 0, 1, 1, 0, 1, 2, 2, 2, 0, 1, 2, 3, 3, 3, 3, 0, 1, 2, 3, 4, 4, 4, 4, 4, 0, 1, 2, 3, 4, 5, 5, 5, 5, 5, 5
     };
-    for (int tile = 0; tile < num_tiles; tile++) {
+    for (int tile = waterside_building ? 0 : 1; tile < num_tiles; tile++) {
         int x = x_tiles[tile] + b->x;
         int y = y_tiles[tile] + b->y;
         if (map_terrain_is(map_grid_offset(x, y), TERRAIN_WATER)) {
