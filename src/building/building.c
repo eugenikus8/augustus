@@ -566,14 +566,17 @@ int building_repair(building *b)
     } else if (type_to_place == BUILDING_WALL || type_to_place == BUILDING_TOWER) {
         wall = 1;
         for (int i = 0; i < grid_slice->size; i++) {
-
             success = building_construction_place_wall(grid_slice->grid_offsets[i]);
             placement_cost += model_get_building(BUILDING_WALL)->cost * success;
+            if (!success) {
+                break; // force failure if any wall/tower placement failed
+            }
         }
         if (type_to_place == BUILDING_TOWER) {
             map_tiles_update_all_walls(); // towers affect wall connections
             success = building_construction_place_building(type_to_place, x, y, 1);
         }
+
     } else {
         if (type_to_place == BUILDING_GATEHOUSE) {
             wall = 1;
