@@ -184,13 +184,18 @@ static void destroy_linked_parts(building *b, int destruction_method, int plague
     }
 
     // Unlink the buildings to prevent corrupting the building table
-    part = building_main(b);
-    for (int i = 0; i < 9 && part->id > 0; i++) {
-        building *next_part = building_next(part);
-        part->next_part_building_id = 0;
-        part->prev_part_building_id = 0;
-        part = next_part;
+    if (destruction_method != DESTROY_COLLAPSE) { // collapse leaves rubble which needs the links for repair
+        // destroy fire would be on the same boat, but warehouses are fire-resistant so no need to include them here
+        // same applies to hippodromes, which are also further non-repairable
+        part = building_main(b);
+        for (int i = 0; i < 9 && part->id > 0; i++) {
+            building *next_part = building_next(part);
+            part->next_part_building_id = 0;
+            part->prev_part_building_id = 0;
+            part = next_part;
+        }
     }
+
 }
 
 void building_destroy_by_collapse(building *b)
