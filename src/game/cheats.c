@@ -48,8 +48,6 @@ static void game_cheat_finish_monuments(uint8_t *);
 static void game_cheat_set_monument_phase(uint8_t *);
 static void game_cheat_unlock_all_buildings(uint8_t *);
 static void game_cheat_incite_riot(uint8_t *);
-//static void game_cheat_show_custom_events(uint8_t *);
-//static void game_cheat_show_editor(uint8_t *);
 static void game_cheat_cast_curse(uint8_t *);
 static void game_cheat_make_buildings_invincible(uint8_t *);
 static void game_cheat_change_climate(uint8_t *);
@@ -70,8 +68,8 @@ static void (*const execute_command[])(uint8_t *args) = {
     game_cheat_set_monument_phase,
     game_cheat_unlock_all_buildings,
     game_cheat_incite_riot,
-    //game_cheat_show_custom_events,
-    //game_cheat_show_editor,
+    game_cheat_show_custom_events,
+    game_cheat_show_editor,
     game_cheat_cast_curse,
     game_cheat_make_buildings_invincible,
     game_cheat_change_climate,
@@ -93,8 +91,8 @@ static const char *commands[] = {
     "monumentphase",            // syntax: monumentphase <phase>
     "whathaveromansdoneforus",
     "nike",
-    //"debug.customevents",
-    //"debug.showeditor",
+    "debug.customevents",
+    "debug.showeditor",
     "curse",                    // syntax: curse <god_id> <is_major>
     "romanconcrete",
     "globalwarming",            // syntax: globalwarming <climate>
@@ -337,14 +335,14 @@ static void game_cheat_incite_riot(uint8_t *args)
     city_sentiment_change_happiness(50);
 }
 
-void game_cheat_show_custom_events(void)
+void game_cheat_show_custom_events(uint8_t *args)
 {
     if (data.is_cheating) {
         window_editor_scenario_events_show();
     }
 }
 
-void game_cheat_show_editor(void)
+void game_cheat_show_editor(uint8_t *args)
 {
     if (data.is_cheating) {
         window_editor_attributes_show();

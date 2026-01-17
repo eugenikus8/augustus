@@ -325,10 +325,10 @@ void platform_handle_key_down(SDL_KeyboardEvent *event)
                 game_cheat_breakpoint();
                 break;
             case SDLK_e:
-                game_cheat_show_custom_events();
+                game_cheat_show_custom_events(NULL);
                 break;
             case SDLK_m:
-                game_cheat_show_editor();
+                game_cheat_show_editor(NULL);
                 break;
             case SDLK_x:
                 game_cheat_console();
