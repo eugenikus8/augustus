@@ -111,17 +111,30 @@ static int show_building_native(const building *b)
 
 static int draw_footprint_enemy(int x, int y, float scale, int grid_offset)
 {
-    if (map_terrain_is(grid_offset, TERRAIN_WALL | TERRAIN_AQUEDUCT)) {
-        int image_id = map_image_at(grid_offset);
-        image_draw_isometric_footprint_from_draw_tile(image_id, x, y, 0, scale);
-        return 1;
+    if (!map_property_is_draw_tile(grid_offset)) {
+        return 0;
     }
-    return 0;
+    int drawn = 0;
+    // 1. If there is a highway, draw it
+    if (map_terrain_is(grid_offset, TERRAIN_HIGHWAY) &&
+        !map_terrain_is(grid_offset, TERRAIN_GATEHOUSE)) {
+        city_draw_highway_footprint(x, y, scale, grid_offset, COLOR_MASK_NONE);
+        drawn = 1;
+    }
+    // 2. On top: an aqueduct / wall
+    if (map_terrain_is(grid_offset, TERRAIN_AQUEDUCT | TERRAIN_WALL)) {
+        image_draw_isometric_footprint_from_draw_tile(
+            map_image_at(grid_offset), x, y, 0, scale
+        );
+        drawn = 1;
+    }
+    // If nothing was drawn, let the engine draw the ground itself
+    return drawn;
 }
 
 static int draw_top_enemy(int x, int y, float scale, int grid_offset)
 {
-    if (map_terrain_is(grid_offset, TERRAIN_WALL | TERRAIN_AQUEDUCT)) {
+    if (map_terrain_is(grid_offset, TERRAIN_AQUEDUCT | TERRAIN_WALL)) {
         image_draw_isometric_top_from_draw_tile(map_image_at(grid_offset), x, y, 0, scale);
         return 1;
     }
