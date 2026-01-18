@@ -164,8 +164,8 @@ static int export_parse_attribute_with_resolved_type(xml_data_attribute_t *attr,
         case PARAMETER_TYPE_FUTURE_CITY:
             return export_attribute_future_city(attr, target);
         case PARAMETER_TYPE_MIN_MAX_NUMBER:
-            return export_attribute_number(attr, target);
         case PARAMETER_TYPE_NUMBER:
+        case PARAMETER_TYPE_GRID_SLICE:
             return export_attribute_number(attr, target);
         case PARAMETER_TYPE_RESOURCE:
             return export_attribute_resource(attr, target);
@@ -367,6 +367,9 @@ static void export_scenario_variables(buffer *buf)
 
         xml_exporter_add_attribute_encoded_text("name", scenario_custom_variable_get_name(i));
         xml_exporter_add_attribute_int("value", scenario_custom_variable_get_value(i));
+        xml_exporter_add_attribute_int("visible", scenario_custom_variable_is_visible(i));
+        xml_exporter_add_attribute_encoded_text("text", scenario_custom_variable_get_text_display(i));
+        xml_exporter_add_attribute_int("colour_group", scenario_custom_variable_get_color_group(i));
 
         xml_exporter_close_element();
     }
