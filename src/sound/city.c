@@ -128,6 +128,7 @@ static struct {
         [SOUND_CITY_NATIVE_HUT]         = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { ASSETS_DIRECTORY "/Sounds/NativeHut.ogg" } },
         [SOUND_CITY_AQUEDUCT]           = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/aquaduct.wav" } },
         [SOUND_CITY_ARENA]              = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/colloseum.wav" } }, //Dummy. If a separate sound appears, place it in the ASSETS_DIRECTORY
+        [SOUND_CITY_NATIVE_DECORATION]  = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/park.wav" } },
     },
     .ambient_sounds = {
         [SOUND_AMBIENT_EMPTY_LAND1]     = { .filenames.total = 1, .filenames.list = (sound_filenames[]) { "wavs/empty_land1.wav" } },
@@ -198,12 +199,15 @@ void sound_city_mark_building_view(building_type type, int num_workers, int dire
         case BUILDING_NATIVE_HUT:
         case BUILDING_NATIVE_MEETING:
         case BUILDING_NATIVE_CROPS:
+        case BUILDING_NATIVE_WATCHTOWER:
+        case BUILDING_NATIVE_MONUMENT:
+        case BUILDING_NATIVE_DECORATION:
             always_play = 1;
             break;
         default:
             break;
     }
-
+    // Mute building sounds when there is no access to water
     if ((type == BUILDING_BATHHOUSE || type == BUILDING_CONCRETE_MAKER || type == BUILDING_FOUNTAIN ||
         type == BUILDING_LARGE_STATUE || type == BUILDING_SMALL_POND || type == BUILDING_LARGE_POND) &&
         !has_water_access) {

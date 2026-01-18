@@ -2162,6 +2162,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
      },
      [BUILDING_NATIVE_HUT_ALT] = {
         .size = 1,
+        .sound_id = SOUND_CITY_NATIVE_HUT,
         .fire_proof = 1,
         .custom_asset.group = "Terrain_Maps",
         .custom_asset.id = "Native_Hut_Central_01",
@@ -2171,6 +2172,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
      },
      [BUILDING_NATIVE_DECORATION] = {
         .size = 1,
+        .sound_id = SOUND_CITY_NATIVE_DECORATION,
         .fire_proof = 1,
         .custom_asset.group = "Terrain_Maps",
         .custom_asset.id = "Native_Decoration_Central_01",
@@ -2180,6 +2182,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
      },
      [BUILDING_NATIVE_MONUMENT] = {
         .size = 4,
+        .sound_id = SOUND_CITY_NATIVE_DECORATION,
         .fire_proof = 1,
         .custom_asset.group = "Terrain_Maps",
         .custom_asset.id = "Native_Monument_Central_01",
@@ -2189,6 +2192,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
      },
      [BUILDING_NATIVE_WATCHTOWER] = {
         .size = 1,
+        .sound_id = SOUND_CITY_WATCHTOWER,
         .fire_proof = 1,
         .custom_asset.group = "Terrain_Maps",
         .custom_asset.id = "Native_Watchtower_Central_01",

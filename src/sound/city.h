@@ -90,6 +90,7 @@ typedef enum {
     SOUND_CITY_NATIVE_HUT,
     SOUND_CITY_AQUEDUCT,
     SOUND_CITY_ARENA,
+    SOUND_CITY_NATIVE_DECORATION,
     SOUND_CITY_MAX
 } sound_city_type;
 
