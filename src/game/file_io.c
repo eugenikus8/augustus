@@ -1728,8 +1728,8 @@ static savegame_load_status savegame_read_file_info(saved_game_info *info, saveg
     const savegame_state *state = &savegame_data.state;
     scenario_version_t scenario_version = save_version_to_scenario_version(version, state->scenario_version);
 
-    city_data_load_basic_info(state->city_data, &info->population, &info->treasury, &minimap_data.caravanserai_id,
-        version);
+    city_data_load_basic_info(state->city_data, &info->population, &info->treasury,
+        &minimap_data.caravanserai_id, version);
     game_time_load_basic_info(state->game_time, &info->month, &info->year);
 
     scenario_description_from_buffer(state->scenario, info->description, scenario_version);
