@@ -1911,6 +1911,9 @@ static translation_string all_strings[] = {
     {TR_CONFIG_UI_BUILD_SHOW_RESERVOIR_RANGES, "Show reservoir range when building fountains"},
     {TR_CHEAT_DESTROYED_BUILDING, "Destroyed building"},
     {TR_CONFIG_ENABLE_BUILD_MENU_SHORTCUTS, "Enable build menu shortcuts"},
+    {TR_ACTION_TYPE_LOCK_TRADE_ROUTE, "Lock Trade route"},
+    {TR_PARAMETER_LOCK, "Lock"},
+    {TR_PARAMETER_UNLOCK, "Unlock"}
 };
 
 void translation_english(const translation_string **strings, int *num_strings)
