@@ -1672,7 +1672,7 @@ static translation_string all_strings[] = {
     {TR_EDITOR_EARTHQUAKE_CUSTOM, "Свое"},
     {TR_EDITOR_TOOL_EARTHQUAKE_POINT, "Точка землетряс."},
     {TR_EDITOR_TOOL_EARTHQUAKE_CUSTOM, "Свое землетрясение"},
-    {TR_EDITOR_TOOL_EARTHQUAKE_REMOVE, "Очистить землетряс"},
+    {TR_EDITOR_TOOL_EARTHQUAKE_REMOVE, "Очистить землетряс."},
     {TR_ACTION_TYPE_CHANGE_MODEL_DATA, "Изменить данные модели"},
     {TR_PARAMETER_MODEL, "Модель"},
     {TR_PARAMETER_DATA_TYPE, "Тип данных"},
