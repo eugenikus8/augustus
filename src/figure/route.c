@@ -218,7 +218,7 @@ void figure_route_save_state(buffer *figures, buffer *buf_paths)
     }
 }
 
-int convert_old_directions_to_new_format(figure_path_data *path, const uint8_t *directions)
+static int convert_old_directions_to_new_format(figure_path_data *path, const uint8_t *directions)
 {
     figure *f = figure_get(path->figure_id);
 
@@ -300,8 +300,6 @@ void figure_route_load_state(buffer *figures, buffer *buf_paths, int version)
         return;
     }
 
-    unsigned int highest_id_in_use = 0;
-
     for (unsigned int i = 0; i < elements_to_load; i++) {
         figure_path_data *path = array_next(paths);
         if (version <= SAVE_GAME_LAST_STATIC_PATHS_AND_ROUTES) {
@@ -333,8 +331,7 @@ void figure_route_load_state(buffer *figures, buffer *buf_paths, int version)
         }
         if (path->figure_id) {
             update_current_tile(path);
-            highest_id_in_use = i;
         }
     }
-    paths.size = highest_id_in_use + 1;
+    array_trim(paths);
 }
