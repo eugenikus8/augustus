@@ -3,6 +3,7 @@
 #include "core/calc.h"
 
 #include <ctype.h>
+#include <stddef.h>
 
 int string_equals(const uint8_t *a, const uint8_t *b)
 {
