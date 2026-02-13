@@ -91,7 +91,7 @@ void custom_media_load_state_entry(buffer *buf, custom_media_t *entry, custom_me
     *link_id = entry->link_id;
 }
 
-int custom_media_relink_text_blob(int text_id, text_blob_string_t *new_text_link)
+int custom_media_relink_text_blob(size_t text_id, text_blob_string_t *new_text_link)
 {
     custom_media_t *entry;
     array_foreach(custom_media, entry) {

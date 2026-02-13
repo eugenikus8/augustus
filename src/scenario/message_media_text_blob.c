@@ -215,7 +215,7 @@ void message_media_text_blob_load_state(buffer *blob_buffer, buffer *meta_buffer
     get_highest_entry_id();
 }
 
-static void update_text_blob_link(int text_id, text_blob_string_t *new_text_link)
+static void update_text_blob_link(size_t text_id, text_blob_string_t *new_text_link)
 {
     if (custom_messages_relink_text_blob(text_id, new_text_link)) {
         return;
