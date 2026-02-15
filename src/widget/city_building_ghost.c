@@ -520,7 +520,7 @@ static void draw_default(const map_tile *tile, int x_view, int y_view, building_
         // discouraged terrain can be built on, but is still highlighted red,
         // to suggest e.g. that it will become unusable/be overwritten
         if (!fully_blocked) {
-            if (type == BUILDING_PLAZA || building_type_is_roadblock(type) && !(type == BUILDING_GRANARY || type == BUILDING_WAREHOUSE)) {
+            if (type == BUILDING_PLAZA || (building_type_is_roadblock(type) && !(type == BUILDING_GRANARY || type == BUILDING_WAREHOUSE))) {
                 forbidden_terrain &= ~TERRAIN_ROAD;
                 discouraged_terrain &= ~TERRAIN_ROAD;
             }
@@ -1542,7 +1542,7 @@ void city_building_ghost_draw(const map_tile *tile)
     city_view_get_selected_tile_pixels(&x, &y);
 
     const building_properties *props = building_properties_for_type(type);
-    if ((config_get(CONFIG_UI_SHOW_DESIRABILITY_RANGE_ALL) && type >= BUILDING_ANY && type <= BUILDING_TYPE_MAX) ||
+    if ((config_get(CONFIG_UI_SHOW_DESIRABILITY_RANGE_ALL) && type <= BUILDING_TYPE_MAX) ||
         (config_get(CONFIG_UI_SHOW_DESIRABILITY_RANGE) && props->draw_desirability_range)) {
         int building_size = (type == BUILDING_DRAGGABLE_RESERVOIR || type == BUILDING_WAREHOUSE) ? 3 : props->size;
 
