@@ -229,8 +229,7 @@ static int clear_land_confirmed(int measure_only, int x_start, int y_start, int 
         map_routing_update_water();
         building_update_state(); // the update of b state is needed to determine the right images for walls/palisades
         map_tiles_update_area_walls(x_min, y_min, radius + 1);
-        building_connectable_update_connections_for_type(BUILDING_PALISADE);
-        building_connectable_update_connections_for_type(BUILDING_PALISADE_GATE);
+        building_connectable_update_connections();
         figure_roamer_preview_reset(BUILDING_CLEAR_LAND);
         window_invalidate();
     }
