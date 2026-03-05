@@ -18,30 +18,44 @@ static const int DIRECTION_DELTA[] = {
 };
 
 static const int ADJACENT_OFFSETS[][29] = {
-    {0},
-    {OFFSET(0,-1), OFFSET(1,0), OFFSET(0,1), OFFSET(-1,0), 0},
-    {OFFSET(0,-1), OFFSET(1,-1), OFFSET(2,0), OFFSET(2,1), OFFSET(1,2), OFFSET(0,2), OFFSET(-1,1), OFFSET(-1,0), 0},
     {
+        0
+    },
+    {//1x1
+        OFFSET(0,-1),
+        OFFSET(1,0),
+        OFFSET(0,1),
+        OFFSET(-1,0), 0
+    },
+    {//2x2
+        OFFSET(0,-1), OFFSET(1,-1),
+        OFFSET(2,0), OFFSET(2,1),
+        OFFSET(1,2), OFFSET(0,2),
+        OFFSET(-1,1), OFFSET(-1,0), 0
+    },
+    {//3x3
         OFFSET(0,-1), OFFSET(1,-1), OFFSET(2,-1),
         OFFSET(3,0), OFFSET(3,1), OFFSET(3,2),
         OFFSET(2,3), OFFSET(1,3), OFFSET(0,3),
         OFFSET(-1,2), OFFSET(-1,1), OFFSET(-1,0), 0
     },
-    {
+    {//4x4
         OFFSET(0,-1), OFFSET(1,-1), OFFSET(2,-1), OFFSET(3,-1),
         OFFSET(4,0), OFFSET(4,1), OFFSET(4,2), OFFSET(4,3),
         OFFSET(3,4), OFFSET(2,4), OFFSET(1,4), OFFSET(0,4),
         OFFSET(-1,3), OFFSET(-1,2), OFFSET(-1,1), OFFSET(-1,0), 0
     },
-    {
+    {//5x5
         OFFSET(0,-1), OFFSET(1,-1), OFFSET(2,-1), OFFSET(3,-1), OFFSET(4,-1),
         OFFSET(5,0), OFFSET(5,1), OFFSET(5,2), OFFSET(5,3), OFFSET(5,4),
         OFFSET(4,5), OFFSET(3,5), OFFSET(2,5), OFFSET(1,5), OFFSET(0,5),
         OFFSET(-1,4), OFFSET(-1,3), OFFSET(-1,2), OFFSET(-1,1), OFFSET(-1,0), 0
     },
-    { 0
+    {//6x6
+        0
     },
-    {   OFFSET(0,-1), OFFSET(1,-1), OFFSET(2,-1), OFFSET(3,-1), OFFSET(4,-1), OFFSET(5,-1), OFFSET(6,-1),
+    {//7x7
+        OFFSET(0,-1), OFFSET(1,-1), OFFSET(2,-1), OFFSET(3,-1), OFFSET(4,-1), OFFSET(5,-1), OFFSET(6,-1),
         OFFSET(7,0), OFFSET(7,1), OFFSET(7,2), OFFSET(7,3), OFFSET(7,4), OFFSET(7,5), OFFSET(7,6),
         OFFSET(6,7), OFFSET(5,7), OFFSET(4,7), OFFSET(3,7), OFFSET(2,7), OFFSET(1,7), OFFSET(0,7),
         OFFSET(-1,6), OFFSET(-1,5), OFFSET(-1,4), OFFSET(-1,3), OFFSET(-1,2), OFFSET(-1,1), OFFSET(-1,0), 0
@@ -226,6 +240,12 @@ grid_slice *map_grid_get_grid_slice_ring(int center_grid_offset, int inner_radiu
             if (distance > inner_radius && distance <= outer_radius) {
                 int x = center_x + dx;
                 int y = center_y + dy;
+                if (x < 0 || y < 0) {
+                    continue;
+                }
+                if (x > GRID_SIZE || y > GRID_SIZE) {
+                    continue;
+                }
                 int offset = map_grid_offset(x, y);
                 if (map_grid_is_valid_offset(offset)) {
                     tmp[count++] = offset;
@@ -240,6 +260,19 @@ grid_slice *map_grid_get_grid_slice_from_center(int center_grid_offset, int radi
 {
     // A circle is just a ring with inner_radius = 0
     return map_grid_get_grid_slice_ring(center_grid_offset, 0, radius);
+}
+
+grid_slice *map_grid_slice_contains(int grid_offset, grid_slice *slice)
+{
+    if (!slice) {
+        return NULL;
+    }
+    for (int i = 0; i < slice->size; i++) {
+        if (slice->grid_offsets[i] == grid_offset) {
+            return slice;
+        }
+    }
+    return NULL;
 }
 
 int map_grid_is_valid_offset(int grid_offset)

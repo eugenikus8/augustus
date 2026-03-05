@@ -263,6 +263,7 @@ static config_widget ui_widgets_by_category[CATEGORY_UI_COUNT][MAX_WIDGETS] = {
         {TYPE_CHECKBOX, CONFIG_UI_CLEAR_WARNINGS_RIGHTCLICK, TR_CONFIG_CLEAR_WARNINGS_RIGHTCLICK, NULL, 0, 1, ITEM_BASE_H, CHECKBOX_MARGIN},
         {TYPE_CHECKBOX, CONFIG_UI_CV_BUILD_MENU_ICONS, TR_CONFIG_UI_CV_BUILD_MENU_ICONS, NULL, 0, 1, ITEM_BASE_H, CHECKBOX_MARGIN},
         {TYPE_CHECKBOX, CONFIG_UI_CV_CURSOR_SHADOW, TR_CONFIG_UI_CV_CURSOR_SHADOW, NULL, 0, 1, ITEM_BASE_H, CHECKBOX_MARGIN},
+        {TYPE_CHECKBOX, CONFIG_UI_ENABLE_BUILD_MENU_SHORTCUTS, TR_CONFIG_ENABLE_BUILD_MENU_SHORTCUTS, NULL, 0, 1, ITEM_BASE_H, CHECKBOX_MARGIN},
         {TYPE_NONE}
     },
     // Weather
@@ -358,7 +359,7 @@ typedef struct {
     list_box_type *lb;
     int count;
     int page_id;
-    int *selected_ref; //  points into selected_categories
+    int is_ui;
 } category_page_properties;
 
 //    Widget ops (measure / draw / input)
@@ -1149,11 +1150,10 @@ static category_page_properties current_category_properties(void)
 {
     category_page_properties properties;
     if (data.page == CONFIG_PAGE_UI_CHANGES) {
-        properties = (category_page_properties) { &ui_list_box, CATEGORY_UI_COUNT, CONFIG_PAGE_UI_CHANGES,
-                (int *) &selected_categories.ui_category };
+        properties = (category_page_properties) { &ui_list_box, CATEGORY_UI_COUNT, CONFIG_PAGE_UI_CHANGES, 1 };
     } else {
         properties = (category_page_properties) { &city_mgmt_list_box, CATEGORY_CITY_COUNT,
-             CONFIG_PAGE_CITY_MANAGEMENT_CHANGES,  (int *) &selected_categories.city_mgmt_category };
+             CONFIG_PAGE_CITY_MANAGEMENT_CHANGES, 0 };
     }
     return properties;
 }
@@ -1219,7 +1219,11 @@ static void handle_list_box_select(unsigned int index, int is_double_click)
 {
     category_page_properties properties = current_category_properties();
     if (index < (unsigned) properties.count) {
-        *properties.selected_ref = (int) index;
+        if (properties.is_ui) {
+            selected_categories.ui_category = index;
+        } else {
+            selected_categories.city_mgmt_category = index;
+        }
         scrollbar.scroll_position = 0;
         int count = get_widget_count_for(data.page);
         scrollbar_init(&scrollbar, 0, count);

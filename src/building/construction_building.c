@@ -427,8 +427,12 @@ int building_construction_fill_vacant_lots(grid_slice *area)
 
 int building_construction_place_building(building_type type, int x, int y, int exact_coordinates)
 {
+    int grid_offset = map_grid_offset(x, y);
+    
     int terrain_mask = TERRAIN_ALL;
-    if (building_type_is_roadblock(type)) {
+    if ((building_type_is_roadblock(type) && !(type == BUILDING_GRANARY || type == BUILDING_WAREHOUSE)) ||
+        (config_get(CONFIG_GP_CH_WAREHOUSES_GRANARIES_OVER_ROAD_PLACEMENT) &&
+        (type == BUILDING_GRANARY || type == BUILDING_WAREHOUSE))) {
         terrain_mask = type == BUILDING_GATEHOUSE ? ~TERRAIN_WALL & ~TERRAIN_ROAD &
             ~TERRAIN_HIGHWAY & ~TERRAIN_BUILDING : ~TERRAIN_ROAD & ~TERRAIN_HIGHWAY;
         //allow building gatehouses over walls and roads, other non-bridge roadblocks over roads and highways
@@ -436,11 +440,6 @@ int building_construction_place_building(building_type type, int x, int y, int e
         terrain_mask = ~TERRAIN_WALL & ~TERRAIN_BUILDING;
     } else if (type == BUILDING_RESERVOIR || type == BUILDING_DRAGGABLE_RESERVOIR) {
         terrain_mask = ~TERRAIN_AQUEDUCT;
-    }
-    if (config_get(CONFIG_GP_CH_WAREHOUSES_GRANARIES_OVER_ROAD_PLACEMENT)) {
-        if (type == BUILDING_GRANARY || type == BUILDING_WAREHOUSE) {
-            terrain_mask = ~TERRAIN_ROAD;
-        }
     }
     //allow building granaries and warehouses over all road, BUT, 
     //the building ghost is set up to SUGGEST placing it over crossroads only
@@ -455,7 +454,7 @@ int building_construction_place_building(building_type type, int x, int y, int e
     int building_orientation = 0;
     if (type == BUILDING_GATEHOUSE || type == BUILDING_WAREHOUSE) {
         //check if there's a preset orientation from old building
-        building *old_b = building_main(building_get(map_building_rubble_building_id(map_grid_offset(x, y))));
+        building *old_b = building_main(building_get(map_building_rubble_building_id(grid_offset)));
         if (old_b && (old_b->type == BUILDING_GATEHOUSE ||
             old_b->type == BUILDING_WAREHOUSE || old_b->type == BUILDING_WAREHOUSE_SPACE)) {
             building_orientation = old_b->subtype.orientation;
@@ -492,7 +491,7 @@ int building_construction_place_building(building_type type, int x, int y, int e
             city_warning_show(WARNING_CLEAR_LAND_NEEDED, NEW_WARNING_SLOT);
             return 0;
         }
-        if (!check_gatehouse_tiles(map_grid_offset(x, y))) { //helper to make sure all building tiles are on walls
+        if (!check_gatehouse_tiles(grid_offset)) { //helper to make sure all building tiles are on walls
             city_warning_show(WARNING_CLEAR_LAND_NEEDED, NEW_WARNING_SLOT);
             return 0;
         }
