@@ -15,8 +15,8 @@ enum {
  * Used to store multiple grid coordinates as a contiguous array of offsets,
  * for operations on groups of tiles - allows easy iteration through uneven shapes
  *
- * @param grid_offsets Array containing the grid offset positions
- * @param size 1-based count of valid entries in grid_offsets, 0 means empty arrray, 1 means [0] is valid, etc.
+ * @var grid_offsets Array containing the grid offset positions
+ * @var size 1-based count of valid entries in grid_offsets, 0 means empty arrray, 1 means [0] is valid, etc.
  */
 typedef struct grid_slice {
     int grid_offsets[MAX_SLICE_SIZE];
@@ -188,5 +188,7 @@ grid_slice *map_grid_get_grid_slice_ring(int center_grid_offset, int inner_radiu
  * @return Allocated grid_slice, or NULL on failure
  */
 grid_slice *map_grid_get_grid_slice_from_center(int center_grid_offset, int radius);
+
+grid_slice *map_grid_slice_contains(int grid_offset, grid_slice *slice);
 
 #endif // MAP_GRID_H

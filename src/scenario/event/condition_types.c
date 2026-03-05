@@ -16,6 +16,7 @@
 #include "game/settings.h"
 #include "game/time.h"
 #include "map/grid.h"
+#include "map/property.h"
 #include "map/terrain.h"
 #include "scenario/custom_variable.h"
 #include "scenario/event/condition_comparison_helper.h"
@@ -24,11 +25,23 @@
 #include "scenario/request.h"
 #include "scenario/scenario.h"
 
+#define BUILDING_RUBBLE -1
+
+static int count_no_condition(int grid_offset)
+{
+    return 1;
+}
+
+static int count_not_overgrown(int grid_offset)
+{
+    return !map_property_is_plaza_earthquake_or_overgrown_garden(grid_offset);
+}
+
 int scenario_condition_type_building_count_active_met(const scenario_condition_t *condition)
 {
     int comparison = condition->parameter1;
     int value = scenario_formula_evaluate_formula(condition->parameter2);
-    building_type type = condition->parameter3;
+    int type = condition->parameter3;
 
     int total_active_count = 0;
     switch (type) {
@@ -62,29 +75,23 @@ int scenario_condition_type_building_count_active_met(const scenario_condition_t
         case BUILDING_ANY:
             total_active_count = building_count_any_total(1);
             break;
-        case BUILDING_FORT_LEGIONARIES:
-            total_active_count += building_count_active_fort_type(FIGURE_FORT_LEGIONARY);
-            break;
-        case BUILDING_FORT_JAVELIN:
-            total_active_count += building_count_active_fort_type(FIGURE_FORT_JAVELIN);
-            break;
-        case BUILDING_FORT_MOUNTED:
-            total_active_count += building_count_active_fort_type(FIGURE_FORT_MOUNTED);
-            break;
         case BUILDING_ROAD:
-            total_active_count = building_count_roads();
+            total_active_count = building_count_terrain(TERRAIN_ROAD, count_no_condition);
             break;
         case BUILDING_HIGHWAY:
-            total_active_count = building_count_highway();
+            total_active_count = building_count_terrain(TERRAIN_HIGHWAY, count_no_condition);
             break;
         case BUILDING_PLAZA:
-            total_active_count = building_count_plaza();
+            total_active_count = building_count_terrain(TERRAIN_ROAD, map_property_is_plaza_earthquake_or_overgrown_garden);
             break;
         case BUILDING_GARDENS:
-            total_active_count = building_count_gardens(0);
+            total_active_count = building_count_terrain(TERRAIN_GARDEN, count_not_overgrown);
             break;
         case BUILDING_OVERGROWN_GARDENS:
-            total_active_count = building_count_gardens(1);
+            total_active_count = building_count_terrain(TERRAIN_GARDEN, map_property_is_plaza_earthquake_or_overgrown_garden);
+            break;
+        case BUILDING_RUBBLE:
+            total_active_count = building_count_terrain(TERRAIN_RUBBLE, count_no_condition);
             break;
         case BUILDING_LOW_BRIDGE:
             total_active_count = building_count_bridges(0);
@@ -104,7 +111,7 @@ int scenario_condition_type_building_count_any_met(const scenario_condition_t *c
 {
     int comparison = condition->parameter1;
     int value = scenario_formula_evaluate_formula(condition->parameter2);
-    building_type type = condition->parameter3;
+    int type = condition->parameter3;
 
     int total_active_count = 0;
     switch (type) {
@@ -138,29 +145,23 @@ int scenario_condition_type_building_count_any_met(const scenario_condition_t *c
         case BUILDING_ANY:
             total_active_count = building_count_any_total(0);
             break;
-        case BUILDING_FORT_LEGIONARIES:
-            total_active_count += building_count_fort_type_total(FIGURE_FORT_LEGIONARY);
-            break;
-        case BUILDING_FORT_JAVELIN:
-            total_active_count += building_count_fort_type_total(FIGURE_FORT_JAVELIN);
-            break;
-        case BUILDING_FORT_MOUNTED:
-            total_active_count += building_count_fort_type_total(FIGURE_FORT_MOUNTED);
-            break;
         case BUILDING_ROAD:
-            total_active_count = building_count_roads();
+            total_active_count = building_count_terrain(TERRAIN_ROAD, count_no_condition);
             break;
         case BUILDING_HIGHWAY:
-            total_active_count = building_count_highway();
+            total_active_count = building_count_terrain(TERRAIN_HIGHWAY, count_no_condition);
             break;
         case BUILDING_PLAZA:
-            total_active_count = building_count_plaza();
+            total_active_count = building_count_terrain(TERRAIN_ROAD, map_property_is_plaza_earthquake_or_overgrown_garden);
             break;
         case BUILDING_GARDENS:
-            total_active_count = building_count_gardens(0);
+            total_active_count = building_count_terrain(TERRAIN_GARDEN, count_not_overgrown);
             break;
         case BUILDING_OVERGROWN_GARDENS:
-            total_active_count = building_count_gardens(1);
+            total_active_count = building_count_terrain(TERRAIN_GARDEN, map_property_is_plaza_earthquake_or_overgrown_garden);
+            break;
+        case BUILDING_RUBBLE:
+            total_active_count = building_count_terrain(TERRAIN_RUBBLE, count_no_condition);
             break;
         case BUILDING_LOW_BRIDGE:
             total_active_count = building_count_bridges(0);
@@ -210,7 +211,7 @@ int scenario_condition_type_building_count_area_met(const scenario_condition_t *
 {
     int grid_offset1 = condition->parameter1;
     int grid_offset2 = condition->parameter2;
-    building_type type = condition->parameter3;
+    int type = condition->parameter3;
     int comparison = condition->parameter4;
     int value = scenario_formula_evaluate_formula(condition->parameter5);
 
@@ -247,29 +248,29 @@ int scenario_condition_type_building_count_area_met(const scenario_condition_t *
         case BUILDING_MENU_PARKS:
             buildings_in_area = building_set_area_count_deco_statues(minx, miny, maxx, maxy);
             break;
-        case BUILDING_FORT_LEGIONARIES:
-            buildings_in_area = building_count_fort_type_in_area(minx, miny, maxx, maxy, FIGURE_FORT_LEGIONARY);
-            break;
-        case BUILDING_FORT_JAVELIN:
-            buildings_in_area = building_count_fort_type_in_area(minx, miny, maxx, maxy, FIGURE_FORT_JAVELIN);
-            break;
-        case BUILDING_FORT_MOUNTED:
-            buildings_in_area = building_count_fort_type_in_area(minx, miny, maxx, maxy, FIGURE_FORT_MOUNTED);
-            break;
         case BUILDING_ROAD:
-            buildings_in_area = building_count_roads_in_area(minx, miny, maxx + 1, maxy + 1);
+            buildings_in_area = building_count_terrain_in_area(minx, miny, maxx + 1, maxy + 1,
+                TERRAIN_ROAD, count_no_condition);
             break;
         case BUILDING_HIGHWAY:
-            buildings_in_area = building_count_highway_in_area(minx, miny, maxx + 1, maxy + 1);
+            buildings_in_area = building_count_terrain_in_area(minx, miny, maxx + 1, maxy + 1,
+                TERRAIN_HIGHWAY, count_no_condition);
             break;
         case BUILDING_PLAZA:
-            buildings_in_area = building_count_plaza_in_area(minx, miny, maxx + 1, maxy + 1);
+            buildings_in_area = building_count_terrain_in_area(minx, miny, maxx + 1, maxy + 1,
+                TERRAIN_ROAD, map_property_is_plaza_earthquake_or_overgrown_garden);
             break;
         case BUILDING_GARDENS:
-            buildings_in_area = building_count_gardens_in_area(minx, miny, maxx + 1, maxy + 1, 0);
+            buildings_in_area = building_count_terrain_in_area(minx, miny, maxx + 1, maxy + 1,
+                TERRAIN_GARDEN, count_not_overgrown);
             break;
         case BUILDING_OVERGROWN_GARDENS:
-            buildings_in_area = building_count_gardens_in_area(minx, miny, maxx + 1, maxy + 1, 1);
+            buildings_in_area = building_count_terrain_in_area(minx, miny, maxx + 1, maxy + 1,
+                TERRAIN_GARDEN, map_property_is_plaza_earthquake_or_overgrown_garden);
+            break;
+        case BUILDING_RUBBLE:
+            buildings_in_area = building_count_terrain_in_area(minx, miny, maxx + 1, maxy + 1,
+                TERRAIN_RUBBLE, count_no_condition);
             break;
         case BUILDING_LOW_BRIDGE:
             buildings_in_area = building_count_bridges_in_area(minx, miny, maxx + 1, maxy + 1, 0);

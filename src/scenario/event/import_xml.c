@@ -21,7 +21,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#define XML_TOTAL_ELEMENTS 73
+#define XML_TOTAL_ELEMENTS 77
 #define ERROR_MESSAGE_LENGTH 200
 
 static struct {
@@ -124,8 +124,10 @@ static const xml_parser_element xml_elements[XML_TOTAL_ELEMENTS] = {
     { "building_force_collapse", xml_import_create_action, 0, "actions" },
     { "invasion_start_immediate", xml_import_create_action, 0, "actions" },
     { "building_count_area", xml_import_create_condition, 0, "conditions|group" },
+    { "terrain_in_area", xml_import_create_condition, 0, "conditions|group" },
+    { "check_formulas", xml_import_create_condition, 0, "conditions|group" }, // 60
     { "cause_blessing", xml_import_create_action, 0, "actions" },
-    { "cause_minor_curse", xml_import_create_action, 0, "actions" }, // 60
+    { "cause_minor_curse", xml_import_create_action, 0, "actions" },
     { "cause_major_curse", xml_import_create_action, 0, "actions" },
     { "change_climate", xml_import_create_action, 0, "actions"},
     { "change_terrain", xml_import_create_action, 0, "actions"},
@@ -133,11 +135,13 @@ static const xml_parser_element xml_elements[XML_TOTAL_ELEMENTS] = {
     { "change_variable_visibility", xml_import_create_action, 0, "actions"},
     { "variable_formula", xml_import_create_action, 0, "actions"},
     { "variable_city_property", xml_import_create_action, 0, "actions"},
-    { "change_god_sentiment", xml_import_create_action, 0, "actions"},
+    { "change_god_sentiment", xml_import_create_action, 0, "actions"}, // 70
     { "change_pop_sentiment", xml_import_create_action, 0, "actions"},
-    { "win", xml_import_create_action, 0, "actions"}, // 70
+    { "win", xml_import_create_action, 0, "actions"},
     { "lose", xml_import_create_action, 0, "actions"},
+    { "change_rank", xml_import_create_action, 0, "actions"},
     { "change_production_rate", xml_import_create_action, 0, "actions"},
+    { "lock_trade_route", xml_import_create_action, 0, "actions"},
 };
 
 static int xml_import_start_scenario_events(void)
@@ -201,6 +205,24 @@ static int xml_import_create_custom_variable(void)
     if (!id) {
         xml_import_log_error("Could not import the variable!");
         return 0;
+    }
+
+    // Import optional fields
+    if (xml_parser_has_attribute("visible")) {
+        int visible = xml_parser_get_attribute_int("visible");
+        scenario_custom_variable_set_visibility(id, visible);
+    }
+
+    if (xml_parser_has_attribute("text")) {
+        const char *text = xml_parser_get_attribute_string("text");
+        uint8_t encoded_text[300];
+        encoding_from_utf8(text, encoded_text, 300);
+        scenario_custom_variable_set_text_display(id, encoded_text);
+    }
+
+    if (xml_parser_has_attribute("colour_group")) {
+        int colour_group = xml_parser_get_attribute_int("colour_group");
+        scenario_custom_variable_set_color_group(id, colour_group);
     }
 
     return 1;
@@ -499,6 +521,7 @@ static int xml_import_special_parse_attribute_with_resolved_type(xml_data_attrib
             return xml_import_special_parse_future_city(attr, target);
         case PARAMETER_TYPE_REQUEST:
         case PARAMETER_TYPE_NUMBER:
+        case PARAMETER_TYPE_GRID_SLICE:
             return xml_import_special_parse_limited_number(attr, target);
         case PARAMETER_TYPE_MIN_MAX_NUMBER:
             return xml_import_special_parse_min_max_number(attr, target);

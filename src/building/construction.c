@@ -29,6 +29,7 @@
 #include "map/bridge.h"
 #include "map/building.h"
 #include "map/building_tiles.h"
+#include "map/figure.h"
 #include "map/grid.h"
 #include "map/image.h"
 #include "map/point.h"
@@ -371,6 +372,9 @@ int building_construction_place_wall(int grid_offset)
 {
     int x = map_grid_offset_to_x(grid_offset);
     int y = map_grid_offset_to_y(grid_offset);
+    if (map_has_figure_at(grid_offset)) {
+        return 0;
+    }
     return place_wall(x, y, x, y, 0, 0);
 }
 
@@ -980,7 +984,7 @@ figure_type building_construction_nearby_enemy_type(grid_slice *slice)
         return FIGURE_NONE;
     }
 
-    for (int i = 1; i < figure_count(); i++) {
+    for (unsigned int i = 1; i < figure_count(); i++) {
         figure *f = figure_get(i);
         if (config_get(CONFIG_GP_CH_WOLVES_BLOCK)) {
             if (f->state != FIGURE_STATE_ALIVE || (!figure_is_enemy(f) && f->type != FIGURE_WOLF)) {
@@ -991,7 +995,7 @@ figure_type building_construction_nearby_enemy_type(grid_slice *slice)
         }
 
         int distance = f->type == FIGURE_WOLF ? 6 : 12;
-      
+
         // Check if figure is within distance of any tile in the grid slice
         for (int j = 0; j < slice->size; j++) {
             int grid_offset = slice->grid_offsets[j];

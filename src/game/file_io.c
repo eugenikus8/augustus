@@ -515,6 +515,7 @@ static void get_version_data(savegame_version_data *version_data, savegame_versi
         version_data->features.scenario_events = 0;
         version_data->features.scenario_conditions = 0;
         version_data->features.scenario_actions = 0;
+        version_data->features.scenario_formulas = 0;
     }
 
     if (version > SAVE_GAME_LAST_NO_CUSTOM_MESSAGES) {
@@ -750,6 +751,9 @@ static void scenario_load_from_state(scenario_state *file, scenario_version_t ve
     } else {
         scenario_events_clear();
     }
+    
+    scenario_map_init();
+    
     if (version > SCENARIO_LAST_UNVERSIONED) {
         empire_object_load(file->empire, version);
         if (resource_mapping_get_version() < RESOURCE_SEPARATE_FISH_AND_MEAT_VERSION) {
@@ -875,7 +879,7 @@ static void savegame_load_from_state(savegame_state *state, savegame_version_t v
     map_desirability_load_state(state->desirability_grid);
     map_elevation_load_state(state->elevation_grid);
     figure_load_state(state->figures, state->figure_sequence, version);
-    figure_route_load_state(state->route_figures, state->route_paths);
+    figure_route_load_state(state->route_figures, state->route_paths, version);
     formations_load_state(state->formations, state->formation_totals, version);
 
     city_data_load_state(state->city_data, state->city_graph_order, state->city_entry_exit_xy,
@@ -1724,7 +1728,8 @@ static savegame_load_status savegame_read_file_info(saved_game_info *info, saveg
     const savegame_state *state = &savegame_data.state;
     scenario_version_t scenario_version = save_version_to_scenario_version(version, state->scenario_version);
 
-    city_data_load_basic_info(state->city_data, &info->population, &info->treasury, &minimap_data.caravanserai_id, version);
+    city_data_load_basic_info(state->city_data, &info->population, &info->treasury,
+        &minimap_data.caravanserai_id, version);
     game_time_load_basic_info(state->game_time, &info->month, &info->year);
 
     scenario_description_from_buffer(state->scenario, info->description, scenario_version);
@@ -1735,12 +1740,12 @@ static savegame_load_status savegame_read_file_info(saved_game_info *info, saveg
     } else {
         info->total_invasions = scenario_invasions_from_buffer(state->invasions, scenario_version);
     }
-    info->player_rank = scenario_rank_from_buffer(state->scenario, version);
-    info->start_year = scenario_start_year_from_buffer(state->scenario, version);
+    info->player_rank = scenario_rank_from_buffer(state->scenario, scenario_version);
+    info->start_year = scenario_start_year_from_buffer(state->scenario, scenario_version);
     scenario_open_play_info_from_buffer(state->scenario, version, &info->is_open_play, &info->open_play_id);
 
     if (!info->is_open_play) {
-        scenario_objectives_from_buffer(state->scenario, version, &info->win_criteria);
+        scenario_objectives_from_buffer(state->scenario, scenario_version, &info->win_criteria);
     }
 
     get_saved_game_origin(info, state);

@@ -125,7 +125,7 @@ static const char EXTERNAL_FONTS_SG2[NAME_SIZE] = "C3_fonts.sg2";
 static const char EXTERNAL_FONTS_555[NAME_SIZE] = "C3_fonts.555";
 static const char CHINESE_FONTS_555[NAME_SIZE] = "rome.555";
 static const char SIMP_CHINESE_FONTS_555_V2[NAME_SIZE_LONG] = ASSETS_DIRECTORY "/i18n/Simplified_Chinese.555";
-static const char TRAD_CHINESE_FONTS_555_V2[NAME_SIZE] = "rome-v2.555";
+static const char TRAD_CHINESE_FONTS_555_V2[NAME_SIZE_LONG] = ASSETS_DIRECTORY "/i18n/Traditional_Chinese.555";
 static const char KOREAN_FONTS_555[NAME_SIZE] = "korean.555";
 static const char KOREAN_FONTS_555_V2[NAME_SIZE] = "korean-v2.555";
 static const char JAPANESE_FONTS_555[NAME_SIZE] = "japanese-v2.555";
@@ -1383,13 +1383,18 @@ const image *image_get(int id)
 
 const image *image_letter(int letter_id)
 {
+    // IMPORTANT: multibyte font check must come BEFORE the custom offset check.
+    // For simplified Chinese, letter_id can exceed IMAGE_FONT_CUSTOM_OFFSET (14000)
+    // because multibyte_image_offset (2229) + large char_id (e.g. 1874) pushes
+    // letter_id to 14103, which is above the custom font threshold.
+    if (data.fonts_enabled == MULTIBYTE_IN_FONT && letter_id >= IMAGE_FONT_MULTIBYTE_OFFSET) {
+        return &data.font[data.font_base_offset + letter_id - IMAGE_FONT_MULTIBYTE_OFFSET];
+    }
     if (letter_id > IMAGE_FONT_CUSTOM_OFFSET) {
         return assets_get_font_image(letter_id); // Custom font image intercept
     }
     if (data.fonts_enabled == FULL_CHARSET_IN_FONT) {
         return &data.font[data.font_base_offset + letter_id];
-    } else if (data.fonts_enabled == MULTIBYTE_IN_FONT && letter_id >= IMAGE_FONT_MULTIBYTE_OFFSET) {
-        return &data.font[data.font_base_offset + letter_id - IMAGE_FONT_MULTIBYTE_OFFSET];
     } else if (letter_id < IMAGE_FONT_MULTIBYTE_OFFSET) {
         return &data.main[data.group_image_ids[GROUP_FONT] + letter_id];
     } else {

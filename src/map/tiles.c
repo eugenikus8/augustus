@@ -2,6 +2,8 @@
 
 #include "assets/assets.h"
 #include "building/building.h"
+#include "building/connectable.h"
+#include "building/image.h"
 #include "city/map.h"
 #include "city/view.h"
 #include "core/config.h"
@@ -20,6 +22,8 @@
 #include "map/image_context.h"
 #include "map/property.h"
 #include "map/random.h"
+#include "map/road_access.h"
+#include "map/routing_terrain.h"
 #include "map/terrain.h"
 #include "scenario/map.h"
 
@@ -786,10 +790,25 @@ static void set_road_with_aqueduct_image(int grid_offset)
     set_aqueduct_image(grid_offset, 1, map_image_context_get_aqueduct(grid_offset, 0));
 }
 
+static void set_road_with_garden_gate_image(int grid_offset)
+{
+    int new_image_id = building_image_get_garden_gate_image(grid_offset);
+    building_connectable_update_connections();
+    map_image_set(grid_offset, new_image_id);
+    map_property_mark_draw_tile(grid_offset);
+}
+
 static void set_road_image(int x, int y, int grid_offset)
 {
+    if (map_terrain_is(grid_offset, TERRAIN_ROAD)) {
+        if (building_connectable_gate_type(map_building_type_at(grid_offset))) {
+            set_road_with_garden_gate_image(grid_offset);
+            return;
+        }
+    }
     if (!map_terrain_is(grid_offset, TERRAIN_ROAD) ||
         map_terrain_is(grid_offset, TERRAIN_WATER | TERRAIN_BUILDING)) {
+
         return;
     }
     if (map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
@@ -838,6 +857,18 @@ void map_tiles_update_area_roads(int x, int y, int size)
     foreach_region_tile(x - 1, y - 1, x + size - 2, y + size - 2, set_road_image);
 }
 
+static void update_granaries(int x, int y)
+{
+    for (int yy = y - 1; yy <= y + 1; yy++) {
+        for (int xx = x - 1; xx <= x + 1; xx++) {
+            building *b = building_get(map_building_at(map_grid_offset(xx, yy)));
+            if (b->type == BUILDING_GRANARY) {
+                map_update_granary_internal_roads(b);
+            }
+        }
+    }
+}
+
 int map_tiles_set_road(int x, int y)
 {
     int grid_offset = map_grid_offset(x, y);
@@ -850,6 +881,7 @@ int map_tiles_set_road(int x, int y)
     }
     map_terrain_add(grid_offset, TERRAIN_ROAD);
     map_property_clear_constructing(grid_offset);
+    update_granaries(x, y);
 
     foreach_region_tile(x - 1, y - 1, x + 1, y + 1, set_road_image);
     foreach_region_tile(x - 1, y - 1, x + 1, y + 1, set_highway_image);

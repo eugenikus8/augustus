@@ -213,6 +213,7 @@ void scenario_request_dispatch(int id)
     }
     request->months_to_comply = (random_byte() & 3) + 1;
     request->visible = 0;
+    request->can_comply_dialog_shown = 1;
     int amount = request->amount.requested;
     if (request->resource == RESOURCE_DENARII) {
         city_finance_process_sundry(amount);
@@ -448,14 +449,14 @@ static void request_load(buffer *list, scenario_request *request, int version)
 
 void scenario_request_load_state(buffer *list, int version)
 {
-    unsigned int array_size = buffer_load_dynamic_array(list);
+    size_t array_size = buffer_load_dynamic_array(list);
 
     if (!array_init(requests, REQUESTS_ARRAY_SIZE_STEP, new_request, request_in_use) ||
-        !array_expand(requests, array_size)) {
+        !array_expand(requests, (unsigned int) array_size)) {
         log_error("Error creating requests array. The game will probably crash.", 0, 0);
     }
 
-    for (unsigned int i = 0; i < array_size; i++) {
+    for (size_t i = 0; i < array_size; i++) {
         scenario_request *request = array_next(requests);
         request_load(list, request, version);
     }

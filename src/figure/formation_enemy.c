@@ -336,6 +336,8 @@ static void set_native_target_building(formation *m)
             case BUILDING_LOOPED_GARDEN_GATE:
             case BUILDING_HEDGE_GATE_DARK:
             case BUILDING_HEDGE_GATE_LIGHT:
+            case BUILDING_LOW_BRIDGE:
+            case BUILDING_SHIP_BRIDGE:
                 break;
             default:
             {
@@ -433,7 +435,7 @@ static void mars_kill_enemies(void)
         return;
     }
     int grid_offset = 0;
-    for (int i = 1; i < figure_count() && to_kill > 0; i++) {
+    for (unsigned int i = 1; i < figure_count() && to_kill > 0; i++) {
         figure *f = figure_get(i);
         if (f->state != FIGURE_STATE_ALIVE) {
             continue;

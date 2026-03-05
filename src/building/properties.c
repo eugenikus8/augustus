@@ -313,7 +313,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
             .water = 2,
             .religion = 1,
             .education = 1,
-            .barber = 1,
+            .barber = 0,
             .bathhouse = 1,
             .health = 1,
             .food_types = 1,
@@ -748,6 +748,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
         .fire_proof = 1,
         .image_group = 61,
         .image_offset = 2,
+        .sound_id = SOUND_CITY_AQUEDUCT, //if has_water_access
         .event_data.attr = "large_statue",
         .building_model_data = {.cost = 150, .desirability_value = 14, .desirability_step = 2,
             .desirability_step_size = -2, .desirability_range = 5, .laborers = 0}
@@ -916,8 +917,8 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
         .draw_desirability_range = 1,
         .event_data.attr = "large_temple_ceres",
         .event_data.key = TR_PARAMETER_VALUE_BUILDING_LARGE_TEMPLE_CERES,
-        .building_model_data = {.cost = 150, .desirability_value = 6, .desirability_step = 1,
-            .desirability_step_size = 2, .desirability_range = 3, .laborers = 5}
+        .building_model_data = {.cost = 150, .desirability_value = 14, .desirability_step = 2,
+            .desirability_step_size = -2, .desirability_range = 5, .laborers = 5}
     },
     [BUILDING_LARGE_TEMPLE_NEPTUNE] = {
         .venus_gt_bonus = 1,
@@ -929,8 +930,8 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
         .draw_desirability_range = 1,
         .event_data.attr = "large_temple_neptune",
         .event_data.key = TR_PARAMETER_VALUE_BUILDING_LARGE_TEMPLE_NEPTUNE,
-        .building_model_data = {.cost = 150, .desirability_value = 6, .desirability_step = 1,
-            .desirability_step_size = 2, .desirability_range = 3, .laborers = 5}
+        .building_model_data = {.cost = 150, .desirability_value = 14, .desirability_step = 2,
+            .desirability_step_size = -2, .desirability_range = 5, .laborers = 5}
     },
     [BUILDING_LARGE_TEMPLE_MERCURY] = {
         .venus_gt_bonus = 1,
@@ -942,8 +943,8 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
         .draw_desirability_range = 1,
         .event_data.attr = "large_temple_mercury",
         .event_data.key = TR_PARAMETER_VALUE_BUILDING_LARGE_TEMPLE_MERCURY,
-        .building_model_data = {.cost = 150, .desirability_value = 6, .desirability_step = 1,
-            .desirability_step_size = 2, .desirability_range = 3, .laborers = 5}
+        .building_model_data = {.cost = 150, .desirability_value = 14, .desirability_step = 2,
+            .desirability_step_size = -2, .desirability_range = 5, .laborers = 5}
     },
     [BUILDING_LARGE_TEMPLE_MARS] = {
         .venus_gt_bonus = 1,
@@ -955,8 +956,8 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
         .draw_desirability_range = 1,
         .event_data.attr = "large_temple_mars",
         .event_data.key = TR_PARAMETER_VALUE_BUILDING_LARGE_TEMPLE_MARS,
-        .building_model_data = {.cost = 150, .desirability_value = 6, .desirability_step = 1,
-            .desirability_step_size = 2, .desirability_range = 3, .laborers = 5}
+        .building_model_data = {.cost = 150, .desirability_value = 14, .desirability_step = 2,
+            .desirability_step_size = -2, .desirability_range = 5, .laborers = 5}
     },
     [BUILDING_LARGE_TEMPLE_VENUS] = {
         .venus_gt_bonus = 1,
@@ -968,8 +969,8 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
         .draw_desirability_range = 1,
         .event_data.attr = "large_temple_venus",
         .event_data.key = TR_PARAMETER_VALUE_BUILDING_LARGE_TEMPLE_VENUS,
-        .building_model_data = {.cost = 150, .desirability_value = 6, .desirability_step = 1,
-            .desirability_step_size = 2, .desirability_range = 3, .laborers = 5}
+        .building_model_data = {.cost = 150, .desirability_value = 14, .desirability_step = 2,
+            .desirability_step_size = -2, .desirability_range = 5, .laborers = 5}
     },
     [BUILDING_MARKET] = {
         .size = 2,
@@ -1138,7 +1139,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
         .size = 1,
         .fire_proof = 1,
         .image_group = 23,
-        // .sound_id = SOUND_CITY_WELL, // Disabled in original
+        .sound_id = SOUND_CITY_WELL,
         .event_data.attr = "well",
         .building_model_data = {.cost = 5, .desirability_value = -1, .desirability_step = 1,
             .desirability_step_size = 2, .desirability_range = 1, .laborers = 0}
@@ -1414,6 +1415,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
         .venus_gt_bonus = 1,
         .size = 2,
         .fire_proof = 1,
+        .sound_id = SOUND_CITY_AQUEDUCT,    //if has_water_access
         .custom_asset.group = "Aesthetics",
         .custom_asset.id = "s pond south off",
         .event_data.attr = "small_pond",
@@ -1424,6 +1426,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
         .venus_gt_bonus = 1,
         .size = 3,
         .fire_proof = 1,
+        .sound_id = SOUND_CITY_AQUEDUCT,    //if has_water_access
         .custom_asset.group = "Aesthetics",
         .custom_asset.id = "l pond south off",
         .event_data.attr = "large_pond",
@@ -1742,7 +1745,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
      },
      [BUILDING_ARENA] = {
         .size = 3,
-        .sound_id = SOUND_CITY_COLOSSEUM,
+        .sound_id = SOUND_CITY_ARENA,
         .custom_asset.group = "Health_Culture",
         .custom_asset.id = "Arena OFF",
         .event_data.attr = "arena",
@@ -2159,6 +2162,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
      },
      [BUILDING_NATIVE_HUT_ALT] = {
         .size = 1,
+        .sound_id = SOUND_CITY_NATIVE_HUT,
         .fire_proof = 1,
         .custom_asset.group = "Terrain_Maps",
         .custom_asset.id = "Native_Hut_Central_01",
@@ -2168,6 +2172,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
      },
      [BUILDING_NATIVE_DECORATION] = {
         .size = 1,
+        .sound_id = SOUND_CITY_NATIVE_DECORATION,
         .fire_proof = 1,
         .custom_asset.group = "Terrain_Maps",
         .custom_asset.id = "Native_Decoration_Central_01",
@@ -2177,6 +2182,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
      },
      [BUILDING_NATIVE_MONUMENT] = {
         .size = 4,
+        .sound_id = SOUND_CITY_NATIVE_DECORATION,
         .fire_proof = 1,
         .custom_asset.group = "Terrain_Maps",
         .custom_asset.id = "Native_Monument_Central_01",
@@ -2186,6 +2192,7 @@ static building_properties properties[BUILDING_TYPE_MAX] = {
      },
      [BUILDING_NATIVE_WATCHTOWER] = {
         .size = 1,
+        .sound_id = SOUND_CITY_WATCHTOWER,
         .fire_proof = 1,
         .custom_asset.group = "Terrain_Maps",
         .custom_asset.id = "Native_Watchtower_Central_01",
@@ -2227,8 +2234,8 @@ void model_reset(void)
 {
     for (building_type type = BUILDING_ANY; type < BUILDING_TYPE_MAX; type++) {
         const building_properties *props = &properties[type];
-        if ((props->size && props->event_data.attr) &&
-            type != BUILDING_GRAND_GARDEN && type != BUILDING_DOLPHIN_FOUNTAIN ||
+        if (((props->size && props->event_data.attr) &&
+            (type != BUILDING_GRAND_GARDEN && type != BUILDING_DOLPHIN_FOUNTAIN)) ||
             type == BUILDING_CLEAR_LAND || type == BUILDING_REPAIR_LAND) {
             buildings[type] = props->building_model_data;
         } else {

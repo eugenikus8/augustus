@@ -347,7 +347,12 @@ static scenario_action_data_t scenario_action_data[ACTION_TYPE_MAX] = {
                                         .xml_parm2 = {.name = "rate",         .type = PARAMETER_TYPE_FORMULA,            .min_limit = 0,
                                             .max_limit = UNLIMITED,     .key = TR_PARAMETER_TYPE_NUMBER },
                                         .xml_parm3 = {.name = "set_to_value",      .type = PARAMETER_TYPE_BOOLEAN,      .min_limit = 0,
-                                            .max_limit = 1,         .key = TR_PARAMETER_SET_TO_VALUE }, }
+                                            .max_limit = 1,         .key = TR_PARAMETER_SET_TO_VALUE }, },
+    [ACTION_TYPE_LOCK_TRADE_ROUTE]     = {.type = ACTION_TYPE_LOCK_TRADE_ROUTE,
+                                         .xml_attr = {.name = "lock_trade_route",   .type = PARAMETER_TYPE_TEXT,    .key = TR_ACTION_TYPE_LOCK_TRADE_ROUTE},
+                                         .xml_parm1 = {.name = "target_city",       .type = PARAMETER_TYPE_ROUTE,   .key = TR_PARAMETER_TYPE_ROUTE }, 
+                                         .xml_parm2 = {.name = "lock",      .type = PARAMETER_TYPE_BOOLEAN,      .min_limit = 0,    .max_limit = 1,         .key = TR_PARAMETER_LOCK },
+                                         .xml_parm3 = {.name = "show_message",      .type = PARAMETER_TYPE_BOOLEAN,     .min_limit = 0,     .max_limit = 1,         .key = TR_PARAMETER_SHOW_MESSAGE } }
 };
 
 scenario_action_data_t *scenario_events_parameter_data_get_actions_xml_attributes(action_types type)
@@ -358,7 +363,7 @@ scenario_action_data_t *scenario_events_parameter_data_get_actions_xml_attribute
 parameter_type scenario_events_parameter_data_get_action_parameter_type(
     action_types action_type, int parameter_index, int *min_limit, int *max_limit)
 {
-    if (action_type < 0 || action_type >= ACTION_TYPE_MAX) {
+    if (action_type >= ACTION_TYPE_MAX) {
         return PARAMETER_TYPE_UNDEFINED;
     }
 
@@ -384,6 +389,7 @@ parameter_type scenario_events_parameter_data_get_action_parameter_type(
         case 5:
             *min_limit = action->xml_parm5.min_limit;
             *max_limit = action->xml_parm5.max_limit;
+            return action->xml_parm5.type;
         default:
             *min_limit = 0;
             *max_limit = 0;
@@ -394,7 +400,7 @@ parameter_type scenario_events_parameter_data_get_action_parameter_type(
 parameter_type scenario_events_parameter_data_get_condition_parameter_type(
     condition_types condition_type, int parameter_index, int *min_limit, int *max_limit)
 {
-    if (condition_type < 0 || condition_type >= CONDITION_TYPE_MAX) {
+    if (condition_type >= CONDITION_TYPE_MAX) {
         return PARAMETER_TYPE_UNDEFINED;
     }
 
@@ -680,11 +686,12 @@ static special_attribute_mapping_t special_attribute_mappings_climate[] =
 
 static special_attribute_mapping_t special_attribute_mappings_terrain[] =
 {
-    {.type = PARAMETER_TYPE_TERRAIN,            .text = "Water",            .value = TERRAIN_WATER,   .key = TR_PARAMETER_TERRAIN_WATER },
-    {.type = PARAMETER_TYPE_TERRAIN,            .text = "Rock",             .value = TERRAIN_ROCK,  .key = TR_PARAMETER_TERRAIN_ROCK },
-    {.type = PARAMETER_TYPE_TERRAIN,            .text = "Fertile Ground",   .value = TERRAIN_MEADOW,    .key = TR_PARAMETER_TERRAIN_MEADOW },
+    {.type = PARAMETER_TYPE_TERRAIN,            .text = "Water",            .value = TERRAIN_WATER,    .key = TR_PARAMETER_TERRAIN_WATER },
+    {.type = PARAMETER_TYPE_TERRAIN,            .text = "Rock",             .value = TERRAIN_ROCK,     .key = TR_PARAMETER_TERRAIN_ROCK },
+    {.type = PARAMETER_TYPE_TERRAIN,            .text = "Fertile Ground",   .value = TERRAIN_MEADOW,   .key = TR_PARAMETER_TERRAIN_MEADOW },
     {.type = PARAMETER_TYPE_TERRAIN,            .text = "Tree",             .value = TERRAIN_TREE,     .key = TR_PARAMETER_TERRAIN_TREE },
     {.type = PARAMETER_TYPE_TERRAIN,            .text = "Shrub",            .value = TERRAIN_SHRUB,    .key = TR_PARAMETER_TERRAIN_SHRUB },
+    {.type = PARAMETER_TYPE_TERRAIN,            .text = "Rubble",           .value = TERRAIN_RUBBLE,   .key = TR_PARAMETER_TERRAIN_RUBBLE },
 };
 
 #define SPECIAL_ATTRIBUTE_MAPPINGS_TERRAIN_SIZE (sizeof(special_attribute_mappings_terrain) / sizeof(special_attribute_mapping_t))
@@ -866,6 +873,8 @@ static void generate_building_type_mappings(void)
         mapping->key = props->event_data.key ? props->event_data.key : TR_PARAMETER_VALUE_DYNAMIC_RESOLVE;
         special_attribute_mappings_building_type_size++;
     }
+    special_attribute_mappings_buildings[special_attribute_mappings_building_type_size++] =
+        (special_attribute_mapping_t){PARAMETER_TYPE_BUILDING, "rubble", -1, TR_PARAMETER_TERRAIN_RUBBLE};
 }
 
 static void generate_model_mappings(void)
@@ -875,7 +884,7 @@ static void generate_model_mappings(void)
     }
     for (building_type type = BUILDING_NONE; type < BUILDING_TYPE_MAX; type++) {
         const building_properties *props = building_properties_for_type(type);
-        if ((!props->size || !props->event_data.attr) && type != BUILDING_CLEAR_LAND && type != BUILDING_REPAIR_LAND ||
+        if (((!props->size || !props->event_data.attr) && type != BUILDING_CLEAR_LAND && type != BUILDING_REPAIR_LAND) ||
             (type == BUILDING_GRAND_GARDEN || type == BUILDING_DOLPHIN_FOUNTAIN)) {
             continue;
         }
@@ -1397,17 +1406,6 @@ static uint8_t *translation_for_min_max_values(int min, int max, uint8_t *result
     return result_text;
 }
 
-static uint8_t *translation_for_number_value(int value, uint8_t *result_text, int *maxlength)
-{
-    result_text = append_text(string_from_ascii(" "), result_text, maxlength);
-
-    int number_length = string_from_int(result_text, value, 0);
-    result_text += number_length;
-    *maxlength -= number_length;
-
-    return result_text;
-}
-
 static uint8_t *translation_for_boolean_text(int value, translation_key true_key, translation_key false_key, uint8_t *result_text, int *maxlength)
 {
     result_text = append_text(string_from_ascii(" "), result_text, maxlength);
@@ -1493,11 +1491,11 @@ void scenario_events_parameter_data_get_display_string_for_action(const scenario
         case ACTION_TYPE_BUILDING_FORCE_COLLAPSE:
         {
             result_text = append_text(string_from_ascii(" "), result_text, &maxlength);
-            result_text = append_text(translation_for(TR_PARAMETER_GRID_OFFSET), result_text, &maxlength);
-            result_text = translation_for_formula_index(action->parameter1, result_text, &maxlength);
+            result_text = append_text(translation_for(TR_PARAMETER_GRID_OFFSET_CORNER1), result_text, &maxlength);
+            result_text = translation_for_grid_offset(action->parameter1, result_text, &maxlength);
             result_text = append_text(string_from_ascii(" "), result_text, &maxlength);
-            result_text = append_text(translation_for(TR_PARAMETER_RADIUS), result_text, &maxlength);
-            result_text = translation_for_formula_index(action->parameter2, result_text, &maxlength);
+            result_text = append_text(translation_for(TR_PARAMETER_GRID_OFFSET_CORNER2), result_text, &maxlength);
+            result_text = translation_for_grid_offset(action->parameter2, result_text, &maxlength);
             if (action->parameter4) {
                 result_text = append_text(string_from_ascii(" "), result_text, &maxlength);
                 result_text = append_text(translation_for(TR_PARAMETER_DISPLAY_DESTROY_ALL_TYPES), result_text, &maxlength);
@@ -1679,11 +1677,11 @@ void scenario_events_parameter_data_get_display_string_for_action(const scenario
         case ACTION_TYPE_CHANGE_TERRAIN:
         {
             result_text = append_text(string_from_ascii(" "), result_text, &maxlength);
-            result_text = append_text(translation_for(TR_PARAMETER_GRID_OFFSET), result_text, &maxlength);
-            result_text = translation_for_formula_index(action->parameter1, result_text, &maxlength);
+            result_text = append_text(translation_for(TR_PARAMETER_GRID_OFFSET_CORNER1), result_text, &maxlength);
+            result_text = translation_for_grid_offset(action->parameter1, result_text, &maxlength);
             result_text = append_text(string_from_ascii(" "), result_text, &maxlength);
-            result_text = append_text(translation_for(TR_PARAMETER_RADIUS), result_text, &maxlength);
-            result_text = translation_for_formula_index(action->parameter2, result_text, &maxlength);
+            result_text = append_text(translation_for(TR_PARAMETER_GRID_OFFSET_CORNER2), result_text, &maxlength);
+            result_text = translation_for_grid_offset(action->parameter2, result_text, &maxlength);
             if (action->parameter4) {
                 result_text = translation_for_type_lookup_by_value(PARAMETER_TYPE_TERRAIN, action->parameter3, result_text, &maxlength);
                 result_text = append_text(string_from_ascii(" "), result_text, &maxlength);
@@ -1697,8 +1695,7 @@ void scenario_events_parameter_data_get_display_string_for_action(const scenario
         }
         case ACTION_TYPE_CHANGE_MODEL_DATA:
         {
-            result_text = append_text(string_from_ascii(":"), result_text, &maxlength);
-            result_text = append_text(string_from_ascii(" "), result_text, &maxlength);
+            result_text = append_text(string_from_ascii(": "), result_text, &maxlength);
             result_text = append_text(translation_for(action->parameter4 ? TR_PARAMETER_SET : TR_PARAMETER_CHANGE), result_text, &maxlength);
             result_text = append_text(string_from_ascii(" "), result_text, &maxlength);
             result_text = translation_for_type_lookup_by_value(PARAMETER_TYPE_DATA_TYPE, action->parameter2, result_text, &maxlength);
@@ -1707,8 +1704,8 @@ void scenario_events_parameter_data_get_display_string_for_action(const scenario
             result_text = translation_for_type_lookup_by_value(PARAMETER_TYPE_MODEL, action->parameter1, result_text, &maxlength);
             result_text = append_text(string_from_ascii(" "), result_text, &maxlength);
             result_text = append_text(translation_for(action->parameter4 ? TR_PARAMETER_TO : TR_PARAMETER_BY), result_text, &maxlength);
-            result_text = append_text(string_from_ascii(" "), result_text, &maxlength);
-            result_text = translation_for_number_value(action->parameter3, result_text, &maxlength);
+            result_text = translation_for_formula_index(action->parameter3, result_text, &maxlength);
+            return;
         case ACTION_TYPE_CUSTOM_VARIABLE_FORMULA:
         {
             result_text = append_text(string_from_ascii(" "), result_text, &maxlength);
@@ -1800,6 +1797,14 @@ void scenario_events_parameter_data_get_display_string_for_action(const scenario
             result_text = append_text(translation_for(action->parameter3 ? TR_PARAMETER_BY : TR_PARAMETER_TO), result_text, &maxlength);
             result_text = append_text(string_from_ascii(" "), result_text, &maxlength);
             result_text = translation_for_formula_index(action->parameter2, result_text, &maxlength);
+            return;
+        }
+        case ACTION_TYPE_LOCK_TRADE_ROUTE:
+        {
+            result_text = translation_for_type_lookup_by_value(PARAMETER_TYPE_ROUTE, action->parameter1, result_text, &maxlength);
+            result_text = append_text(string_from_ascii(" "), result_text, &maxlength);
+            result_text = append_text(translation_for(action->parameter2 ? TR_PARAMETER_LOCK : TR_PARAMETER_UNLOCK), result_text, &maxlength);
+            result_text = translation_for_boolean_text(action->parameter3, TR_PARAMETER_DISPLAY_SHOW_MESSAGE, TR_PARAMETER_DISPLAY_DO_NOT_SHOW_MESSAGE, result_text, &maxlength);
             return;
         }
         default:
