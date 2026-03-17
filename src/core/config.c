@@ -118,7 +118,6 @@ static const char *ini_keys[] = {
     [CONFIG_UI_EMPIRE_CLICK_TO_DELETE] = "ui_empire_must_click_to_delete",
     [CONFIG_UI_EMPIRE_CONFIRM_DELETE] = "ui_empire_confirm_deletion",
     [CONFIG_GP_CH_ALWAYS_DESTROY_BRIDGES] = "always_be_able_to_destroy_bridges",
-    [CONFIG_UI_ENABLE_BUILD_MENU_SHORTCUTS] = "ui_enable_build_menu_shortcuts"
 };
 
 static const char *ini_string_keys[] = {
@@ -186,7 +185,6 @@ static int default_values[CONFIG_MAX_ENTRIES] = {
     [CONFIG_UI_EMPIRE_CLICK_TO_DELETE] = 0,
     [CONFIG_UI_EMPIRE_CONFIRM_DELETE] = 1,
     [CONFIG_GP_CH_ALWAYS_DESTROY_BRIDGES] = 0,
-    [CONFIG_UI_ENABLE_BUILD_MENU_SHORTCUTS] = 0
 };
 
 static const char default_string_values[CONFIG_STRING_MAX_ENTRIES][CONFIG_STRING_VALUE_MAX] = { 0 };
