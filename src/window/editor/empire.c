@@ -1014,7 +1014,7 @@ static void refresh_empire(void)
         return;
     }
     const char *filename = dir_get_file_at_location(scenario.empire.custom_name, PATH_LOCATION_EDITOR_CUSTOM_EMPIRES);
-    if (!filename) {
+    if (!filename || !*scenario.empire.custom_name) {
         return;
     }
     empire_xml_parse_file(filename, 0);
