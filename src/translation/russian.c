@@ -1909,7 +1909,7 @@ static translation_string all_strings[] = {
     {TR_BUILDING_HOUSE_LARGE_PALACE, "Большой дворец"},
     {TR_BUILDING_HOUSE_LUXURY_PALACE, "Роскошный дворец"},
     {TR_CONFIG_UI_BUILD_SHOW_RESERVOIR_RANGES, "Показывать радиус резервуара при строительстве фонтанов"},
-    {TR_CONFIG_GP_CH_ALWAYS_DESTROY_BRIDGES, "Мосты можно разрушать всегда"},
+    {TR_CONFIG_GP_CH_ALWAYS_DESTROY_BRIDGES, "Мосты можно удалять вместе с пешеходами"},
     {TR_CONFIG_CATEGORY_MANAGEMENT_DESTRUCTION, "Снос"},
     {TR_CHEAT_DESTROYED_BUILDING, "Здание разрушено"},
     {TR_EMPIRE_TOOL_OUR_CITY, "Наш город"},
