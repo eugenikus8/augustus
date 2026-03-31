@@ -49,7 +49,7 @@ static void print_water_building_info(int y_offset, building_type type, int popu
     int total_count = building_count_total(type);
     int group = 28;
     int index = type;
-    if (total_count != 1 && type != BUILDING_LATRINES) {
+    if ((total_count != 1 && type != BUILDING_LATRINES) || (type == BUILDING_LATRINES && total_count == 1)) {
         group = CUSTOM_TRANSLATION;
         if (type == BUILDING_LATRINES) {
             index = TR_BUILDING_LATRINE;
