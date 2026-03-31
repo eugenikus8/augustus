@@ -49,15 +49,15 @@ static void print_water_building_info(int y_offset, building_type type, int popu
     int total_count = building_count_total(type);
     int group = 28;
     int index = type;
-    if ((total_count != 1 && type != BUILDING_LATRINES) || (type == BUILDING_LATRINES && total_count == 1)) {
+    if (type == BUILDING_LATRINES) {
         group = CUSTOM_TRANSLATION;
-        if (type == BUILDING_LATRINES) {
-            index = TR_BUILDING_LATRINE;
-        } else if (type == BUILDING_FOUNTAIN) {
-            index = TR_BUILDING_FOUNTAINS;
-        } else {
-            index = TR_BUILDING_WELLS;
-        }
+        index = (total_count == 1) ? TR_BUILDING_LATRINES : TR_BUILDING_LATRINE; //Latrine or Latrines
+    } else if (type == BUILDING_FOUNTAIN && total_count != 1) {
+        group = CUSTOM_TRANSLATION;
+        index = TR_BUILDING_FOUNTAINS;
+    } else if (type == BUILDING_WELL && total_count != 1) {
+        group = CUSTOM_TRANSLATION;
+        index = TR_BUILDING_WELLS;
     }
 
     int desc_offset_x = text_draw_number(total_count, ' ', " ", 40, y_offset, FONT_NORMAL_WHITE, 0);
