@@ -1428,4 +1428,7 @@
     <image src="LandWaypoint" id="LandWaypoint"/>
     <image src="SeaWaypoint" id="SeaWaypoint"/>
     <image src="LandWaypoint" id="BorderWaypoint"/>
+    <image id="Water_Range">
+        <layer group="135" image="4" mask="grayscale"/>
+    </image>
 </assetlist>
