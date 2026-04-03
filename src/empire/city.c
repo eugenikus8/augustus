@@ -36,7 +36,7 @@
 
 #define NOT_SELLING 0
 
-#define EMPIRE_CITY_CURRENT_BUF_SIZE (18 + 2 * RESOURCE_MAX)
+#define EMPIRE_CITY_CURRENT_BUF_SIZE (20 + 2 * RESOURCE_MAX)
 
 static array(empire_city) cities;
 
@@ -60,6 +60,11 @@ empire_city *empire_city_get(int city_id)
 empire_city *empire_city_get_new(void)
 {
     return array_advance(cities);
+}
+
+void empire_city_remove(int city_id)
+{
+    array_item(cities, city_id)->in_use = 0;
 }
 
 int empire_city_get_route_id(int city_id)
@@ -332,6 +337,7 @@ void empire_city_set_trade_route_cost(int route_id, int new_cost)
     array_foreach(cities, city) {
         if (city->in_use && city->route_id == route_id) {
             city->cost_to_open = new_cost;
+            empire_object_get_full(city->empire_object_id)->trade_route_cost = new_cost;
             return;
         }
     }
@@ -353,7 +359,7 @@ void empire_city_change_buying_of_resource(empire_city *city, resource_type reso
     city->buys_resource[resource] = buys;
     empire_object_get_full(city->empire_object_id)->city_buys_resource[resource] = amount;
     if (city->type != EMPIRE_CITY_OURS) {
-        trade_route_set_limit(city->route_id, resource, amount);
+        trade_route_set_limit(city->route_id, resource, amount, 1);
     }
 }
 
@@ -363,7 +369,7 @@ void empire_city_change_selling_of_resource(empire_city *city, resource_type res
     city->sells_resource[resource] = sells;
     empire_object_get_full(city->empire_object_id)->city_sells_resource[resource] = amount;
     if (city->type != EMPIRE_CITY_OURS) {
-        trade_route_set_limit(city->route_id, resource, amount);
+        trade_route_set_limit(city->route_id, resource, amount, 0);
     }
 }
 
@@ -422,7 +428,7 @@ static int generate_trader(int city_id, empire_city *city)
     int trade_potential = 0;
     for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
         if (city->buys_resource[r] || city->sells_resource[r]) {
-            trade_potential += trade_route_limit(city->route_id, r);
+            trade_potential += trade_route_limit(city->route_id, r, city->buys_resource[r]);
         }
     }
     if (trade_potential <= 0) {
@@ -577,7 +583,7 @@ void empire_city_save_state(buffer *buf)
         for (int r = 0; r < RESOURCE_MAX; r++) {
             buffer_write_u8(buf, city->sells_resource[r]);
         }
-        buffer_write_i16(buf, city->cost_to_open);
+        buffer_write_u32(buf, city->cost_to_open);
         buffer_write_i16(buf, city->trader_entry_delay);
         buffer_write_i16(buf, city->empire_object_id);
         buffer_write_u8(buf, city->is_sea_trade);
@@ -721,7 +727,11 @@ void empire_city_load_state(buffer *buf, int version)
         for (int r = 0; r < resource_total_mapped(); r++) {
             city->sells_resource[resource_remap(r)] = buffer_read_u8(buf);
         }
-        city->cost_to_open = buffer_read_i16(buf);
+        if (version > SAVE_GAME_LAST_LIMITED_ROUTE_COST) {
+            city->cost_to_open = buffer_read_u32(buf);
+        } else {
+            city->cost_to_open = buffer_read_u16(buf);
+        }
         if (version <= SAVE_GAME_LAST_STATIC_SCENARIO_OBJECTS) {
             buffer_skip(buf, 2);
         }
@@ -775,11 +785,13 @@ int empire_city_get_icon_image_id(empire_city_icon_type type)
             return assets_lookup_image_id(ASSET_UI_EMP_ICON_9);  // res_food
         case EMPIRE_CITY_ICON_RESOURCE_GOODS:
             return assets_lookup_image_id(ASSET_UI_EMP_ICON_10); // res_goods
+        case EMPIRE_CITY_ICON_RESOURCE_SEA:
+            return assets_lookup_image_id(ASSET_UI_EMP_ICON_11); // res_sea
 
         case EMPIRE_CITY_ICON_TRADE_SEA:
-            return assets_lookup_image_id(ASSET_UI_EMP_ICON_11); // tr_sea
+            return assets_lookup_image_id(ASSET_UI_EMP_ICON_12); // tr_sea
         case EMPIRE_CITY_ICON_TRADE_LAND:
-            return assets_lookup_image_id(ASSET_UI_EMP_ICON_12); // tr_land
+            return assets_lookup_image_id(ASSET_UI_EMP_ICON_13); // tr_land
 
         case EMPIRE_CITY_ICON_OUR_CITY:
             return image_group(GROUP_EMPIRE_CITY);
@@ -794,4 +806,23 @@ int empire_city_get_icon_image_id(empire_city_icon_type type)
         default:
             return -1;
     }
+}
+
+int empire_city_get_at(int x, int y, const uint8_t *name)
+{
+    empire_city *city;
+    array_foreach(cities, city) {
+        if (city->in_use) {
+            empire_object *obj = empire_object_get(city->empire_object_id);
+            int name_condition = 1;
+            if (name) {
+                name_condition = string_equals(name, empire_city_get_name(city));
+            }
+            if (obj->x == x && obj->y == y && name_condition) {
+                return array_index;
+            }
+        }
+    }
+    
+    return 0;
 }
