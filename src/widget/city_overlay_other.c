@@ -831,41 +831,35 @@ const city_overlay *city_overlay_for_sentiment(void)
     return &overlay;
 }
 
-static int terrain_on_desirability_overlay(void)
-{
-    return
-        TERRAIN_TREE | TERRAIN_ROCK | TERRAIN_WATER |
-        TERRAIN_SHRUB | TERRAIN_GARDEN | TERRAIN_ROAD |
-        TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP | TERRAIN_RUBBLE |
-        TERRAIN_HIGHWAY;
-}
-
-static int get_desirability_image_offset(int desirability)
-{
-    if (desirability < -10) {
-        return 0;
-    } else if (desirability < -5) {
-        return 1;
-    } else if (desirability < 0) {
-        return 2;
-    } else if (desirability == 1) {
-        return 3;
-    } else if (desirability < 5) {
-        return 4;
-    } else if (desirability < 10) {
-        return 5;
-    } else if (desirability < 15) {
-        return 6;
-    } else if (desirability < 20) {
-        return 7;
-    } else if (desirability < 25) {
-        return 8;
-    } else {
-        return 9;
-    }
-}
-
 static int draw_footprint_desirability(int x, int y, float scale, int grid_offset)
+{
+    if (map_terrain_is(grid_offset, TERRAIN_HIGHWAY) && !map_terrain_is(grid_offset, TERRAIN_GATEHOUSE)) {
+        city_draw_highway_footprint(x, y, scale, grid_offset, COLOR_MASK_NONE);
+    } else if (map_terrain_is(grid_offset, TERRAIN_BUILDING) && !map_is_bridge(grid_offset)) {
+        if (map_property_is_draw_tile(grid_offset)) {
+            city_with_overlay_draw_building_footprint(x, y, grid_offset, 0);
+        }
+    } else {
+        color_t color_mask = map_property_is_deleted(grid_offset) && !map_desirability_get(grid_offset) ?
+            COLOR_MASK_RED : 0;
+        if (map_property_is_draw_tile(grid_offset)) {
+            image_draw_isometric_footprint_from_draw_tile(map_image_at(grid_offset), x, y, color_mask, scale);
+        }
+    }
+
+    if (config_get(CONFIG_UI_SHOW_GRID) && map_property_is_draw_tile(grid_offset)
+                                    && !map_building_at(grid_offset) && scale <= 2.0f) {
+        //grid is drawn by the renderer directly at zoom > 200%
+        static int grid_id = 0;
+        if (!grid_id) {
+            grid_id = assets_get_image_id("UI", "Grid_Full");
+        }
+        image_draw(grid_id, x, y, COLOR_GRID, scale);
+    }
+    return 1;
+}
+/***
+static int draw_footprint_desirability_old(int x, int y, float scale, int grid_offset)
 {
     color_t color_mask = map_property_is_deleted(grid_offset) ? COLOR_MASK_RED : 0;
     if (map_terrain_is(grid_offset, TERRAIN_HIGHWAY) && !map_terrain_is(grid_offset, TERRAIN_GATEHOUSE)) {
@@ -910,6 +904,8 @@ static int draw_footprint_desirability(int x, int y, float scale, int grid_offse
 
 static int draw_top_desirability(int x, int y, float scale, int grid_offset)
 {
+    return 1;
+    /***
     color_t color_mask = map_property_is_deleted(grid_offset) ? COLOR_MASK_RED : 0;
     if ((map_terrain_is(grid_offset, terrain_on_desirability_overlay())
         && !map_terrain_is(grid_offset, TERRAIN_BUILDING)) || map_is_bridge(grid_offset)) {
@@ -937,19 +933,100 @@ static int draw_top_desirability(int x, int y, float scale, int grid_offset)
     }
     return 1;
 }
+***/
+
+static int draw_top_desirability(int x, int y, float scale, int grid_offset)
+{
+    if (map_terrain_is(grid_offset, TERRAIN_BUILDING) && !map_is_bridge(grid_offset)) {
+        if (map_property_is_draw_tile(grid_offset)) {
+            city_with_overlay_draw_building_top(x, y, grid_offset);
+        }
+    } else {
+        color_t color_mask = map_property_is_deleted(grid_offset) && !map_desirability_get(grid_offset) ?
+            COLOR_MASK_RED : 0;
+        if (map_property_is_draw_tile(grid_offset)) {
+            image_draw_isometric_top_from_draw_tile(map_image_at(grid_offset), x, y, color_mask, scale);
+        }
+    }
+
+    return 1;
+}
+
+static int is_inhabited_building(int grid_offset)
+{
+    if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
+        return 0;
+    }
+    building *b = building_get(map_building_at(grid_offset));
+    return b && b->house_population > 0 && !b->is_deleted && !map_property_is_deleted(b->grid_offset);
+}
+
+static int get_desirability_image_offset(int desirability)
+{
+    if (desirability < -10) {
+        return 0;
+    } else if (desirability < -5) {
+        return 1;
+    } else if (desirability < 0) {
+        return 2;
+    } else if (desirability == 1) {
+        return 3;
+    } else if (desirability < 5) {
+        return 4;
+    } else if (desirability < 10) {
+        return 5;
+    } else if (desirability < 15) {
+        return 6;
+    } else if (desirability < 20) {
+        return 7;
+    } else if (desirability < 25) {
+        return 8;
+    } else {
+        return 9;
+    }
+}
+
+static void draw_desirability_graph(int x, int y, float scale, int grid_offset)
+{
+    if (map_terrain_is(grid_offset, TERRAIN_BUILDING) && is_inhabited_building(grid_offset)) {
+        if (map_property_is_draw_tile(grid_offset)) {
+            building *b = building_get(map_building_at(grid_offset));
+            color_t desirability_color = get_sentiment_color(get_desirability_image_offset(b->desirability) * 10);
+            blend_color_to_footprint(x, y, b->house_size, desirability_color, scale);
+            city_with_overlay_draw_building_top(x, y, grid_offset);
+            image_draw_set_isometric_top_from_draw_tile(map_image_at(grid_offset), x, y, desirability_color, scale);
+        }
+    } else {
+        int desirability;
+        if (map_building_at(grid_offset)) {
+            building *b = building_get(map_building_at(grid_offset));
+            desirability = b->desirability;
+        } else {
+            desirability = map_desirability_get(grid_offset);
+        }
+        if (desirability) {
+            int offset = get_desirability_image_offset(desirability);
+            image_draw_isometric_footprint_from_draw_tile(image_group(GROUP_TERRAIN_DESIRABILITY) + offset, x, y,
+                ALPHA_FONT_SEMI_TRANSPARENT, scale);
+            image_draw_isometric_top_from_draw_tile(image_group(GROUP_TERRAIN_DESIRABILITY) + offset, x, y,
+                ALPHA_FONT_SEMI_TRANSPARENT, scale);
+        }
+    }
+}
 
 const city_overlay *city_overlay_for_desirability(void)
 {
     static city_overlay overlay = {
         OVERLAY_DESIRABILITY,
         COLUMN_COLOR_GREEN,
-        show_building_none,
+        show_building_sentiment,
         show_figure_none,
         get_column_height_none,
         get_tooltip_desirability,
         0,
         draw_footprint_desirability,
-        draw_top_desirability
+        draw_top_desirability,
+        draw_desirability_graph
     };
     return &overlay;
 }
