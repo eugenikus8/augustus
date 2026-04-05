@@ -856,6 +856,11 @@ static int get_desirability_image_offset(int desirability)
 
 static void draw_desirability_graph(int x, int y, float scale, int grid_offset)
 {
+    if (map_terrain_is(grid_offset, TERRAIN_ROCK | TERRAIN_WATER | TERRAIN_ACCESS_RAMP) ||
+        (!map_terrain_is(grid_offset, TERRAIN_ROAD | TERRAIN_GARDEN) &&
+            map_property_is_plaza_earthquake_or_overgrown_garden(grid_offset))) {
+        return;
+    }
     if (map_terrain_is(grid_offset, TERRAIN_BUILDING) && is_inhabited_building(grid_offset)) {
         if (map_property_is_draw_tile(grid_offset)) {
             building *b = building_get(map_building_at(grid_offset));
