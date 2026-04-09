@@ -800,7 +800,7 @@ static void draw_city_info(const empire_city *city)
                 // if the change trade route cost button isn't hidden draw it
                 button_border_draw(data.panel.x_max - 500 + trade_city_buttons[1].x, data.y_max - 93,
                     120, 24, data.focus_city_button_id == 2);
-                const uint8_t cost_text[32];
+                const uint8_t cost_text[32] = "";
                 snprintf((char *)cost_text, 32, "%i %s", city->cost_to_open, lang_get_string(6, 0));
                 text_draw_centered(cost_text, data.panel.x_max - 500 + trade_city_buttons[1].x, data.y_max - 85,
                     120, FONT_NORMAL_GREEN, COLOR_MASK_NONE);
@@ -1014,7 +1014,7 @@ static void refresh_empire(void)
         return;
     }
     const char *filename = dir_get_file_at_location(scenario.empire.custom_name, PATH_LOCATION_EDITOR_CUSTOM_EMPIRES);
-    if (!filename) {
+    if (!filename || !*scenario.empire.custom_name) {
         return;
     }
     empire_xml_parse_file(filename, 0);
@@ -1477,7 +1477,7 @@ static void button_route_type(const generic_button *button)
 
 static void set_opening_cost(int value)
 {
-    empire_city_get(data.selected_city)->cost_to_open = value;
+    empire_city_set_trade_route_cost(empire_city_get(data.selected_city)->route_id, value);
 }
 
 static void button_route_cost(const generic_button *button)
