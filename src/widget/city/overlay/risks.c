@@ -48,6 +48,8 @@ static int show_building_damage(const building *b)
 
 static int show_building_problems(const building *b)
 {
+    b = building_main(b);
+
     if (b->has_problem) {
         return 1;
     }
