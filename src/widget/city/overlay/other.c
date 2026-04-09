@@ -647,8 +647,8 @@ static int draw_water_top(int x, int y, float scale, int grid_offset)
 
     int image_base = image_group(GROUP_TERRAIN_OVERLAY);
     if (map_terrain_is(grid_offset, TERRAIN_RESERVOIR_RANGE)) {
-        image_draw_isometric_footprint_from_draw_tile(image_base + 8, x, y,
-            ALPHA_MASK_CUSTOM_EARTHQUAKE, scale);
+        image_draw_isometric_footprint_from_draw_tile(image_base + 11, x, y,
+            ALPHA_FONT_SEMI_TRANSPARENT, scale);
     }
 
     if (map_terrain_is(grid_offset, TERRAIN_FOUNTAIN_RANGE)) {
