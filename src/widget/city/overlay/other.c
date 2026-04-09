@@ -645,10 +645,13 @@ static int draw_water_top(int x, int y, float scale, int grid_offset)
         return 0;
     }
 
-    int image_base = image_group(GROUP_TERRAIN_OVERLAY);
+    static int reservoir_image;
+    if (!reservoir_image) {
+        reservoir_image = assets_get_image_id("UI", "Reservoir_Range_Overlay_Icon");
+    }
     if (map_terrain_is(grid_offset, TERRAIN_RESERVOIR_RANGE)) {
-        image_draw_isometric_footprint_from_draw_tile(image_base + 11, x, y,
-            ALPHA_FONT_SEMI_TRANSPARENT, scale);
+        image_draw_isometric_footprint_from_draw_tile(reservoir_image, x, y,
+            COLOR_MASK_NONE, scale);
     }
 
     if (map_terrain_is(grid_offset, TERRAIN_FOUNTAIN_RANGE)) {
