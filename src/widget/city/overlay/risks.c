@@ -410,7 +410,7 @@ static void draw_graph_native(int x, int y, float scale, int grid_offset)
             ALPHA_FONT_SEMI_TRANSPARENT, scale);
     }
 
-    if (show_building_native(b)) {
+    if (show_building_native(b) && map_property_is_draw_tile(grid_offset)) {
         city_draw_building_top(x, y, grid_offset, city_draw_get_color_mask(grid_offset, 1));
     }
 }
