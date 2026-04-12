@@ -264,23 +264,6 @@ static int is_drawable_farm_corner(int grid_offset)
     return 0;
 }
 
-void city_draw_building_footprint(int x, int y, int grid_offset, color_t color_mask)
-{
-    int building_id = map_building_at(grid_offset);
-    if (!building_id) {
-        return;
-    }
-    building *b = building_get(building_id);
-
-    if (!draw_context.overlay->show_building || draw_context.overlay->show_building(b)) {
-        image_draw_isometric_footprint_from_draw_tile(map_image_at(grid_offset), x, y, color_mask, draw_context.scale);
-    } else {
-        if (!building_is_farm(b->type) || is_drawable_farm_corner(grid_offset)) {
-            draw_flattened_building_footprint(b, x, y, color_mask);
-        }
-    }
-}
-
 color_t city_draw_get_color_mask(int grid_offset, int is_top)
 {
     color_t color_mask = COLOR_MASK_NONE;
@@ -323,9 +306,7 @@ static void draw_footprint(int x, int y, int grid_offset)
     if (grid_offset < 0) {
         return;
     }
-    if ((draw_context.overlay->draw_custom_footprint &&
-        draw_context.overlay->draw_custom_footprint(x, y, draw_context.scale, grid_offset)) ||
-        !map_property_is_draw_tile(grid_offset)) {
+    if (!map_property_is_draw_tile(grid_offset)) {
         draw_roamer_frequency(x, y, grid_offset);
         return;
     }
@@ -378,7 +359,15 @@ static void draw_footprint(int x, int y, int grid_offset)
     if (map_terrain_is(grid_offset, TERRAIN_HIGHWAY) && !map_terrain_is(grid_offset, TERRAIN_GATEHOUSE)) {
         city_draw_highway_footprint(x, y, draw_context.scale, grid_offset, color_mask);
     } else if (building_id && !map_is_bridge(grid_offset)) {
-        city_draw_building_footprint(x, y, grid_offset, color_mask);
+        building *b = building_get(building_id);
+
+        if (!draw_context.overlay->show_building || draw_context.overlay->show_building(b)) {
+            image_draw_isometric_footprint_from_draw_tile(map_image_at(grid_offset), x, y, color_mask, draw_context.scale);
+        } else {
+            if (!building_is_farm(b->type) || is_drawable_farm_corner(grid_offset)) {
+                draw_flattened_building_footprint(b, x, y, color_mask);
+            }
+        }
     } else {
         image_draw_isometric_footprint_from_draw_tile(image_id, x, y, color_mask, draw_context.scale);
     }
@@ -652,7 +641,7 @@ static void draw_senate_rating_flags(const building *b, int x, int y, color_t co
     }
 }
 
-void city_draw_building_top(int x, int y, int grid_offset, color_t color_mask)
+static void draw_building_top(int x, int y, int grid_offset, color_t color_mask)
 {
     building *b = building_get(map_building_at(grid_offset));
 
@@ -696,7 +685,7 @@ static void draw_top(int x, int y, int grid_offset)
     color_t color_mask = city_draw_get_color_mask(grid_offset, 1);
 
     if (map_building_at(grid_offset)) {
-        city_draw_building_top(x, y, grid_offset, color_mask);
+        draw_building_top(x, y, grid_offset, color_mask);
     } else {
         image_draw_isometric_top_from_draw_tile(map_image_at(grid_offset), x, y, color_mask, draw_context.scale);
     }

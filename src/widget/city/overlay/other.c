@@ -34,10 +34,6 @@
 
 #include <stdio.h>
 
-#define HIGHWAY_LEVY_MONTHLY 1
-
-static void draw_storage_ids(int x, int y, float scale, int grid_offset);
-
 static int show_building_religion(const building *b)
 {
     return
@@ -83,35 +79,6 @@ static int show_building_roads(const building *b)
     return building_type_is_roadblock(b->type);
 }
 
-static int draw_top_roads(int x, int y, float scale, int grid_offset)
-{
-    if (!map_property_is_draw_tile(grid_offset)) {
-        return 0;
-    }
-    if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
-        return 0;
-    }
-    building *b = building_get(map_building_at(grid_offset));
-    if (b->type != BUILDING_TRIUMPHAL_ARCH) {
-        return 0;
-    }
-    int image_id = map_image_at(grid_offset);
-    image_draw_isometric_top_from_draw_tile(image_id, x, y, COLOR_MASK_NONE, scale);
-    const image *img = image_get(image_id);
-    int animation_offset = building_animation_offset(b, image_id, grid_offset);
-    if (animation_offset > 0) {
-        int y_offset = img->top ? img->top->original.height - FOOTPRINT_HALF_HEIGHT : 0;
-        if (animation_offset > img->animation->num_sprites) {
-            animation_offset = img->animation->num_sprites;
-        }
-        image_draw(image_id + img->animation->start_offset + animation_offset,
-            x + img->animation->sprite_offset_x,
-            y + img->animation->sprite_offset_y - y_offset,
-            COLOR_MASK_NONE, scale);
-    }
-    return 1;
-}
-
 static int show_building_mothball(const building *b)
 {
     return b->state == BUILDING_STATE_MOTHBALLED;
@@ -136,7 +103,6 @@ static int show_building_none(const building *b)
 {
     return 0;
 }
-
 
 static int show_figure_religion(const figure *f)
 {
@@ -276,11 +242,6 @@ static int get_column_height_employment(const building *b)
     return full_staff ? height / 10 : NO_COLUMN;
 }
 
-static int get_column_height_none(const building *b)
-{
-    return NO_COLUMN;
-}
-
 static void add_god(tooltip_context *c, int god_id)
 {
     int index = c->num_extra_texts;
@@ -289,8 +250,12 @@ static void add_god(tooltip_context *c, int god_id)
     c->num_extra_texts++;
 }
 
-static int get_tooltip_religion(tooltip_context *c, const building *b)
+static int get_tooltip_religion(tooltip_context *c, int grid_offset)
 {
+    building *b = building_get(map_building_at(grid_offset));
+    if (!b->house_size) {
+        return 0;
+    }
     if (b->house_pantheon_access) {
         c->translation_key = TR_TOOLTIP_OVERLAY_PANTHEON_ACCESS;
         return 0;
@@ -330,8 +295,9 @@ static int get_tooltip_religion(tooltip_context *c, const building *b)
     }
 }
 
-static int get_tooltip_efficiency(tooltip_context *c, const building *b)
+static int get_tooltip_efficiency(tooltip_context *c, int grid_offset)
 {
+    building *b = building_get(map_building_at(grid_offset));
     int efficiency = building_get_efficiency(b);
     if (efficiency == -1) {
         return 0;
@@ -352,8 +318,9 @@ static int get_tooltip_efficiency(tooltip_context *c, const building *b)
     return 0;
 }
 
-static int get_tooltip_food_stocks(tooltip_context *c, const building *b)
+static int get_tooltip_food_stocks(tooltip_context *c, int grid_offset)
 {
+    building *b = building_get(map_building_at(grid_offset));
     if (b->house_population <= 0) {
         return 0;
     }
@@ -379,8 +346,9 @@ static int get_tooltip_food_stocks(tooltip_context *c, const building *b)
     }
 }
 
-static int get_tooltip_tax_income(tooltip_context *c, const building *b)
+static int get_tooltip_tax_income(tooltip_context *c, int grid_offset)
 {
+    building *b = building_get(map_building_at(grid_offset));
     int denarii = calc_adjust_with_percentage(b->tax_income_or_storage / 2, city_finance_tax_percentage());
     if (denarii > 0) {
         c->has_numeric_prefix = 1;
@@ -393,8 +361,9 @@ static int get_tooltip_tax_income(tooltip_context *c, const building *b)
     }
 }
 
-static int get_tooltip_employment(tooltip_context *c, const building *b)
+static int get_tooltip_employment(tooltip_context *c, int grid_offset)
 {
+    building *b = building_get(map_building_at(grid_offset));
     int full = building_get_laborers(b->type);
     int missing = full - b->num_workers;
 
@@ -452,11 +421,6 @@ static int get_tooltip_desirability(tooltip_context *c, int grid_offset)
     } else {
         return 93;
     }
-}
-
-static int get_tooltip_none(tooltip_context *c, int grid_offset)
-{
-    return 0;
 }
 
 static int get_tooltip_depot_orders(tooltip_context *c, int grid_offset)
@@ -546,19 +510,15 @@ static int get_tooltip_sentiment(tooltip_context *c, int grid_offset)
     return 1;
 }
 
-
 const city_overlay *city_overlay_for_religion(void)
 {
     static city_overlay overlay = {
-        OVERLAY_RELIGION,
-        COLUMN_COLOR_GREEN_TO_RED,
-        show_building_religion,
-        show_figure_religion,
-        get_column_height_religion,
-        0,
-        get_tooltip_religion,
-        0,
-        0
+        .type = OVERLAY_RELIGION,
+        .column_type = COLUMN_COLOR_GREEN_TO_RED,
+        .show_building = show_building_religion,
+        .show_figure = show_figure_religion,
+        .get_column_height = get_column_height_religion,
+        .get_tooltip = get_tooltip_religion
     };
     return &overlay;
 }
@@ -566,15 +526,12 @@ const city_overlay *city_overlay_for_religion(void)
 const city_overlay *city_overlay_for_efficiency(void)
 {
     static city_overlay overlay = {
-        OVERLAY_EFFICIENCY,
-        COLUMN_COLOR_GREEN_TO_RED,
-        show_building_roads,
-        show_figure_efficiency,
-        get_column_height_efficiency,
-        0,
-        get_tooltip_efficiency,
-        0,
-        draw_top_roads
+        .type = OVERLAY_EFFICIENCY,
+        .column_type = COLUMN_COLOR_GREEN_TO_RED,
+        .show_building = show_building_roads,
+        .show_figure = show_figure_efficiency,
+        .get_column_height = get_column_height_efficiency,
+        .get_tooltip = get_tooltip_efficiency
     };
     return &overlay;
 }
@@ -582,15 +539,12 @@ const city_overlay *city_overlay_for_efficiency(void)
 const city_overlay *city_overlay_for_food_stocks(void)
 {
     static city_overlay overlay = {
-        OVERLAY_FOOD_STOCKS,
-        COLUMN_COLOR_RED,
-        show_building_food_stocks,
-        show_figure_food_stocks,
-        get_column_height_food_stocks,
-        0,
-        get_tooltip_food_stocks,
-        0,
-        0
+        .type = OVERLAY_FOOD_STOCKS,
+        .column_type = COLUMN_COLOR_RED,
+        .show_building = show_building_food_stocks,
+        .show_figure = show_figure_food_stocks,
+        .get_column_height = get_column_height_food_stocks,
+        .get_tooltip = get_tooltip_food_stocks
     };
     return &overlay;
 }
@@ -598,15 +552,12 @@ const city_overlay *city_overlay_for_food_stocks(void)
 const city_overlay *city_overlay_for_tax_income(void)
 {
     static city_overlay overlay = {
-        OVERLAY_TAX_INCOME,
-        COLUMN_COLOR_GREEN_TO_RED,
-        show_building_tax_income,
-        show_figure_tax_income,
-        get_column_height_tax_income,
-        0,
-        get_tooltip_tax_income,
-        0,
-        0
+        .type = OVERLAY_TAX_INCOME,
+        .column_type = COLUMN_COLOR_GREEN_TO_RED,
+        .show_building = show_building_tax_income,
+        .show_figure = show_figure_tax_income,
+        .get_column_height = get_column_height_tax_income,
+        .get_tooltip = get_tooltip_tax_income
     };
     return &overlay;
 }
@@ -614,15 +565,12 @@ const city_overlay *city_overlay_for_tax_income(void)
 const city_overlay *city_overlay_for_employment(void)
 {
     static city_overlay overlay = {
-        OVERLAY_EMPLOYMENT,
-        COLUMN_COLOR_RED_TO_GREEN,
-        show_building_none,
-        show_figure_employment,
-        get_column_height_employment,
-        0,
-        get_tooltip_employment,
-        0,
-        0
+        .type = OVERLAY_EMPLOYMENT,
+        .column_type = COLUMN_COLOR_RED_TO_GREEN,
+        .show_building = show_building_none,
+        .show_figure = show_figure_employment,
+        .get_column_height = get_column_height_employment,
+        .get_tooltip = get_tooltip_employment
     };
     return &overlay;
 }
@@ -645,10 +593,13 @@ static int draw_water_top(int x, int y, float scale, int grid_offset)
         return 0;
     }
 
-    int image_base = image_group(GROUP_TERRAIN_OVERLAY);
+    static int reservoir_image;
+    if (!reservoir_image) {
+        reservoir_image = assets_get_image_id("UI", "Reservoir_Range_Overlay_Icon");
+    }
     if (map_terrain_is(grid_offset, TERRAIN_RESERVOIR_RANGE)) {
-        image_draw_isometric_footprint_from_draw_tile(image_base + 8, x, y,
-            ALPHA_MASK_CUSTOM_EARTHQUAKE, scale);
+        image_draw_isometric_footprint_from_draw_tile(reservoir_image, x, y,
+            COLOR_MASK_NONE, scale);
     }
 
     if (map_terrain_is(grid_offset, TERRAIN_FOUNTAIN_RANGE)) {
@@ -715,8 +666,9 @@ static void draw_water_graph(int x, int y, float scale, int grid_offset)
             }
 
             blend_color_to_footprint(x, y, b->house_size, water_color, scale);
-            city_draw_building_top(x, y, grid_offset, city_draw_get_color_mask(grid_offset, 1));
-            image_draw_set_isometric_top_from_draw_tile(map_image_at(grid_offset), x, y, water_color, scale);
+            int image_id = map_image_at(grid_offset);
+            image_draw_isometric_top_from_draw_tile(image_id, x, y, city_draw_get_color_mask(grid_offset, 1), scale);
+            image_draw_set_isometric_top_from_draw_tile(image_id, x, y, water_color, scale);
         }
     }
 }
@@ -724,16 +676,12 @@ static void draw_water_graph(int x, int y, float scale, int grid_offset)
 const city_overlay *city_overlay_for_water(void)
 {
     static city_overlay overlay = {
-        OVERLAY_WATER,
-        COLUMN_COLOR_GREEN,
-        show_building_water,
-        show_figure_none,
-        get_column_height_none,
-        get_tooltip_water,
-        0,
-        0,
-        draw_water_top,
-        draw_water_graph
+        .type = OVERLAY_WATER,
+        .show_building = show_building_water,
+        .show_figure = show_figure_none,
+        .get_tooltip = get_tooltip_water,
+        .draw_custom_top = draw_water_top,
+        .draw_custom_layer = draw_water_graph
     };
     return &overlay;
 }
@@ -747,23 +695,6 @@ static color_t get_color_for_percentage(int percentage)
     return percentage_colors[calc_bound(percentage / 10, 0, 9)];
 }
 
-static int draw_sentiment_footprint(int x, int y, float scale, int grid_offset)
-{
-    if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
-        return 0;
-    }
-    int building_id = map_building_at(grid_offset);
-    building *b = building_get(building_id);
-    if (!b || !b->house_population || b->is_deleted || map_property_is_deleted(b->grid_offset)) {
-        return 0;
-    }
-    if (map_property_is_draw_tile(grid_offset)) {
-        city_draw_building_footprint(x, y, grid_offset, city_draw_get_color_mask(grid_offset, 0));
-        blend_color_to_footprint(x, y, b->house_size, get_color_for_percentage(b->sentiment.house_happiness), scale);
-    }
-    return 1;
-}
-
 static int draw_sentiment_top(int x, int y, float scale, int grid_offset)
 {
     if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
@@ -775,9 +706,11 @@ static int draw_sentiment_top(int x, int y, float scale, int grid_offset)
         return 0;
     }
     if (map_property_is_draw_tile(grid_offset)) {
-        city_draw_building_top(x, y, grid_offset, city_draw_get_color_mask(grid_offset, 1));
         color_t color = get_color_for_percentage(b->sentiment.house_happiness);
-        image_draw_set_isometric_top_from_draw_tile(map_image_at(grid_offset), x, y, color, scale);
+        int image_id = map_image_at(grid_offset);
+        blend_color_to_footprint(x, y, b->house_size, color, scale);
+        image_draw_isometric_top_from_draw_tile(image_id, x, y, city_draw_get_color_mask(grid_offset, 1), scale);
+        image_draw_set_isometric_top_from_draw_tile(image_id, x, y, color, scale);
     }
     return 1;
 }
@@ -785,15 +718,11 @@ static int draw_sentiment_top(int x, int y, float scale, int grid_offset)
 const city_overlay *city_overlay_for_sentiment(void)
 {
     static city_overlay overlay = {
-        OVERLAY_SENTIMENT,
-        COLUMN_COLOR_GREEN,
-        show_building_sentiment,
-        show_figure_none,
-        get_column_height_none,
-        get_tooltip_sentiment,
-        0,
-        draw_sentiment_footprint,
-        draw_sentiment_top,
+        .type = OVERLAY_SENTIMENT,
+        .show_building = show_building_sentiment,
+        .show_figure = show_figure_none,
+        .get_tooltip = get_tooltip_sentiment,
+        .draw_custom_top = draw_sentiment_top
     };
     return &overlay;
 }
@@ -833,8 +762,9 @@ static void draw_desirability_graph(int x, int y, float scale, int grid_offset)
             building *b = building_get(map_building_at(grid_offset));
             color_t desirability_color = get_color_for_percentage(get_desirability_image_offset(b->desirability) * 10);
             blend_color_to_footprint(x, y, b->house_size, desirability_color, scale);
-            city_draw_building_top(x, y, grid_offset, city_draw_get_color_mask(grid_offset, 1));
-            image_draw_set_isometric_top_from_draw_tile(map_image_at(grid_offset), x, y, desirability_color, scale);
+            int image_id = map_image_at(grid_offset);
+            image_draw_isometric_top_from_draw_tile(image_id, x, y, city_draw_get_color_mask(grid_offset, 1), scale);
+            image_draw_set_isometric_top_from_draw_tile(image_id, x, y, desirability_color, scale);
         }
     } else {
         int desirability;
@@ -857,16 +787,11 @@ static void draw_desirability_graph(int x, int y, float scale, int grid_offset)
 const city_overlay *city_overlay_for_desirability(void)
 {
     static city_overlay overlay = {
-        OVERLAY_DESIRABILITY,
-        COLUMN_COLOR_GREEN,
-        show_building_sentiment,
-        show_figure_none,
-        get_column_height_none,
-        get_tooltip_desirability,
-        0,
-        0,
-        0,
-        draw_desirability_graph
+        .type = OVERLAY_DESIRABILITY,
+        .show_building = show_building_sentiment,
+        .show_figure = show_figure_none,
+        .get_tooltip = get_tooltip_desirability,
+        .draw_custom_layer = draw_desirability_graph
     };
     return &overlay;
 }
@@ -874,15 +799,9 @@ const city_overlay *city_overlay_for_desirability(void)
 const city_overlay *city_overlay_for_roads(void)
 {
     static city_overlay overlay = {
-        OVERLAY_ROADS,
-        COLUMN_COLOR_GREEN,
-        show_building_roads,
-        show_figure_none,
-        get_column_height_none,
-        get_tooltip_none,
-        0,
-        0,
-        draw_top_roads
+        .type = OVERLAY_ROADS,
+        .show_building = show_building_roads,
+        .show_figure = show_figure_none
     };
     return &overlay;
 }
@@ -890,15 +809,12 @@ const city_overlay *city_overlay_for_roads(void)
 const city_overlay *city_overlay_for_levy(void)
 {
     static city_overlay overlay = {
-        OVERLAY_LEVY,
-        COLUMN_COLOR_GREEN,
-        show_building_none,
-        show_figure_none,
-        get_column_height_levy,
-        get_offset_tooltip_levy,
-        0,
-        0,
-        0
+        .type = OVERLAY_LEVY,
+        .column_type = COLUMN_COLOR_GREEN,
+        .show_building = show_building_none,
+        .show_figure = show_figure_none,
+        .get_column_height = get_column_height_levy,
+        .get_tooltip = get_offset_tooltip_levy
     };
     return &overlay;
 }
@@ -906,32 +822,9 @@ const city_overlay *city_overlay_for_levy(void)
 const city_overlay *city_overlay_for_mothball(void)
 {
     static city_overlay overlay = {
-        OVERLAY_MOTHBALL,
-        COLUMN_COLOR_GREEN,
-        show_building_mothball,
-        show_figure_none,
-        get_column_height_none,
-        get_tooltip_none,
-        0,
-        0,
-        0
-    };
-    return &overlay;
-}
-
-const city_overlay *city_overlay_for_logistics(void)
-{
-    static city_overlay overlay = {
-        OVERLAY_LOGISTICS,
-        COLUMN_COLOR_GREEN,
-        show_building_logistics,
-        show_figure_logistics,
-        get_column_height_none,
-        get_tooltip_depot_orders,
-        0,
-        0,
-        0,
-        draw_storage_ids
+        .type = OVERLAY_MOTHBALL,
+        .show_building = show_building_mothball,
+        .show_figure = show_figure_none
     };
     return &overlay;
 }
@@ -983,19 +876,25 @@ static void draw_storage_ids(int x, int y, float scale, int grid_offset)
     text_draw(number, x + 5, y + 6, FONT_SMALL_PLAIN, COLOR_BLACK);
 }
 
+const city_overlay *city_overlay_for_logistics(void)
+{
+    static city_overlay overlay = {
+        .type = OVERLAY_LOGISTICS,
+        .show_building = show_building_logistics,
+        .show_figure = show_figure_logistics,
+        .get_tooltip = get_tooltip_depot_orders,
+        .draw_custom_layer = draw_storage_ids
+    };
+    return &overlay;
+}
+
 const city_overlay *city_overlay_for_storages(void)
 {
     static city_overlay overlay = {
-        OVERLAY_STORAGES,
-        COLUMN_COLOR_GREEN,
-        show_building_storages,
-        show_figure_none,
-        get_column_height_none,
-        get_tooltip_none,
-        0,
-        0,
-        0,
-        draw_storage_ids
+        .type = OVERLAY_STORAGES,
+        .show_building = show_building_storages,
+        .show_figure = show_figure_none,
+        .draw_custom_layer = draw_storage_ids
     };
     return &overlay;
 }
