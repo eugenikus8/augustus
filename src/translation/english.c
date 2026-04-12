@@ -1830,7 +1830,6 @@ static translation_string all_strings[] = {
     {TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_GETTING_GOODS, "Our cart off to warehouse for goods." },
     {TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_DELIVER, "Our cart is taking goods." },
     {TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_WAIT, "Our cart waiting for new instructions."},
-    {TR_TOOLTIP_OVERLAY_PROBLEMS_DEPOT_NO_INSTRUCTIONS, "No instructions"},
     {TR_TOOLTIP_DEPOT_CLEAR_SRC, "Clear source"},
     {TR_TOOLTIP_DEPOT_CLEAR_DST, "Clear destination"},
     {TR_CITY_PROPERTY_QUOTA_FILL, "Quota fill"},
