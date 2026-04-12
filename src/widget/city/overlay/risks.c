@@ -214,13 +214,9 @@ static int get_column_height_crime(const building *b)
     return NO_COLUMN;
 }
 
-static int get_column_height_none(const building *b)
+static int get_tooltip_fire(tooltip_context *c, int grid_offset)
 {
-    return NO_COLUMN;
-}
-
-static int get_tooltip_fire(tooltip_context *c, const building *b)
-{
+    building *b = building_get(map_building_at(grid_offset));
     if (b->fire_risk <= 0) {
         return 46;
     } else if (b->fire_risk <= 20) {
@@ -236,8 +232,9 @@ static int get_tooltip_fire(tooltip_context *c, const building *b)
     }
 }
 
-static int get_tooltip_damage(tooltip_context *c, const building *b)
+static int get_tooltip_damage(tooltip_context *c, int grid_offset)
 {
+    building *b = building_get(map_building_at(grid_offset));
     if (b->damage_risk <= 0) {
         return 52;
     } else if (b->damage_risk <= 40) {
@@ -253,8 +250,9 @@ static int get_tooltip_damage(tooltip_context *c, const building *b)
     }
 }
 
-static int get_tooltip_crime(tooltip_context *c, const building *b)
+static int get_tooltip_crime(tooltip_context *c, int grid_offset)
 {
+    building *b = building_get(map_building_at(grid_offset));
     int crime = get_crime_level(b);
     if (crime == RAMPANT_CRIME) {
         return 63;
@@ -271,8 +269,9 @@ static int get_tooltip_crime(tooltip_context *c, const building *b)
     }
 }
 
-static int get_tooltip_problems(tooltip_context *c, const building *b)
+static int get_tooltip_problems(tooltip_context *c, int grid_offset)
 {
+    const building *b = building_get(map_building_at(grid_offset));
     const building *main_building = b;
 
     int guard = 0;
@@ -348,13 +347,12 @@ static int get_tooltip_problems(tooltip_context *c, const building *b)
 const city_overlay *city_overlay_for_fire(void)
 {
     static city_overlay overlay = {
-        OVERLAY_FIRE,
-        COLUMN_COLOR_RED_TO_GREEN,
-        show_building_fire_crime,
-        show_figure_fire,
-        get_column_height_fire,
-        0,
-        get_tooltip_fire,
+        .type = OVERLAY_FIRE,
+        .column_type = COLUMN_COLOR_RED_TO_GREEN,
+        .show_building = show_building_fire_crime,
+        .show_figure = show_figure_fire,
+        .get_column_height = get_column_height_fire,
+        .get_tooltip = get_tooltip_fire
     };
     return &overlay;
 }
@@ -362,13 +360,12 @@ const city_overlay *city_overlay_for_fire(void)
 const city_overlay *city_overlay_for_damage(void)
 {
     static city_overlay overlay = {
-        OVERLAY_DAMAGE,
-        COLUMN_COLOR_RED_TO_GREEN,
-        show_building_damage,
-        show_figure_damage,
-        get_column_height_damage,
-        0,
-        get_tooltip_damage,
+        .type = OVERLAY_DAMAGE,
+        .column_type = COLUMN_COLOR_RED_TO_GREEN,
+        .show_building = show_building_damage,
+        .show_figure = show_figure_damage,
+        .get_column_height = get_column_height_damage,
+        .get_tooltip = get_tooltip_damage
     };
     return &overlay;
 }
@@ -376,13 +373,12 @@ const city_overlay *city_overlay_for_damage(void)
 const city_overlay *city_overlay_for_crime(void)
 {
     static city_overlay overlay = {
-        OVERLAY_CRIME,
-        COLUMN_COLOR_RED_TO_GREEN,
-        show_building_fire_crime,
-        show_figure_crime,
-        get_column_height_crime,
-        0,
-        get_tooltip_crime
+        .type = OVERLAY_CRIME,
+        .column_type = COLUMN_COLOR_RED_TO_GREEN,
+        .show_building = show_building_fire_crime,
+        .show_figure = show_figure_crime,
+        .get_column_height = get_column_height_crime,
+        .get_tooltip = get_tooltip_crime
     };
     return &overlay;
 }
@@ -390,13 +386,10 @@ const city_overlay *city_overlay_for_crime(void)
 const city_overlay *city_overlay_for_problems(void)
 {
     static city_overlay overlay = {
-        OVERLAY_PROBLEMS,
-        COLUMN_COLOR_RED,
-        show_building_problems,
-        show_figure_problems,
-        get_column_height_none,
-        0,
-        get_tooltip_problems
+        .type = OVERLAY_PROBLEMS,
+        .show_building = show_building_problems,
+        .show_figure = show_figure_problems,
+        .get_tooltip = get_tooltip_problems
     };
     return &overlay;
 }
@@ -418,16 +411,10 @@ static void draw_graph_native(int x, int y, float scale, int grid_offset)
 const city_overlay *city_overlay_for_native(void)
 {
     static city_overlay overlay = {
-        OVERLAY_NATIVE,
-        COLUMN_COLOR_RED,
-        show_building_native,
-        show_figure_native,
-        get_column_height_none,
-        0,
-        0,
-        0,
-        0,
-        draw_graph_native
+        .type = OVERLAY_NATIVE,
+        .show_building = show_building_native,
+        .show_figure = show_figure_native,
+        .draw_custom_layer = draw_graph_native
     };
     return &overlay;
 }
@@ -435,11 +422,9 @@ const city_overlay *city_overlay_for_native(void)
 const city_overlay *city_overlay_for_enemy(void)
 {
     static city_overlay overlay = {
-        OVERLAY_ENEMY,
-        COLUMN_COLOR_RED,
-        show_building_enemy,
-        show_figure_enemy,
-        get_column_height_none
+        .type = OVERLAY_ENEMY,
+        .show_building = show_building_enemy,
+        .show_figure = show_figure_enemy
     };
     return &overlay;
 }

@@ -323,9 +323,7 @@ static void draw_footprint(int x, int y, int grid_offset)
     if (grid_offset < 0) {
         return;
     }
-    if ((draw_context.overlay->draw_custom_footprint &&
-        draw_context.overlay->draw_custom_footprint(x, y, draw_context.scale, grid_offset)) ||
-        !map_property_is_draw_tile(grid_offset)) {
+    if (!map_property_is_draw_tile(grid_offset)) {
         draw_roamer_frequency(x, y, grid_offset);
         return;
     }
