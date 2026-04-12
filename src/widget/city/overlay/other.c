@@ -666,8 +666,9 @@ static void draw_water_graph(int x, int y, float scale, int grid_offset)
             }
 
             blend_color_to_footprint(x, y, b->house_size, water_color, scale);
-            city_draw_building_top(x, y, grid_offset, city_draw_get_color_mask(grid_offset, 1));
-            image_draw_set_isometric_top_from_draw_tile(map_image_at(grid_offset), x, y, water_color, scale);
+            int image_id = map_image_at(grid_offset);
+            image_draw_isometric_top_from_draw_tile(image_id, x, y, city_draw_get_color_mask(grid_offset, 1), scale);
+            image_draw_set_isometric_top_from_draw_tile(image_id, x, y, water_color, scale);
         }
     }
 }
@@ -761,8 +762,9 @@ static void draw_desirability_graph(int x, int y, float scale, int grid_offset)
             building *b = building_get(map_building_at(grid_offset));
             color_t desirability_color = get_color_for_percentage(get_desirability_image_offset(b->desirability) * 10);
             blend_color_to_footprint(x, y, b->house_size, desirability_color, scale);
-            city_draw_building_top(x, y, grid_offset, city_draw_get_color_mask(grid_offset, 1));
-            image_draw_set_isometric_top_from_draw_tile(map_image_at(grid_offset), x, y, desirability_color, scale);
+            int image_id = map_image_at(grid_offset);
+            image_draw_isometric_top_from_draw_tile(image_id, x, y, city_draw_get_color_mask(grid_offset, 1), scale);
+            image_draw_set_isometric_top_from_draw_tile(image_id, x, y, desirability_color, scale);
         }
     } else {
         int desirability;

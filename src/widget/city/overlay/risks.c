@@ -404,7 +404,8 @@ static void draw_graph_native(int x, int y, float scale, int grid_offset)
     }
 
     if (show_building_native(b) && map_property_is_draw_tile(grid_offset)) {
-        city_draw_building_top(x, y, grid_offset, city_draw_get_color_mask(grid_offset, 1));
+        int image_id = map_image_at(grid_offset);
+        image_draw_isometric_top_from_draw_tile(image_id, x, y, city_draw_get_color_mask(grid_offset, 1), scale);
     }
 }
 
