@@ -593,17 +593,13 @@ static int draw_water_top(int x, int y, float scale, int grid_offset)
         return 0;
     }
 
-    static int reservoir_image;
-    if (!reservoir_image) {
-        reservoir_image = assets_get_image_id("UI", "Reservoir_Range_Overlay_Icon");
-    }
     if (map_terrain_is(grid_offset, TERRAIN_RESERVOIR_RANGE)) {
-        image_draw_isometric_footprint_from_draw_tile(reservoir_image, x, y,
+        image_draw_isometric_footprint_from_draw_tile(assets_lookup_image_id(ASSET_UI_RESERVOIR_RANGE), x, y,
             COLOR_MASK_NONE, scale);
     }
 
     if (map_terrain_is(grid_offset, TERRAIN_FOUNTAIN_RANGE)) {
-        image_draw_isometric_footprint_from_draw_tile(assets_lookup_image_id(ASSET_UI_WATER_RANGE), x, y,
+        image_draw_isometric_footprint_from_draw_tile(assets_lookup_image_id(ASSET_UI_FOUNTAIN_RANGE), x, y,
             COLOR_MASK_BLUE, scale);
     }
     return 0;
@@ -638,11 +634,7 @@ static void blend_color_to_footprint(int x, int y, int size, color_t color, floa
 
 static void draw_water_graph(int x, int y, float scale, int grid_offset)
 {
-    if (!should_draw_graph(grid_offset)) {
-        return;
-    }
-
-    if (map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
+    if (!should_draw_graph(grid_offset) || map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
         return;
     }
 

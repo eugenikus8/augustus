@@ -218,22 +218,23 @@ static void city_building_ghost_draw_bonus_range(int x, int y, int grid_offset)
 
 void city_building_ghost_draw_well_range(int x, int y, int grid_offset)
 {
-    image_draw(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, COLOR_MASK_DARK_BLUE, data.scale);
+    image_draw(assets_lookup_image_id(ASSET_UI_FOUNTAIN_RANGE), x, y, COLOR_MASK_DARK_BLUE, data.scale);
 }
 
 void city_building_ghost_draw_fountain_range(int x, int y, int grid_offset)
 {
-    image_draw(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, COLOR_MASK_BLUE, data.scale);
+    image_draw(assets_lookup_image_id(ASSET_UI_FOUNTAIN_RANGE), x, y, COLOR_MASK_BLUE, data.scale);
 }
 
 void city_building_ghost_draw_reservoir_range(int x, int y, int grid_offset)
 {
-    image_draw(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, COLOR_MASK_RESERVOIR_RANGE, data.scale);
+    image_draw(assets_lookup_image_id(ASSET_UI_RESERVOIR_RANGE), x, y, ALPHA_FONT_SEMI_TRANSPARENT, data.scale);
 }
 
 void city_building_ghost_draw_latrines_range(int x, int y, int grid_offset)
 {
-    image_draw(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, COLOR_MASK_DARK_GREEN & ALPHA_FONT_SEMI_TRANSPARENT, data.scale);
+    image_draw(image_group(GROUP_TERRAIN_FLAT_TILE), x, y,
+        COLOR_MASK_DARK_GREEN & ALPHA_FONT_SEMI_TRANSPARENT, data.scale);
 }
 
 static void image_draw_warehouse(int image_id, int x, int y, color_t color)
@@ -617,8 +618,8 @@ static void draw_first_reservoir_range(int x, int y, int grid_offset)
         data.reservoir_range.offsets[data.reservoir_range.total] = grid_offset;
         data.reservoir_range.total++;
     }
-    color_t color_mask = data.reservoir_range.blocked ? COLOR_MASK_GRAY : COLOR_MASK_BLUE;
-    image_draw(assets_lookup_image_id(ASSET_UI_WATER_RANGE), x, y, color_mask, data.scale);
+    color_t color_mask = data.reservoir_range.blocked ? COLOR_MASK_GRAY : COLOR_MASK_SOFT_WHITE;
+    image_draw(assets_lookup_image_id(ASSET_UI_RESERVOIR_RANGE), x, y, color_mask, data.scale);
 }
 
 static void draw_second_reservoir_range(int x, int y, int grid_offset)
@@ -628,8 +629,8 @@ static void draw_second_reservoir_range(int x, int y, int grid_offset)
             return;
         }
     }
-    color_t color_mask = data.reservoir_range.blocked ? COLOR_MASK_GRAY : COLOR_MASK_BLUE;
-    image_draw(assets_lookup_image_id(ASSET_UI_WATER_RANGE), x, y, color_mask, data.scale);
+    color_t color_mask = data.reservoir_range.blocked ? COLOR_MASK_GRAY : COLOR_MASK_SOFT_WHITE;
+    image_draw(assets_lookup_image_id(ASSET_UI_RESERVOIR_RANGE), x, y, color_mask, data.scale);
 }
 
 static void draw_draggable_reservoir(const map_tile *tile, int x, int y)
@@ -1324,7 +1325,7 @@ static void draw_highway(const map_tile *tile, int x, int y)
 static void draw_grand_temple_neptune_range(int x, int y, int grid_offset)
 {
     color_t color_mask = data.reservoir_range.blocked ? COLOR_MASK_GRAY : COLOR_MASK_BLUE;
-    image_draw(assets_lookup_image_id(ASSET_UI_WATER_RANGE), x, y, color_mask, data.scale);
+    image_draw(assets_lookup_image_id(ASSET_UI_FOUNTAIN_RANGE), x, y, color_mask, data.scale);
 }
 
 static void draw_grand_temple_neptune(const map_tile *tile, int x, int y)
