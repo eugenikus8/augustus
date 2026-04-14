@@ -587,7 +587,7 @@ static int should_draw_graph(int grid_offset)
         map_terrain_is(grid_offset, TERRAIN_ROAD | TERRAIN_GARDEN);
 }
 
-static int draw_water_top(int x, int y, float scale, int grid_offset)
+static int draw_water_top(int x, int y, float scale, int grid_offset, color_t reservoir_color_mask)
 {
     if (!should_draw_graph(grid_offset) || show_building_water(building_get(map_building_at(grid_offset)))) {
         return 0;
@@ -595,7 +595,7 @@ static int draw_water_top(int x, int y, float scale, int grid_offset)
 
     if (map_terrain_is(grid_offset, TERRAIN_RESERVOIR_RANGE)) {
         image_draw_isometric_footprint_from_draw_tile(assets_lookup_image_id(ASSET_UI_RESERVOIR_RANGE), x, y,
-            COLOR_MASK_NONE, scale);
+            reservoir_color_mask, scale);
     }
 
     if (map_terrain_is(grid_offset, TERRAIN_FOUNTAIN_RANGE)) {
@@ -603,6 +603,16 @@ static int draw_water_top(int x, int y, float scale, int grid_offset)
             COLOR_MASK_BLUE, scale);
     }
     return 0;
+}
+
+static int draw_water_top_for_overlay(int x, int y, float scale, int grid_offset)
+{
+    return draw_water_top(x, y, scale, grid_offset, COLOR_MASK_NONE);
+}
+
+static int draw_water_top_for_building_ghost(int x, int y, float scale, int grid_offset)
+{
+    return draw_water_top(x, y, scale, grid_offset, ALPHA_FONT_SEMI_TRANSPARENT);
 }
 
 static int is_inhabited_building(int grid_offset)
@@ -647,7 +657,7 @@ static void draw_water_graph(int x, int y, float scale, int grid_offset)
                 default:
                 case 1:
                     if (b->has_well_access) {
-                        water_color = COLOR_MASK_BLUE;
+                        water_color = COLOR_MASK_DARK_BLUE;
                     }
                     // intentional fallthrough
                 case 2:
@@ -672,7 +682,16 @@ const city_overlay *city_overlay_for_water(void)
         .show_building = show_building_water,
         .show_figure = show_figure_none,
         .get_tooltip = get_tooltip_water,
-        .draw_custom_top = draw_water_top,
+        .draw_custom_top = draw_water_top_for_overlay,
+        .draw_custom_layer = draw_water_graph
+    };
+    return &overlay;
+}
+
+const city_overlay *city_overlay_for_water_building_ghost(void)
+{
+    static city_overlay overlay = {
+        .draw_custom_top = draw_water_top_for_building_ghost,
         .draw_custom_layer = draw_water_graph
     };
     return &overlay;

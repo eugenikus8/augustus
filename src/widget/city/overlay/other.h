@@ -13,6 +13,8 @@ const city_overlay *city_overlay_for_food_stocks(void);
 
 const city_overlay *city_overlay_for_water(void);
 
+const city_overlay *city_overlay_for_water_building_ghost(void);
+
 const city_overlay *city_overlay_for_sentiment(void);
 
 const city_overlay *city_overlay_for_desirability(void);

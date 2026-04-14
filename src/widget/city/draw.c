@@ -107,6 +107,13 @@ static void init_draw_context(int selected_figure_id, pixel_coordinate *figure_c
     draw_context.scale = city_view_get_scale() / 100.0f;
     draw_context.overlay = city_overlay_get();
 
+    if (draw_context.overlay->type == OVERLAY_NONE) {
+        const city_overlay *ghost_overlay = city_building_ghost_get_overlay();
+        if (ghost_overlay) {
+            draw_context.overlay = ghost_overlay;
+        }
+    }
+
     // Determine hovered building - only if config enabled and not scrolling
     draw_context.hovered_building_id = 0;
     if (config_get(CONFIG_UI_CV_CURSOR_SHADOW) && draw_context.cursor_tile && draw_context.cursor_tile->grid_offset &&
@@ -1226,79 +1233,6 @@ static void update_clouds(void)
     city_view_get_camera_in_pixels(&camera_x, &camera_y);
     clouds_draw(camera_x, camera_y, GRID_SIZE * 60, GRID_SIZE * 30, draw_context.scale);
 }
-
-/***
- * TODO:
- *
- * The following code should be executed, depending on a new "console window" output
- *
- * For now, we'll leave it commented out so it's added in the future.
- */
-
- /**
- static void draw_routing(int x, int y, int grid_offset)
- {
-     int tx = map_grid_offset_to_x(grid_offset);
-     int ty = map_grid_offset_to_y(grid_offset);
-     map_routing_distance_grid *distance = map_routing_get_distance_grid();
-     int16_t dist = distance->determined.items[grid_offset];
-     if (!dist) {
-         return;
-     }
-     if (tx == distance->dst_x && ty == distance->dst_y) {
-         int dst_image_id = assets_get_image_id("UI", "Happy God Icon");
-         image_draw(dst_image_id, x + 29 - 10, y + 15 - 10, 0, 1);
-     }
-     uint8_t text[20];
-     string_from_int(text, dist, 0);
-     text_draw_centered(text, x, y, 58, FONT_NORMAL_BLACK, COLOR_WHITE);
- }
-
- static void draw_highway_terrain(int x, int y, int grid_offset)
- {
-     int offset = -8;
-     int terrain = map_terrain_get(grid_offset);
-     if (terrain & TERRAIN_HIGHWAY_TOP_LEFT) {
-         text_draw_centered("TL", x + offset, y + 6, 58, FONT_SMALL_PLAIN, COLOR_WHITE);
-         offset += 16;
-     }
-     if (terrain & TERRAIN_HIGHWAY_TOP_RIGHT) {
-         text_draw_centered("TR", x + offset, y + 6, 58, FONT_SMALL_PLAIN, COLOR_WHITE);
-         offset += 16;
-     }
-     if (terrain & TERRAIN_HIGHWAY_BOTTOM_LEFT) {
-         text_draw_centered("BL", x + offset, y + 6, 58, FONT_SMALL_PLAIN, COLOR_WHITE);
-         offset += 16;
-     }
-     if (terrain & TERRAIN_HIGHWAY_BOTTOM_RIGHT) {
-         text_draw_centered("BR", x + offset, y + 6, 58, FONT_SMALL_PLAIN, COLOR_WHITE);
-         offset += 16;
-     }
- }
-
- static void draw_tile_coords(int x, int y, int grid_offset)
- {
-     int tx = map_grid_offset_to_x(grid_offset);
-     int ty = map_grid_offset_to_y(grid_offset);
-     uint8_t text[20];
-     string_from_int(text, tx, 0);
-     int len = string_length(text);
-     string_copy(",", text + len, 2);
-     len++;
-     //string_from_int(text + len, ty, 0);
-     //text_draw_centered(text, x, y + 4, 58, FONT_SMALL_PLAIN, COLOR_WHITE);
-     string_from_int(text, grid_offset, 0);
-     text_draw_centered(text, x, y + 10, 58, FONT_SMALL_PLAIN, COLOR_WHITE);
- }
-
- static void draw_road_network_id(int x, int y, int grid_offset)
- {
-     int road_network_id = map_road_network_get(grid_offset);
-     uint8_t text[20];
-     string_from_int(text, road_network_id, 0);
-     text_draw_centered(text, x, y + 4, 58, FONT_NORMAL_BLACK, COLOR_WHITE);
- }
- ***/
 
 void city_draw(int selected_figure_id, pixel_coordinate *figure_coord, const map_tile *tile, unsigned int roamer_preview_building_id)
 {
