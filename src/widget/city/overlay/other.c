@@ -23,10 +23,12 @@
 #include "map/bridge.h"
 #include "map/building.h"
 #include "map/desirability.h"
+#include "map/grid.h"
 #include "map/image.h"
 #include "map/property.h"
 #include "map/random.h"
 #include "map/terrain.h"
+#include "map/water_supply.h"
 #include "scenario/property.h"
 #include "translation/translation.h"
 #include "widget/city/draw.h"
@@ -587,32 +589,35 @@ static int should_draw_graph(int grid_offset)
         map_terrain_is(grid_offset, TERRAIN_ROAD | TERRAIN_GARDEN);
 }
 
-static int draw_water_top(int x, int y, float scale, int grid_offset, color_t reservoir_color_mask)
+static int has_well_access(int grid_offset)
 {
-    if (!should_draw_graph(grid_offset) || show_building_water(building_get(map_building_at(grid_offset)))) {
-        return 0;
+    // If we are in a building that doesn't have well access, we know for sure the tile doesn't have well access,
+    // so we can skip the more expensive terrain checks.
+    const building *b = building_get(map_building_at(grid_offset));
+    if (b->id > 0 && !b->has_well_access) {
+         return 0;
     }
 
-    if (map_terrain_is(grid_offset, TERRAIN_RESERVOIR_RANGE)) {
-        image_draw_isometric_footprint_from_draw_tile(assets_lookup_image_id(ASSET_UI_RESERVOIR_RANGE), x, y,
-            reservoir_color_mask, scale);
+    // Store the last well found to avoid redundant checks for consecutive tiles with the same well access.
+    static const building *last_well;
+    int radius = map_water_supply_well_radius();
+
+    if (last_well && map_grid_chess_distance(last_well->grid_offset, grid_offset) <= radius) {
+        return 1;
     }
 
-    if (map_terrain_is(grid_offset, TERRAIN_FOUNTAIN_RANGE)) {
-        image_draw_isometric_footprint_from_draw_tile(assets_lookup_image_id(ASSET_UI_FOUNTAIN_RANGE), x, y,
-            COLOR_MASK_BLUE, scale);
+    // Check every well
+    for (building *well = building_first_of_type(BUILDING_WELL); well; well = well->next_of_type) {
+        if (well == last_well) {
+            continue;
+        }
+        if (well->state == BUILDING_STATE_IN_USE && map_grid_chess_distance(well->grid_offset, grid_offset) <= radius) {
+            last_well = well;
+            return 1;
+        }
     }
+
     return 0;
-}
-
-static int draw_water_top_for_overlay(int x, int y, float scale, int grid_offset)
-{
-    return draw_water_top(x, y, scale, grid_offset, COLOR_MASK_NONE);
-}
-
-static int draw_water_top_for_building_ghost(int x, int y, float scale, int grid_offset)
-{
-    return draw_water_top(x, y, scale, grid_offset, ALPHA_FONT_SEMI_TRANSPARENT);
 }
 
 static int is_inhabited_building(int grid_offset)
@@ -642,37 +647,103 @@ static void blend_color_to_footprint(int x, int y, int size, color_t color, floa
     }
 }
 
-static void draw_water_graph(int x, int y, float scale, int grid_offset)
+static void redraw_water_building(building *b, int x, int y, float scale, int grid_offset)
 {
-    if (!should_draw_graph(grid_offset) || map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
+    int image_id = map_image_at(grid_offset);
+    color_t color_mask = city_draw_get_color_mask(grid_offset, 0);
+    image_draw_isometric_footprint_from_draw_tile(image_id, x, y, color_mask, scale);
+    image_draw_isometric_top_from_draw_tile(image_id, x, y, city_draw_get_color_mask(grid_offset, 1), scale);
+    int animation_offset = building_animation_offset(b, image_id, grid_offset);
+    if (animation_offset > 0) {
+        const image *img = image_get(image_id);
+        int y_offset = img->top ? img->top->original.height - FOOTPRINT_HALF_HEIGHT : 0;
+        if (animation_offset > img->animation->num_sprites) {
+            animation_offset = img->animation->num_sprites;
+        }
+        image_draw(image_id + img->animation->start_offset + animation_offset,
+                x + img->animation->sprite_offset_x,
+                y + img->animation->sprite_offset_y - y_offset,
+                color_mask, scale);
+    }
+}
+
+static void draw_water_graph(int x, int y, float scale, int grid_offset, color_t reservoir_color_mask)
+{
+    if (!should_draw_graph(grid_offset)) {
         return;
     }
 
-    if (map_terrain_is(grid_offset, TERRAIN_BUILDING) && is_inhabited_building(grid_offset)) {
-        if (map_property_is_draw_tile(grid_offset)) {
-            building *b = building_get(map_building_at(grid_offset));
-            color_t water_color = COLOR_MASK_GRAY;
-            
-            switch (model_get_house(b->subtype.house_level)->water) {
-                default:
-                case 1:
-                    if (b->has_well_access) {
-                        water_color = COLOR_MASK_DARK_BLUE;
-                    }
-                    // intentional fallthrough
-                case 2:
-                    if (b->house_size && b->has_water_access) {
-                        water_color = COLOR_MASK_BLUE;
-                    }
-                    break;
-            }
+    building *b = building_get(map_building_at(grid_offset));
 
-            blend_color_to_footprint(x, y, b->house_size, water_color, scale);
-            int image_id = map_image_at(grid_offset);
-            image_draw_isometric_top_from_draw_tile(image_id, x, y, city_draw_get_color_mask(grid_offset, 1), scale);
-            image_draw_set_isometric_top_from_draw_tile(image_id, x, y, water_color, scale);
+    if (show_building_water(b) && !is_inhabited_building(grid_offset)) {
+        if (map_property_is_draw_tile(grid_offset)) {
+            redraw_water_building(b, x, y, scale, grid_offset);
         }
+        return;
     }
+
+    if (reservoir_color_mask != ALPHA_TRANSPARENT && !show_building_water(b) &&
+        map_terrain_is(grid_offset, TERRAIN_RESERVOIR_RANGE) && !map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
+        image_draw_isometric_footprint_from_draw_tile(assets_lookup_image_id(ASSET_UI_RESERVOIR_RANGE), x, y,
+            reservoir_color_mask, scale);
+    }
+
+    if (map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
+        int image_id = map_image_at(grid_offset);
+        color_t color_mask = city_draw_get_color_mask(grid_offset, 1);
+        image_draw_isometric_top_from_draw_tile(image_id, x, y, color_mask, scale);
+    }
+
+    if (is_inhabited_building(grid_offset)) {
+        if (!map_property_is_draw_tile(grid_offset)) {
+            return;
+        }
+        color_t water_color = COLOR_MASK_GRAY;
+        
+        switch (model_get_house(b->subtype.house_level)->water) {
+            default:
+            case 1:
+                if (b->has_well_access) {
+                    water_color = COLOR_MASK_DARK_BLUE;
+                }
+                // intentional fallthrough
+            case 2:
+                if (b->house_size && b->has_water_access) {
+                    water_color = COLOR_MASK_BLUE;
+                }
+                break;
+        }
+
+        blend_color_to_footprint(x, y, b->house_size, water_color, scale);
+        int image_id = map_image_at(grid_offset);
+        image_draw_isometric_top_from_draw_tile(image_id, x, y, city_draw_get_color_mask(grid_offset, 1), scale);
+        image_draw_set_isometric_top_from_draw_tile(image_id, x, y, water_color, scale);
+
+        return;
+    }
+
+    if (map_terrain_is(grid_offset, TERRAIN_FOUNTAIN_RANGE)) {
+        image_draw_isometric_footprint_from_draw_tile(assets_lookup_image_id(ASSET_UI_FOUNTAIN_RANGE), x, y,
+            COLOR_MASK_BLUE, scale);
+    } else if (has_well_access(grid_offset)) {
+        image_draw_isometric_footprint_from_draw_tile(assets_lookup_image_id(ASSET_UI_FOUNTAIN_RANGE), x, y,
+            COLOR_MASK_DARK_BLUE, scale);
+    }
+}
+
+static void draw_water_graph_for_overlay(int x, int y, float scale, int grid_offset)
+{
+    draw_water_graph(x, y, scale, grid_offset, COLOR_MASK_NONE);
+}
+
+static void draw_water_graph_for_building_ghost(int x, int y, float scale, int grid_offset)
+{
+    draw_water_graph(x, y, scale, grid_offset, ALPHA_FONT_SEMI_TRANSPARENT);
+}
+
+static void draw_water_graph_for_building_ghost_house(int x, int y, float scale, int grid_offset)
+{
+    draw_water_graph(x, y, scale, grid_offset, ALPHA_TRANSPARENT);
 }
 
 const city_overlay *city_overlay_for_water(void)
@@ -682,8 +753,7 @@ const city_overlay *city_overlay_for_water(void)
         .show_building = show_building_water,
         .show_figure = show_figure_none,
         .get_tooltip = get_tooltip_water,
-        .draw_custom_top = draw_water_top_for_overlay,
-        .draw_custom_layer = draw_water_graph
+        .draw_custom_layer = draw_water_graph_for_overlay
     };
     return &overlay;
 }
@@ -691,8 +761,15 @@ const city_overlay *city_overlay_for_water(void)
 const city_overlay *city_overlay_for_water_building_ghost(void)
 {
     static city_overlay overlay = {
-        .draw_custom_top = draw_water_top_for_building_ghost,
-        .draw_custom_layer = draw_water_graph
+        .draw_custom_layer = draw_water_graph_for_building_ghost
+    };
+    return &overlay;
+}
+
+const city_overlay *city_overlay_for_water_building_ghost_house(void)
+{
+    static city_overlay overlay = {
+        .draw_custom_layer = draw_water_graph_for_building_ghost_house
     };
     return &overlay;
 }

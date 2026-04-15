@@ -226,11 +226,6 @@ static void draw_fountain_range(int x, int y, int grid_offset)
     image_draw(assets_lookup_image_id(ASSET_UI_FOUNTAIN_RANGE), x, y, COLOR_MASK_BLUE, data.scale);
 }
 
-static void draw_reservoir_range(int x, int y, int grid_offset)
-{
-    image_draw(assets_lookup_image_id(ASSET_UI_RESERVOIR_RANGE), x, y, ALPHA_FONT_SEMI_TRANSPARENT, data.scale);
-}
-
 static void draw_latrines_range(int x, int y, int grid_offset)
 {
     image_draw(image_group(GROUP_TERRAIN_FLAT_TILE), x, y,
@@ -1543,7 +1538,7 @@ const city_overlay *city_building_ghost_get_overlay(void)
     }
 
     if (config_get(CONFIG_UI_SHOW_WATER_STRUCTURE_RANGE_HOUSES) && type == BUILDING_HOUSE_VACANT_LOT) {
-        return city_overlay_for_water_building_ghost();
+        return city_overlay_for_water_building_ghost_house();
     }
 
     return 0;

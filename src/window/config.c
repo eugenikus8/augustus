@@ -1270,7 +1270,7 @@ static inline int config_string_changed(int key)
     return strcmp(data.config_string_values[key].original_value, data.config_string_values[key].new_value) != 0;
 }
 
-static inline void update_has_changes(void)
+static inline void check_for_changes(void)
 {
     update_scale();
     calculate_available_resolutions_and_fullscreen();
@@ -1795,7 +1795,7 @@ static void build_layout_for_current_page(void)
     int visible_widget_index = 0;
 
     for (int i = start_widget_index; i < widget_count && visible_widget_index < MAX_WIDGETS; ++i) {
-        const config_widget *w = get_widget_row_for((int) data.page, i);
+        const config_widget *w = get_widget_row_for(data.page, i);
         if (!w) {
             break;
         }
@@ -1820,7 +1820,7 @@ static void build_layout_for_current_page(void)
 
 static void draw_background(void)
 {
-    update_has_changes();
+    check_for_changes();
 
     if (data.show_background_image) {
         image_draw_fullscreen_background(image_group(GROUP_INTERMEZZO_BACKGROUND) + 5);
