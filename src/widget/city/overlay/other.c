@@ -680,9 +680,9 @@ static void redraw_water_building(building *b, int x, int y, float scale, int gr
             image_draw(image_id + ((animation_offset - 1) % 5), x + 98, y + 87 - y_offset, color_mask, scale);
         }
         image_draw(image_id + img->animation->start_offset + animation_offset,
-                x + img->animation->sprite_offset_x,
-                y + img->animation->sprite_offset_y - y_offset,
-                color_mask, scale);
+            x + img->animation->sprite_offset_x,
+            y + img->animation->sprite_offset_y - y_offset,
+            color_mask, scale);
     }
 }
 
@@ -705,7 +705,8 @@ static void draw_water_graph(int x, int y, float scale, int grid_offset)
         return;
     }
 
-    if (water_building_ghost_settings.show_reservoir_range && !show_building_water(b) &&
+    if (water_building_ghost_settings.show_reservoir_range &&
+        (!show_building_water(b) || (is_inhabited_building(grid_offset) && !water_building_ghost_settings.show_fountain_well_range)) &&
         map_terrain_is(grid_offset, TERRAIN_RESERVOIR_RANGE) && !map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
         image_draw_isometric_footprint_from_draw_tile(assets_lookup_image_id(ASSET_UI_RESERVOIR_RANGE), x, y,
             water_building_ghost_settings.reservoir_range_color, scale);

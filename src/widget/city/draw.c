@@ -1167,7 +1167,7 @@ static void deletion_draw_remaining(int x, int y, int grid_offset)
     draw_hippodrome_ornaments(x, y, grid_offset);
 }
 
-static void draw_layer(int x, int y, int grid_offset)
+static void draw_overlay(int x, int y, int grid_offset)
 {
     draw_context.overlay->draw_layer(x, y, draw_context.scale, grid_offset);
 }
@@ -1249,6 +1249,9 @@ void city_draw(int selected_figure_id, pixel_coordinate *figure_coord, const map
             draw_figures,
             draw_animation
         );
+        if (draw_context.overlay->draw_layer) {
+            city_view_foreach_valid_map_tile(draw_overlay);
+        }
         if (!selected_figure_id) {
             if (building_is_connectable(building_construction_type())) {
                 city_view_foreach_valid_map_tile(draw_connectable_construction_ghost);
@@ -1264,9 +1267,9 @@ void city_draw(int selected_figure_id, pixel_coordinate *figure_coord, const map
         city_view_foreach_valid_map_tile(deletion_draw_terrain_top);
         city_view_foreach_valid_map_tile(deletion_draw_figures_animations);
         city_view_foreach_valid_map_tile(deletion_draw_remaining);
-    }
-    if (draw_context.overlay->draw_layer) {
-        city_view_foreach_valid_map_tile(draw_layer);
+        if (draw_context.overlay->draw_layer) {
+            city_view_foreach_valid_map_tile(draw_overlay);
+        }
     }
     update_clouds();
     update_weather();

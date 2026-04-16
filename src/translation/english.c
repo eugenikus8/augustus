@@ -63,7 +63,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_VISUAL_FEEDBACK_ON_DELETE, "Improve visual feedback when clearing land"},
     {TR_CONFIG_ALLOW_CYCLING_TEMPLES, "Allow building each temple in succession"},
     {TR_CONFIG_HEADER_WATER_STRUCTURE_RANGE, "Show range of fountains and wells"},
-    {TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE, "When building reservoirs and other fountains and wells"},
+    {TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE, "When building reservoirs, fountains and wells"},
     {TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE_HOUSES, "When building houses"},
     {TR_CONFIG_SHOW_MARKET_RANGE, "Show range when building markets"},
     {TR_CONFIG_SHOW_CONSTRUCTION_SIZE, "Show area of construction when dragging the cursor"},
