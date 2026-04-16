@@ -1524,24 +1524,25 @@ const city_overlay *city_building_ghost_get_overlay(void)
 {
     building_type type = building_construction_type();
 
-    if (config_get(CONFIG_UI_SHOW_WATER_STRUCTURE_RANGE)) {
-        if (type == BUILDING_RESERVOIR || type == BUILDING_DRAGGABLE_RESERVOIR || type == BUILDING_FOUNTAIN ||
-            type == BUILDING_WELL || type == BUILDING_GRAND_TEMPLE_NEPTUNE) {
-            return city_overlay_for_water_building_ghost();
-        }
-    }
+    int show_reservoir_range = config_get(CONFIG_UI_BUILD_SHOW_RESERVOIR_RANGES);
+    int show_water_structure_range = config_get(CONFIG_UI_SHOW_WATER_STRUCTURE_RANGE);
 
-    if (config_get(CONFIG_UI_BUILD_SHOW_RESERVOIR_RANGES)) {
-        if (type == BUILDING_CONCRETE_MAKER || type == BUILDING_BATHHOUSE) {
-            return city_overlay_for_water_building_ghost();
-        }
+    switch(type) {
+        case BUILDING_RESERVOIR:
+        case BUILDING_DRAGGABLE_RESERVOIR:
+        case BUILDING_FOUNTAIN:
+        case BUILDING_GRAND_TEMPLE_NEPTUNE:
+        case BUILDING_CONCRETE_MAKER:
+            return city_overlay_for_water_building_ghost(show_reservoir_range, show_water_structure_range);
+        case BUILDING_WELL:
+            return city_overlay_for_water_building_ghost(0, show_water_structure_range);
+        case BUILDING_BATHHOUSE:
+            return city_overlay_for_water_building_ghost(show_reservoir_range, 0);
+        case BUILDING_HOUSE_VACANT_LOT:
+            return city_overlay_for_water_building_ghost(0, config_get(CONFIG_UI_SHOW_WATER_STRUCTURE_RANGE_HOUSES));
+        default:
+            return 0;
     }
-
-    if (config_get(CONFIG_UI_SHOW_WATER_STRUCTURE_RANGE_HOUSES) && type == BUILDING_HOUSE_VACANT_LOT) {
-        return city_overlay_for_water_building_ghost_house();
-    }
-
-    return 0;
 }
 
 void city_building_ghost_draw(const map_tile *tile)

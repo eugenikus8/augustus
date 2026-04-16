@@ -36,6 +36,12 @@
 
 #include <stdio.h>
 
+static struct {
+    int show_reservoir_range;
+    int show_fountain_well_range;
+    color_t reservoir_range_color;
+} water_building_ghost_settings;
+
 static int show_building_religion(const building *b)
 {
     return
@@ -667,8 +673,12 @@ static void redraw_water_building(building *b, int x, int y, float scale, int gr
     }
 }
 
-static void draw_water_graph(int x, int y, float scale, int grid_offset, color_t reservoir_color_mask)
+static void draw_water_graph(int x, int y, float scale, int grid_offset)
 {
+    if (!water_building_ghost_settings.show_reservoir_range && !water_building_ghost_settings.show_fountain_well_range) {
+        return;
+    }
+
     if (!should_draw_graph(grid_offset)) {
         return;
     }
@@ -682,16 +692,20 @@ static void draw_water_graph(int x, int y, float scale, int grid_offset, color_t
         return;
     }
 
-    if (reservoir_color_mask != ALPHA_TRANSPARENT && !show_building_water(b) &&
+    if (water_building_ghost_settings.show_reservoir_range && !show_building_water(b) &&
         map_terrain_is(grid_offset, TERRAIN_RESERVOIR_RANGE) && !map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
         image_draw_isometric_footprint_from_draw_tile(assets_lookup_image_id(ASSET_UI_RESERVOIR_RANGE), x, y,
-            reservoir_color_mask, scale);
+            water_building_ghost_settings.reservoir_range_color, scale);
     }
 
-    if (map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
+    if (water_building_ghost_settings.show_reservoir_range && map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
         int image_id = map_image_at(grid_offset);
         color_t color_mask = city_draw_get_color_mask(grid_offset, 1);
         image_draw_isometric_top_from_draw_tile(image_id, x, y, color_mask, scale);
+    }
+
+    if (!water_building_ghost_settings.show_fountain_well_range) {
+        return;
     }
 
     if (is_inhabited_building(grid_offset)) {
@@ -731,45 +745,34 @@ static void draw_water_graph(int x, int y, float scale, int grid_offset, color_t
     }
 }
 
-static void draw_water_graph_for_overlay(int x, int y, float scale, int grid_offset)
-{
-    draw_water_graph(x, y, scale, grid_offset, COLOR_MASK_NONE);
-}
-
-static void draw_water_graph_for_building_ghost(int x, int y, float scale, int grid_offset)
-{
-    draw_water_graph(x, y, scale, grid_offset, ALPHA_FONT_SEMI_TRANSPARENT);
-}
-
-static void draw_water_graph_for_building_ghost_house(int x, int y, float scale, int grid_offset)
-{
-    draw_water_graph(x, y, scale, grid_offset, ALPHA_TRANSPARENT);
-}
-
 const city_overlay *city_overlay_for_water(void)
 {
+    water_building_ghost_settings.show_reservoir_range = 1;
+    water_building_ghost_settings.show_fountain_well_range = 1;
+    water_building_ghost_settings.reservoir_range_color = COLOR_MASK_NONE;
+
     static city_overlay overlay = {
         .type = OVERLAY_WATER,
         .show_building = show_building_water,
         .show_figure = show_figure_none,
         .get_tooltip = get_tooltip_water,
-        .draw_custom_layer = draw_water_graph_for_overlay
+        .draw_layer = draw_water_graph
     };
     return &overlay;
 }
 
-const city_overlay *city_overlay_for_water_building_ghost(void)
+const city_overlay *city_overlay_for_water_building_ghost(int show_reservoir_range, int show_fountain_well_ranges)
 {
-    static city_overlay overlay = {
-        .draw_custom_layer = draw_water_graph_for_building_ghost
-    };
-    return &overlay;
-}
+    if (!show_reservoir_range && !show_fountain_well_ranges) {
+        return 0;
+    }
 
-const city_overlay *city_overlay_for_water_building_ghost_house(void)
-{
+    water_building_ghost_settings.show_reservoir_range = show_reservoir_range;
+    water_building_ghost_settings.show_fountain_well_range = show_fountain_well_ranges;
+    water_building_ghost_settings.reservoir_range_color = ALPHA_FONT_SEMI_TRANSPARENT;
+
     static city_overlay overlay = {
-        .draw_custom_layer = draw_water_graph_for_building_ghost_house
+        .draw_layer = draw_water_graph
     };
     return &overlay;
 }
@@ -783,15 +786,15 @@ static color_t get_color_for_percentage(int percentage)
     return percentage_colors[calc_bound(percentage / 10, 0, 9)];
 }
 
-static int draw_sentiment_top(int x, int y, float scale, int grid_offset)
+static void draw_sentiment_graph(int x, int y, float scale, int grid_offset)
 {
     if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
-        return 0;
+        return;
     }
     int building_id = map_building_at(grid_offset);
     building *b = building_get(building_id);
     if (!b || !b->house_population || b->is_deleted || map_property_is_deleted(b->grid_offset)) {
-        return 0;
+        return;
     }
     if (map_property_is_draw_tile(grid_offset)) {
         color_t color = get_color_for_percentage(b->sentiment.house_happiness);
@@ -800,7 +803,6 @@ static int draw_sentiment_top(int x, int y, float scale, int grid_offset)
         image_draw_isometric_top_from_draw_tile(image_id, x, y, city_draw_get_color_mask(grid_offset, 1), scale);
         image_draw_set_isometric_top_from_draw_tile(image_id, x, y, color, scale);
     }
-    return 1;
 }
 
 const city_overlay *city_overlay_for_sentiment(void)
@@ -810,7 +812,7 @@ const city_overlay *city_overlay_for_sentiment(void)
         .show_building = show_building_sentiment,
         .show_figure = show_figure_none,
         .get_tooltip = get_tooltip_sentiment,
-        .draw_custom_top = draw_sentiment_top
+        .draw_layer = draw_sentiment_graph
     };
     return &overlay;
 }
@@ -879,7 +881,7 @@ const city_overlay *city_overlay_for_desirability(void)
         .show_building = show_building_sentiment,
         .show_figure = show_figure_none,
         .get_tooltip = get_tooltip_desirability,
-        .draw_custom_layer = draw_desirability_graph
+        .draw_layer = draw_desirability_graph
     };
     return &overlay;
 }
@@ -971,7 +973,7 @@ const city_overlay *city_overlay_for_logistics(void)
         .show_building = show_building_logistics,
         .show_figure = show_figure_logistics,
         .get_tooltip = get_tooltip_depot_orders,
-        .draw_custom_layer = draw_storage_ids
+        .draw_layer = draw_storage_ids
     };
     return &overlay;
 }
@@ -982,7 +984,7 @@ const city_overlay *city_overlay_for_storages(void)
         .type = OVERLAY_STORAGES,
         .show_building = show_building_storages,
         .show_figure = show_figure_none,
-        .draw_custom_layer = draw_storage_ids
+        .draw_layer = draw_storage_ids
     };
     return &overlay;
 }

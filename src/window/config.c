@@ -279,10 +279,11 @@ static config_widget ui_widgets_by_category[CATEGORY_UI_COUNT][MAX_WIDGETS] = {
         {TYPE_CHECKBOX, CONFIG_UI_SHOW_ROAMING_PATH, TR_CONFIG_SHOW_ROAMING_PATH, NULL, 0, 1, ITEM_BASE_H, CHECKBOX_MARGIN},
         {TYPE_CHECKBOX, CONFIG_UI_SHOW_DESIRABILITY_RANGE, TR_CONFIG_SHOW_DESIRABILITY_RANGE, NULL, 0, 1, ITEM_BASE_H, CHECKBOX_MARGIN},
         {TYPE_CHECKBOX, CONFIG_UI_SHOW_DESIRABILITY_RANGE_ALL, TR_CONFIG_SHOW_DESIRABILITY_RANGE_ALL, NULL, 0, 1, ITEM_BASE_H, CHECKBOX_MARGIN},
-        {TYPE_CHECKBOX, CONFIG_UI_SHOW_WATER_STRUCTURE_RANGE, TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE, NULL, 0, 1, ITEM_BASE_H, CHECKBOX_MARGIN},
-        {TYPE_CHECKBOX, CONFIG_UI_SHOW_WATER_STRUCTURE_RANGE_HOUSES, TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE_HOUSES, NULL, 0, 1, ITEM_BASE_H, CHECKBOX_MARGIN},
         {TYPE_CHECKBOX, CONFIG_UI_PAVED_ROADS_NEAR_GRANNARIES, TR_CONFIG_ENABLE_PAVED_ROADS_NEAR_GRANARIES, NULL, 0, 1, ITEM_BASE_H, CHECKBOX_MARGIN},
         {TYPE_CHECKBOX, CONFIG_UI_BUILD_SHOW_RESERVOIR_RANGES, TR_CONFIG_UI_BUILD_SHOW_RESERVOIR_RANGES, NULL, 0, 1, ITEM_BASE_H, CHECKBOX_MARGIN},
+        {TYPE_HEADER, 0, TR_CONFIG_HEADER_WATER_STRUCTURE_RANGE, NULL, 0, 1, ITEM_BASE_H, 14},
+        {TYPE_CHECKBOX, CONFIG_UI_SHOW_WATER_STRUCTURE_RANGE, TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE, NULL, 0, 1, ITEM_BASE_H, CHECKBOX_MARGIN},
+        {TYPE_CHECKBOX, CONFIG_UI_SHOW_WATER_STRUCTURE_RANGE_HOUSES, TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE_HOUSES, NULL, 0, 1, ITEM_BASE_H, CHECKBOX_MARGIN},
         {TYPE_NONE}
     },
     // CityView
@@ -1430,6 +1431,7 @@ static int checkbox_text_height(const uint8_t *txt, int w)
     int lines = text_measure_multiline(txt, w, FONT_NORMAL_BLACK, &largest);
     return lines * one_line_ml_height(FONT_NORMAL_BLACK);
 }
+
 static void op_measure_checkbox(const config_widget *w, int avail_text_w, int *out_h)
 {
     const uint8_t *txt = translation_for(w->description);
@@ -1440,6 +1442,7 @@ static void op_measure_checkbox(const config_widget *w, int avail_text_w, int *o
     }
     *out_h = h;
 }
+
 static void op_draw_bg_checkbox(const config_widget *w, int x, int y, int avail_text_w)
 {
     const uint8_t *txt = translation_for(w->description);
@@ -1758,7 +1761,7 @@ static void build_layout_for_current_page(void)
         content_span span_sb = content_span_for_page(data.page, 1);
         int current_y = ITEM_Y_OFFSET;
         int count_fit_from_top = 0;
-        for (int i = 0; i < widget_count && i < MAX_WIDGETS; ++i) {
+        for (int i = scrollbar.scroll_position; i < widget_count && i < MAX_WIDGETS; ++i) {
             const config_widget *w = get_widget_row_for(data.page, i);
             if (!w) {
                 break;

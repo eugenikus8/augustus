@@ -680,11 +680,6 @@ static void draw_building_top(int x, int y, int grid_offset, color_t color_mask)
 
 static void draw_top(int x, int y, int grid_offset)
 {
-    if (draw_context.overlay->draw_custom_top &&
-        draw_context.overlay->draw_custom_top(x, y, draw_context.scale, grid_offset)) {
-        return;
-    }
-
     if (!map_property_is_draw_tile(grid_offset)) {
         return;
     }
@@ -1172,9 +1167,9 @@ static void deletion_draw_remaining(int x, int y, int grid_offset)
     draw_hippodrome_ornaments(x, y, grid_offset);
 }
 
-static void draw_custom_layer(int x, int y, int grid_offset)
+static void draw_layer(int x, int y, int grid_offset)
 {
-    draw_context.overlay->draw_custom_layer(x, y, draw_context.scale, grid_offset);
+    draw_context.overlay->draw_layer(x, y, draw_context.scale, grid_offset);
 }
 
 static void draw_connectable_construction_ghost(int x, int y, int grid_offset)
@@ -1270,8 +1265,8 @@ void city_draw(int selected_figure_id, pixel_coordinate *figure_coord, const map
         city_view_foreach_valid_map_tile(deletion_draw_figures_animations);
         city_view_foreach_valid_map_tile(deletion_draw_remaining);
     }
-    if (draw_context.overlay->draw_custom_layer) {
-        city_view_foreach_valid_map_tile(draw_custom_layer);
+    if (draw_context.overlay->draw_layer) {
+        city_view_foreach_valid_map_tile(draw_layer);
     }
     update_clouds();
     update_weather();

@@ -21,8 +21,7 @@ typedef struct {
     int (*show_figure)(const figure *f);
     int (*get_column_height)(const building *b);
     int (*get_tooltip)(tooltip_context *c, int grid_offset);
-    int (*draw_custom_top)(int x, int y, float scale, int grid_offset);
-    void (*draw_custom_layer)(int x, int y, float scale, int grid_offset);
+    void (*draw_layer)(int x, int y, float scale, int grid_offset);
 } city_overlay;
 
 const city_overlay *city_overlay_get(void);

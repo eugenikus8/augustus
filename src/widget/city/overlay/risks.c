@@ -428,7 +428,7 @@ const city_overlay *city_overlay_for_native(void)
         .type = OVERLAY_NATIVE,
         .show_building = show_building_native,
         .show_figure = show_figure_native,
-        .draw_custom_layer = draw_graph_native
+        .draw_layer = draw_graph_native
     };
     return &overlay;
 }
