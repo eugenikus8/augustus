@@ -655,6 +655,15 @@ static void blend_color_to_footprint(int x, int y, int size, color_t color, floa
 
 static void redraw_water_building(building *b, int x, int y, float scale, int grid_offset)
 {
+    if (!water_building_ghost_settings.show_reservoir_range &&
+        (b->type == BUILDING_RESERVOIR || b->type == BUILDING_GRAND_TEMPLE_NEPTUNE)) {
+        return;
+    }
+    if (!water_building_ghost_settings.show_fountain_well_range &&
+        (b->type == BUILDING_WELL || b->type == BUILDING_FOUNTAIN)) {
+        return;
+    }
+
     int image_id = map_image_at(grid_offset);
     color_t color_mask = city_draw_get_color_mask(grid_offset, 0);
     image_draw_isometric_footprint_from_draw_tile(image_id, x, y, color_mask, scale);
@@ -665,6 +674,10 @@ static void redraw_water_building(building *b, int x, int y, float scale, int gr
         int y_offset = img->top ? img->top->original.height - FOOTPRINT_HALF_HEIGHT : 0;
         if (animation_offset > img->animation->num_sprites) {
             animation_offset = img->animation->num_sprites;
+        }
+        if (b->type == BUILDING_GRAND_TEMPLE_NEPTUNE) {
+            int image_id = assets_get_image_id("Monuments", "Neptune Module 2 Fountain");
+            image_draw(image_id + ((animation_offset - 1) % 5), x + 98, y + 87 - y_offset, color_mask, scale);
         }
         image_draw(image_id + img->animation->start_offset + animation_offset,
                 x + img->animation->sprite_offset_x,
