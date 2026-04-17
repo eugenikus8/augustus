@@ -127,10 +127,17 @@ static void init_draw_context(int selected_figure_id, pixel_coordinate *figure_c
     }
 }
 
-static int draw_building_as_deleted(building *b)
+static int draw_building_as_deleted(building *b, int grid_offset)
 {
     b = building_main(b);
-    return (b->id && (b->is_deleted || map_property_is_deleted(b->grid_offset)));
+    if (!b || !b->id) {
+        return 0;
+    }
+    if (building_properties_for_type(b->type)->shared) {
+        return map_property_is_deleted(grid_offset);
+    } else {
+        return b->is_deleted || map_property_is_deleted(b->grid_offset);
+    }
 }
 
 static int is_multi_tile_terrain(int grid_offset)
@@ -144,8 +151,9 @@ static int has_adjacent_deletion(int grid_offset)
     int total_adjacent_offsets = size * 2 + 1;
     const int *adjacent_offset = ADJACENT_OFFSETS[size - 2][city_view_orientation() / 2];
     for (int i = 0; i < total_adjacent_offsets; ++i) {
-        if (map_property_is_deleted(grid_offset + adjacent_offset[i]) ||
-            draw_building_as_deleted(building_get(map_building_at(grid_offset + adjacent_offset[i])))) {
+        int offset = grid_offset + adjacent_offset[i];
+        if (map_property_is_deleted(offset) ||
+            draw_building_as_deleted(building_get(map_building_at(offset)), offset)) {
             return 1;
         }
     }
@@ -201,21 +209,23 @@ static int is_building_selected(building *b)
     }
     const building *main_building = building_main(b);
     unsigned int main_part_id = main_building->id;
-    if (b->id == draw_context.selected_building_id || main_part_id == draw_context.selected_building_id) {
-        return 1;
-    } else {
+    if (building_properties_for_type(main_building->type)->shared) {
         return 0;
+    } else {
+        return b->id == draw_context.selected_building_id || main_part_id == draw_context.selected_building_id;
     }
-
 }
 
-static int is_building_hovered(building *b)
+static int is_building_hovered(building *b, int grid_offset)
 {
     if (!draw_context.hovered_building_id) {
         return 0;
     }
     building *main_building = building_main(b);
     unsigned int main_part_id = main_building->id;
+    if (building_properties_for_type(main_building->type)->shared) {
+        return draw_context.cursor_tile && draw_context.cursor_tile->grid_offset == grid_offset;
+    }
     return (b->id == draw_context.hovered_building_id || main_part_id == draw_context.hovered_building_id);
 }
 
@@ -279,11 +289,11 @@ color_t city_draw_get_color_mask(int grid_offset, int is_top)
 
     if (building_id) {
         building *b = building_get(building_id);
-        if (draw_building_as_deleted(b)) {
+        if (draw_building_as_deleted(b, grid_offset)) {
             color_mask = building_construction_clear_color();
         } else if (is_building_selected(b)) {
             color_mask = get_building_color_mask(b);
-        } else if (is_building_hovered(b)) {
+        } else if (is_building_hovered(b, grid_offset)) {
             // Hover effect - only if not deleted or selected
             color_mask = COLOR_MASK_HOVER;
         }
@@ -1061,7 +1071,7 @@ static void draw_animation(int x, int y, int grid_offset)
             (orientation == DIR_6_LEFT && xy == EDGE_X1Y0)) {
             building *gate = building_get(map_building_at(grid_offset));
             image_id = image_group(GROUP_BUILDING_GATEHOUSE);
-            color_mask = draw_building_as_deleted(gate) ? building_construction_clear_color() : 0;
+            color_mask = draw_building_as_deleted(gate, grid_offset) ? building_construction_clear_color() : 0;
             if (gate->subtype.orientation == 1) {
                 if (orientation == DIR_0_TOP || orientation == DIR_4_BOTTOM) {
                     image_draw(image_id, x - 22, y - 80, color_mask, draw_context.scale);
@@ -1143,7 +1153,8 @@ static void deletion_draw_terrain_top(int x, int y, int grid_offset)
 
 static void deletion_draw_figures_animations(int x, int y, int grid_offset)
 {
-    if (map_property_is_deleted(grid_offset) || draw_building_as_deleted(building_get(map_building_at(grid_offset)))) {
+    if (map_property_is_deleted(grid_offset) ||
+        draw_building_as_deleted(building_get(map_building_at(grid_offset)), grid_offset)) {
         color_t color = building_construction_clear_color();
         if (color == COLOR_MASK_RED || color == COLOR_MASK_GREEN) {
             image_blend_footprint_color(x, y, color, draw_context.scale);
