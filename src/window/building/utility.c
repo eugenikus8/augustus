@@ -328,7 +328,7 @@ void window_building_draw_rubble(building_info_context *c)
         init_repair_building_button(c);
         complex_button_draw(repair_building_button);
     }
-    int cursor = text_draw(lang_get_building_type_string(type),
+    text_draw(lang_get_building_type_string(type),
         c->x_offset + 32, c->y_offset + BLOCK_SIZE * c->height_blocks - 173, FONT_NORMAL_BLACK, 0);
     lang_text_draw_multiline(140, 1, c->x_offset + 32, c->y_offset + BLOCK_SIZE * c->height_blocks - 143,
         BLOCK_SIZE * (c->width_blocks - 4), FONT_NORMAL_BLACK);
