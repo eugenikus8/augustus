@@ -69,6 +69,23 @@ case "$DEPLOY" in
   then
     DEPLOY_FILE=augustus-$VERSION-emscripten.html
     cp "${build_dir}/augustus.html" "deploy/$DEPLOY_FILE"
+
+    echo "=== Emscripten Build Info ==="
+    echo "build_file=$DEPLOY_FILE"
+    echo "build_size_bytes=$(wc -c < "${build_dir}/augustus.html")"
+    echo "deploy_size_bytes=$(wc -c < "deploy/$DEPLOY_FILE")"
+    echo "build_sha256=$(sha256sum "${build_dir}/augustus.html" | awk '{print $1}')"
+    echo "deploy_sha256=$(sha256sum "deploy/$DEPLOY_FILE" | awk '{print $1}')"
+    if [ -f "${build_dir}/augustus.wasm" ]
+    then
+      echo "wasm_size_bytes=$(wc -c < "${build_dir}/augustus.wasm")"
+      echo "wasm_sha256=$(sha256sum "${build_dir}/augustus.wasm" | awk '{print $1}')"
+    fi
+    if [ -x "./emsdk/upstream/emscripten/emcc" ]
+    then
+      echo "emcc_version=$(./emsdk/upstream/emscripten/emcc --version | head -n 1)"
+    fi
+    echo "=== End Emscripten Build Info ==="
   fi
   ;;
 *)
