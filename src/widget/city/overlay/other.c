@@ -423,6 +423,8 @@ static int get_tooltip_desirability(tooltip_context *c, int grid_offset)
     } else {
         desirability = map_desirability_get(grid_offset);
     }
+    c->has_numeric_prefix = 1;
+    c->numeric_prefix = desirability;
     if (desirability < 0) {
         return 91;
     } else if (desirability == 0) {

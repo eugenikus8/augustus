@@ -471,7 +471,7 @@ static translation_string all_strings[] = {
     {TR_BUTTON_BACK_TO_MAIN_MENU, "Обратно в глав. меню"},
     {TR_LABEL_PAUSE_MENU, "Пауза"},
     {TR_OVERLAY_LEVY, "Сборы"},
-    {TR_TOOLTIP_OVERLAY_LEVY, " Ден. налога в месяц"},
+    {TR_TOOLTIP_OVERLAY_LEVY, "Ден. налога в месяц"},
     {TR_OVERLAY_EMPLOYMENT, "Работа"},
     {TR_TOOLTIP_OVERLAY_EMPLOYMENT_FULL, "Это здание полностью укомплектовано"},
     {TR_TOOLTIP_OVERLAY_EMPLOYMENT_MISSING_1, " рабочий нужен в этом здании"},
