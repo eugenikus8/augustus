@@ -76,6 +76,7 @@ jobs:
           - name: Emscripten
             os: ubuntu-24.04
             cache-key: emscripten
+            EMSDK_VERSION: 5.0.6
             BUILD_TARGET: emscripten
             DEPLOY: emscripten
     name: ${{ matrix.name }}
@@ -83,6 +84,7 @@ jobs:
     env:
       SDL_VERSION: ${{ matrix.SDL_VERSION }}
       SDL_MIXER_VERSION: ${{ matrix.SDL_MIXER_VERSION }}
+      EMSDK_VERSION: ${{ matrix.EMSDK_VERSION }}
       BUILD_TARGET: ${{ matrix.BUILD_TARGET }}
       DEPLOY: ${{ matrix.DEPLOY }}
       SKIP_UPLOAD: ${{ matrix.SKIP_UPLOAD }}
