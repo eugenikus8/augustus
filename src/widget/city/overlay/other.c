@@ -517,6 +517,8 @@ static int get_tooltip_sentiment(tooltip_context *c, int grid_offset)
     if (happiness > 0) {
         sentiment_text_id = happiness / 10 + TR_BUILDING_WINDOW_HOUSE_SENTIMENT_2;
     }
+    c->has_numeric_prefix = 1;
+    c->numeric_prefix = happiness;
     c->translation_key = sentiment_text_id;
     return 1;
 }
