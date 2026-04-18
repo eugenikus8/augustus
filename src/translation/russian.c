@@ -1862,7 +1862,7 @@ static translation_string all_strings[] = {
     {TR_RANK_CAESAR, "Цезарь"},
     {TR_ACTION_TYPE_CHANGE_RANK, "Изменить звание губернатора"},
     {TR_CITY_MESSAGE_TITLE_GOVERNOR_RANK_CHANGE, "Звание губернатора"},
-    {TR_TOOLTIP_OVERLAY_LEVY_PER_TILE, " Ден. налога в месяц за плитку"},
+    {TR_TOOLTIP_OVERLAY_LEVY_PER_TILE, "Ден. налога в месяц за плитку"},
     {TR_CONFIG_UI_CV_BUILD_MENU_ICONS, "Иконки ресурсов в меню строительства"},
     {TR_EDITOR_RESET_FAVOR_MONTHLY, "Сброс ежемесячного благоволения"},
     {TR_CONFIG_UI_WT_ENABLE_SNOW_CENTRAL, "Снег в центральном климате"},

@@ -1862,7 +1862,7 @@ static translation_string all_strings[] = {
     {TR_RANK_CAESAR, "Caesar"},
     {TR_ACTION_TYPE_CHANGE_RANK, "Change governor rank"},
     {TR_CITY_MESSAGE_TITLE_GOVERNOR_RANK_CHANGE, "Governor rank"},
-    {TR_TOOLTIP_OVERLAY_LEVY_PER_TILE, " Denarii paid monthly in levies per tile"},
+    {TR_TOOLTIP_OVERLAY_LEVY_PER_TILE, "Denarii paid monthly in levies per tile"},
     {TR_CONFIG_UI_CV_BUILD_MENU_ICONS, "Show resource icons in build menu"},
     {TR_EDITOR_RESET_FAVOR_MONTHLY, "Reset favor monthly"},
     {TR_CONFIG_UI_WT_ENABLE_SNOW_CENTRAL, "Enable snow in central climate"},
