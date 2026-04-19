@@ -361,7 +361,6 @@ static int get_tooltip_tax_income(tooltip_context *c, int grid_offset)
     int denarii = calc_adjust_with_percentage(b->tax_income_or_storage / 2, city_finance_tax_percentage());
     if (denarii > 0) {
         c->has_numeric_prefix = 1;
-        c->numeric_prefix_mode = 1;
         c->numeric_prefix = denarii;
         return 45;
     } else if (b->house_tax_coverage > 0) {
