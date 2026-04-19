@@ -107,9 +107,13 @@ static const uint8_t *get_tooltip_text(const tooltip_context *c)
     }
     if (c->has_numeric_prefix) {
         int offset = string_from_int(composed_tooltip_text, c->numeric_prefix, 0);
-        composed_tooltip_text[offset++] = ' ';
-        composed_tooltip_text[offset++] = '-';
-        composed_tooltip_text[offset++] = ' ';
+        if (c->numeric_prefix_mode == 1) {
+            composed_tooltip_text[offset++] = ' ';
+        } else if (c->numeric_prefix_mode == 2) {
+            composed_tooltip_text[offset++] = ' ';
+            composed_tooltip_text[offset++] = '-';
+            composed_tooltip_text[offset++] = ' ';
+        }
         string_copy(text, &composed_tooltip_text[offset], COMPOSED_TOOLTIP_TEXT_MAX - offset);
         text = composed_tooltip_text;
     } else if (c->num_extra_texts > 0) {

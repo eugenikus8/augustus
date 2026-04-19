@@ -361,6 +361,7 @@ static int get_tooltip_tax_income(tooltip_context *c, int grid_offset)
     int denarii = calc_adjust_with_percentage(b->tax_income_or_storage / 2, city_finance_tax_percentage());
     if (denarii > 0) {
         c->has_numeric_prefix = 1;
+        c->numeric_prefix_mode = 1;
         c->numeric_prefix = denarii;
         return 45;
     } else if (b->house_tax_coverage > 0) {
@@ -381,16 +382,19 @@ static int get_tooltip_employment(tooltip_context *c, int grid_offset)
             c->translation_key = TR_TOOLTIP_OVERLAY_EMPLOYMENT_FULL;
         } else if (missing <= 1) {
             c->has_numeric_prefix = 1;
+            c->numeric_prefix_mode = 1;
             c->numeric_prefix = missing;
             c->translation_key = TR_TOOLTIP_OVERLAY_EMPLOYMENT_MISSING_1;
             return 1;
         } else if (missing >= 2 && b->state == BUILDING_STATE_MOTHBALLED) {
             c->has_numeric_prefix = 1;
+            c->numeric_prefix_mode = 1;
             c->numeric_prefix = missing;
             c->translation_key = TR_TOOLTIP_OVERLAY_EMPLOYMENT_MOTHBALL;
             return 1;
         } else {
             c->has_numeric_prefix = 1;
+            c->numeric_prefix_mode = 1;
             c->numeric_prefix = missing;
             c->translation_key = TR_TOOLTIP_OVERLAY_EMPLOYMENT_MISSING_2;
             return 1;
@@ -424,6 +428,7 @@ static int get_tooltip_desirability(tooltip_context *c, int grid_offset)
         desirability = map_desirability_get(grid_offset);
     }
     c->has_numeric_prefix = 1;
+    c->numeric_prefix_mode = 2;
     c->numeric_prefix = desirability;
     if (desirability < 0) {
         return 91;
@@ -481,6 +486,7 @@ static int get_tooltip_levy(tooltip_context *c, const building *b)
     int levy = building_get_levy(b);
     if (levy > 0) {
         c->has_numeric_prefix = 1;
+        c->numeric_prefix_mode = 1;
         c->numeric_prefix = levy;
         c->translation_key = TR_TOOLTIP_OVERLAY_LEVY;
         return 1;
@@ -495,6 +501,7 @@ static int get_offset_tooltip_levy(tooltip_context *c, int grid_offset)
     }
     if (map_terrain_is(grid_offset, TERRAIN_HIGHWAY)) {
         c->has_numeric_prefix = 1;
+        c->numeric_prefix_mode = 1;
         c->numeric_prefix = 1;
         c->translation_key = TR_TOOLTIP_OVERLAY_LEVY_PER_TILE;
         return 1;
@@ -518,6 +525,7 @@ static int get_tooltip_sentiment(tooltip_context *c, int grid_offset)
         sentiment_text_id = happiness / 10 + TR_BUILDING_WINDOW_HOUSE_SENTIMENT_2;
     }
     c->has_numeric_prefix = 1;
+    c->numeric_prefix_mode = 2;
     c->numeric_prefix = happiness;
     c->translation_key = sentiment_text_id;
     return 1;

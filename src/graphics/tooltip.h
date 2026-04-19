@@ -29,6 +29,7 @@ typedef struct {
     int text_id;
     int has_numeric_prefix;
     int numeric_prefix;
+    int numeric_prefix_mode;
     int num_extra_values;
     int extra_value_text_groups[TOOLTIP_MAX_EXTRA_VALUES];
     int extra_value_text_ids[TOOLTIP_MAX_EXTRA_VALUES];
