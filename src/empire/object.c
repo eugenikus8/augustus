@@ -322,7 +322,7 @@ void empire_object_save(buffer *buf)
         buffer_write_u8(buf, full->city_name_id);
         buffer_write_u8(buf, obj->trade_route_id);
         buffer_write_u8(buf, full->trade_route_open);
-        buffer_write_i32(buf, full->trade_route_cost);
+        buffer_write_u32(buf, full->trade_route_cost);
         if (obj->type == EMPIRE_OBJECT_CITY) {
             for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
                 buffer_write_i16(buf, full->city_sells_resource[r]);
