@@ -76,7 +76,7 @@ jobs:
           - name: Emscripten
             os: ubuntu-24.04
             cache-key: emscripten
-            EMSDK_VERSION: 3.1.74
+            EMSDK_VERSION: 4.0.17
             BUILD_TARGET: emscripten
             DEPLOY: emscripten
     name: ${{ matrix.name }}
