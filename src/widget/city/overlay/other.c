@@ -311,20 +311,25 @@ static int get_tooltip_efficiency(tooltip_context *c, int grid_offset)
     if (efficiency == -1) {
         return 0;
     }
+    int key;
     if (efficiency == 0) {
-        c->translation_key = TR_TOOLTIP_OVERLAY_EFFICIENCY_0;
+        key = TR_TOOLTIP_OVERLAY_EFFICIENCY_0;
     } else if (efficiency < 25) {
-        c->translation_key = TR_TOOLTIP_OVERLAY_EFFICIENCY_1;
+        key = TR_TOOLTIP_OVERLAY_EFFICIENCY_1;
     } else if (efficiency < 50) {
-        c->translation_key = TR_TOOLTIP_OVERLAY_EFFICIENCY_2;
+        key = TR_TOOLTIP_OVERLAY_EFFICIENCY_2;
     } else if (efficiency < 80) {
-        c->translation_key = TR_TOOLTIP_OVERLAY_EFFICIENCY_3;
+        key = TR_TOOLTIP_OVERLAY_EFFICIENCY_3;
     } else if (efficiency < 95) {
-        c->translation_key = TR_TOOLTIP_OVERLAY_EFFICIENCY_4;
+        key = TR_TOOLTIP_OVERLAY_EFFICIENCY_4;
     } else {
-        c->translation_key = TR_TOOLTIP_OVERLAY_EFFICIENCY_5;
+        key = TR_TOOLTIP_OVERLAY_EFFICIENCY_5;
     }
-    return 0;
+    const uint8_t *text = translation_for(key);
+    static char buffer[128];
+    snprintf(buffer, sizeof(buffer), "%d%% %s", efficiency, text);
+    c->precomposed_text = (const uint8_t *) buffer;
+    return 1;
 }
 
 static int get_tooltip_food_stocks(tooltip_context *c, int grid_offset)
@@ -384,19 +389,16 @@ static int get_tooltip_employment(tooltip_context *c, int grid_offset)
             c->translation_key = TR_TOOLTIP_OVERLAY_EMPLOYMENT_FULL;
         } else if (missing <= 1) {
             c->has_numeric_prefix = 1;
-            c->numeric_prefix_mode = 1;
             c->numeric_prefix = missing;
             c->translation_key = TR_TOOLTIP_OVERLAY_EMPLOYMENT_MISSING_1;
             return 1;
         } else if (missing >= 2 && b->state == BUILDING_STATE_MOTHBALLED) {
             c->has_numeric_prefix = 1;
-            c->numeric_prefix_mode = 1;
             c->numeric_prefix = missing;
             c->translation_key = TR_TOOLTIP_OVERLAY_EMPLOYMENT_MOTHBALL;
             return 1;
         } else {
             c->has_numeric_prefix = 1;
-            c->numeric_prefix_mode = 1;
             c->numeric_prefix = missing;
             c->translation_key = TR_TOOLTIP_OVERLAY_EMPLOYMENT_MISSING_2;
             return 1;
@@ -429,16 +431,18 @@ static int get_tooltip_desirability(tooltip_context *c, int grid_offset)
     } else {
         desirability = map_desirability_get(grid_offset);
     }
-    c->has_numeric_prefix = 1;
-    c->numeric_prefix_mode = 2;
-    c->numeric_prefix = desirability;
+    static char buffer[128];
+    const uint8_t *text;
     if (desirability < 0) {
-        return 91;
+        text = lang_get_string(66, 91);
     } else if (desirability == 0) {
-        return 92;
+        text = lang_get_string(66, 92);
     } else {
-        return 93;
+        text = lang_get_string(66, 93);
     }
+    snprintf(buffer, sizeof(buffer), "%d - %s", desirability, text);
+    c->precomposed_text = (const uint8_t *) buffer;
+    return 1;
 }
 
 static int get_tooltip_depot_orders(tooltip_context *c, int grid_offset)
@@ -488,7 +492,6 @@ static int get_tooltip_levy(tooltip_context *c, const building *b)
     int levy = building_get_levy(b);
     if (levy > 0) {
         c->has_numeric_prefix = 1;
-        c->numeric_prefix_mode = 1;
         c->numeric_prefix = levy;
         c->translation_key = TR_TOOLTIP_OVERLAY_LEVY;
         return 1;
@@ -503,7 +506,6 @@ static int get_offset_tooltip_levy(tooltip_context *c, int grid_offset)
     }
     if (map_terrain_is(grid_offset, TERRAIN_HIGHWAY)) {
         c->has_numeric_prefix = 1;
-        c->numeric_prefix_mode = 1;
         c->numeric_prefix = 1;
         c->translation_key = TR_TOOLTIP_OVERLAY_LEVY_PER_TILE;
         return 1;
@@ -526,10 +528,10 @@ static int get_tooltip_sentiment(tooltip_context *c, int grid_offset)
     if (happiness > 0) {
         sentiment_text_id = happiness / 10 + TR_BUILDING_WINDOW_HOUSE_SENTIMENT_2;
     }
-    c->has_numeric_prefix = 1;
-    c->numeric_prefix_mode = 2;
-    c->numeric_prefix = happiness;
-    c->translation_key = sentiment_text_id;
+    const uint8_t *text = translation_for(sentiment_text_id);
+    static char buffer[128];
+    snprintf(buffer, sizeof(buffer), "%d - %s", happiness, text);
+    c->precomposed_text = (const uint8_t *) buffer;
     return 1;
 }
 
