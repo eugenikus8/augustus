@@ -266,7 +266,6 @@ static int set_enemy_target_building(formation *m)
     return best_building != 0;
 }
 
-
 static int get_structures_on_native_land(int *dst_x, int *dst_y)
 {
     int meeting_x, meeting_y;
@@ -279,7 +278,7 @@ static int get_structures_on_native_land(int *dst_x, int *dst_y)
     for (int i = 0; i < sizeof(native_buildings) / sizeof(native_buildings[0]) && min_distance == INFINITE; i++) {
         building_type type = native_buildings[i];
         int size = building_properties_for_type(type)->size;
-        int radius = size * 2;
+        int radius = (type == BUILDING_NATIVE_MEETING) ? 6 : 3;
         for (building *b = building_first_of_type(type); b; b = b->next_of_type) {
             if (b->state != BUILDING_STATE_IN_USE) {
                 continue;
@@ -305,6 +304,14 @@ static int get_structures_on_native_land(int *dst_x, int *dst_y)
 
 static void set_native_target_building(formation *m)
 {
+    int dst_x = 0;
+    int dst_y = 0;
+    // Fix of natives looping when attacking walls, aqueducts, gardens
+    if (get_structures_on_native_land(&dst_x, &dst_y)) {
+        formation_set_destination_building(m, dst_x, dst_y, 0);
+        return;
+    }
+    // Otherwise, look for the nearest valid building
     int meeting_x, meeting_y;
     city_buildings_main_native_meeting_center(&meeting_x, &meeting_y);
     building *min_building = 0;
@@ -314,6 +321,7 @@ static void set_native_target_building(formation *m)
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }
+        // Ignore non-target building types
         switch (b->type) {
             case BUILDING_MISSION_POST:
             case BUILDING_NATIVE_HUT:
@@ -338,29 +346,21 @@ static void set_native_target_building(formation *m)
             case BUILDING_HEDGE_GATE_LIGHT:
             case BUILDING_LOW_BRIDGE:
             case BUILDING_SHIP_BRIDGE:
-                break;
+                continue;
             default:
-            {
-                int distance = calc_maximum_distance(meeting_x, meeting_y, b->x, b->y);
-                if (distance < min_distance) {
-                    min_building = b;
-                    min_distance = distance;
-                }
-            }
-            break;
+                break;
+        }
+        // Valid target - calculate distance
+        int distance = calc_maximum_distance(meeting_x, meeting_y, b->x, b->y);
+        if (distance < min_distance) {
+            min_building = b;
+            min_distance = distance;
         }
     }
     if (min_building) {
         formation_set_destination_building(m, min_building->x, min_building->y, min_building->id);
     } else {
-        int dst_x = 0;
-        int dst_y = 0;
-        int has_target = get_structures_on_native_land(&dst_x, &dst_y);
-        if (has_target) {
-            formation_set_destination_building(m, dst_x, dst_y, 0);
-        } else {
-            formation_retreat(m);
-        }
+        formation_retreat(m);
     }
 }
 
