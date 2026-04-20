@@ -283,7 +283,7 @@ void empire_object_save(buffer *buf)
         return;
     }
     int size_per_obj = 87;
-     int size_per_city = size_per_obj + 4 * (RESOURCE_MAX - RESOURCE_MIN);
+    int size_per_city = size_per_obj + 4 * (RESOURCE_MAX - RESOURCE_MIN);
     int total_size = 0;
 
     full_empire_object *full;
