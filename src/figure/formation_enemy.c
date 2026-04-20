@@ -294,7 +294,7 @@ static int get_structures_on_native_land(int *dst_x, int *dst_y)
             map_grid_get_area(b->x, b->y, size, radius, &x_min, &y_min, &x_max, &y_max);
             for (int yy = y_min; yy <= y_max; yy++) {
                 for (int xx = x_min; xx <= x_max; xx++) {
-                                        if (map_terrain_is(map_grid_offset(xx, yy), TERRAIN_AQUEDUCT | TERRAIN_WALL | TERRAIN_GARDEN)) {
+                    if (map_terrain_is(map_grid_offset(xx, yy), TERRAIN_AQUEDUCT | TERRAIN_WALL | TERRAIN_GARDEN)) {
                         int distance = calc_maximum_distance(meeting_x, meeting_y, xx, yy);
                         if (distance < min_distance) {
                             min_distance = distance;
@@ -347,7 +347,6 @@ static void set_native_target_building(formation *m)
             case BUILDING_LOW_BRIDGE:
             case BUILDING_SHIP_BRIDGE:
                 break;
-
             default:
             {
                 int distance = calc_maximum_distance(meeting_x, meeting_y, b->x, b->y);
@@ -359,15 +358,12 @@ static void set_native_target_building(formation *m)
             break;
         }
     }
-
     if (min_building) {
         formation_set_destination_building(m, min_building->x, min_building->y, min_building->id);
     } else {
         int dst_x = 0;
         int dst_y = 0;
-
         int has_target = get_structures_on_native_land(&dst_x, &dst_y);
-
         if (has_target) {
             formation_set_destination_building(m, dst_x, dst_y, 0);
         } else {
