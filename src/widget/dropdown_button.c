@@ -39,6 +39,7 @@ static void update_anchor(dropdown_button *dd)
     anchor->color_mask = selected->color_mask;
     anchor->font = selected->font;
     anchor->style = selected->style;
+    memcpy((void *)&anchor->tooltip_c, (void *)&selected->tooltip_c, sizeof(tooltip_context));
 }
 
 /* --- Default left click handler for dropdown options --- */
