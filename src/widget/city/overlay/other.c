@@ -36,11 +36,23 @@
 
 #include <stdio.h>
 
+#define TOOLTIP_WITH_PREFIX_MAX_LENGTH 128
+
 static struct {
     int show_reservoir_range;
     int show_fountain_well_range;
     color_t reservoir_range_color;
 } water_building_ghost_settings;
+
+static const uint8_t *prefix_value_to_tooltip_text(int value, const uint8_t *message)
+{
+    static uint8_t text[TOOLTIP_WITH_PREFIX_MAX_LENGTH];
+    uint8_t *cursor = text;
+    cursor += string_from_int(cursor, value, 0);
+    cursor = string_copy(string_from_ascii(" - "), cursor, TOOLTIP_WITH_PREFIX_MAX_LENGTH - (cursor - text));
+    string_copy(message, cursor, TOOLTIP_WITH_PREFIX_MAX_LENGTH - (cursor - text));
+    return text;
+}
 
 static int show_building_religion(const building *b)
 {
@@ -311,20 +323,22 @@ static int get_tooltip_efficiency(tooltip_context *c, int grid_offset)
     if (efficiency == -1) {
         return 0;
     }
+    int key;
     if (efficiency == 0) {
-        c->translation_key = TR_TOOLTIP_OVERLAY_EFFICIENCY_0;
+        key = TR_TOOLTIP_OVERLAY_EFFICIENCY_0;
     } else if (efficiency < 25) {
-        c->translation_key = TR_TOOLTIP_OVERLAY_EFFICIENCY_1;
+        key = TR_TOOLTIP_OVERLAY_EFFICIENCY_1;
     } else if (efficiency < 50) {
-        c->translation_key = TR_TOOLTIP_OVERLAY_EFFICIENCY_2;
+        key = TR_TOOLTIP_OVERLAY_EFFICIENCY_2;
     } else if (efficiency < 80) {
-        c->translation_key = TR_TOOLTIP_OVERLAY_EFFICIENCY_3;
+        key = TR_TOOLTIP_OVERLAY_EFFICIENCY_3;
     } else if (efficiency < 95) {
-        c->translation_key = TR_TOOLTIP_OVERLAY_EFFICIENCY_4;
+        key = TR_TOOLTIP_OVERLAY_EFFICIENCY_4;
     } else {
-        c->translation_key = TR_TOOLTIP_OVERLAY_EFFICIENCY_5;
+        key = TR_TOOLTIP_OVERLAY_EFFICIENCY_5;
     }
-    return 0;
+    c->precomposed_text = prefix_value_to_tooltip_text(efficiency, translation_for(key));
+    return 1;
 }
 
 static int get_tooltip_food_stocks(tooltip_context *c, int grid_offset)
@@ -426,13 +440,16 @@ static int get_tooltip_desirability(tooltip_context *c, int grid_offset)
     } else {
         desirability = map_desirability_get(grid_offset);
     }
+    const uint8_t *text;
     if (desirability < 0) {
-        return 91;
+        text = lang_get_string(66, 91);
     } else if (desirability == 0) {
-        return 92;
+        text = lang_get_string(66, 92);
     } else {
-        return 93;
+        text = lang_get_string(66, 93);
     }
+    c->precomposed_text = prefix_value_to_tooltip_text(desirability, text);
+    return 1;
 }
 
 static int get_tooltip_depot_orders(tooltip_context *c, int grid_offset)
@@ -518,7 +535,7 @@ static int get_tooltip_sentiment(tooltip_context *c, int grid_offset)
     if (happiness > 0) {
         sentiment_text_id = happiness / 10 + TR_BUILDING_WINDOW_HOUSE_SENTIMENT_2;
     }
-    c->translation_key = sentiment_text_id;
+    c->precomposed_text = prefix_value_to_tooltip_text(happiness, translation_for(sentiment_text_id));
     return 1;
 }
 

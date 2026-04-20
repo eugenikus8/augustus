@@ -1823,7 +1823,7 @@ static translation_string all_strings[] = {
     {TR_CITY_PROPERTY_COVERAGE_ACADEMY, "Охват академиями"},
     {TR_CITY_PROPERTY_CHOOSE_PROPERTY, "Выберите свойство города"},
     {TR_BUTTON_INFO_RETURN_ALL_LEGIONS, "Вернуть все легионы"},
-    {TR_WARNING_DEPOT_RECALL_ALL, "Все тележки отозваны!" },
+    {TR_WARNING_DEPOT_RECALL_ALL, "Все тележки отозваны!"},
     {TR_WARNING_DEPOT_RESOURCE_CHANGE, "Нельзя изменить ресурс, пока есть активные тележки!"},
     {TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_WAIT_LOAD, "Наша тележка ожидает погрузки."},
     {TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_WAIT_UNLOAD, "Наша тележка ожидает разгрузки."},
