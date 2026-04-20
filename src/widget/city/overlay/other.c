@@ -358,6 +358,9 @@ static int get_tooltip_food_stocks(tooltip_context *c, int grid_offset)
 static int get_tooltip_tax_income(tooltip_context *c, int grid_offset)
 {
     building *b = building_get(map_building_at(grid_offset));
+    if (b->house_population <= 0) {
+        return 0;
+    }
     int denarii = calc_adjust_with_percentage(b->tax_income_or_storage / 2, city_finance_tax_percentage());
     if (denarii > 0) {
         c->has_numeric_prefix = 1;
