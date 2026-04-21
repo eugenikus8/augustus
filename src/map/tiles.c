@@ -816,8 +816,8 @@ static void set_road_image(int x, int y, int grid_offset)
         }
     }
     if (!map_terrain_is(grid_offset, TERRAIN_ROAD) ||
-        map_terrain_is(grid_offset, TERRAIN_WATER | TERRAIN_BUILDING)) {
-
+        (map_terrain_is(grid_offset, TERRAIN_WATER | TERRAIN_BUILDING) &&
+            !map_terrain_is(grid_offset, TERRAIN_AQUEDUCT))) {
         return;
     }
     if (map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
