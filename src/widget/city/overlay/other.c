@@ -864,23 +864,23 @@ const city_overlay *city_overlay_for_sentiment(void)
 
 static int get_desirability_image_offset(int desirability)
 {
-    if (desirability < -10) {
+    if (desirability <= 0) {
         return 0;
-    } else if (desirability < -5) {
-        return 1;
-    } else if (desirability < 0) {
-        return 2;
-    } else if (desirability == 1) {
-        return 3;
-    } else if (desirability < 5) {
-        return 4;
     } else if (desirability < 10) {
-        return 5;
-    } else if (desirability < 15) {
-        return 6;
-    } else if (desirability < 20) {
-        return 7;
+        return 1;
     } else if (desirability < 25) {
+        return 2;
+    } else if (desirability < 40) {
+        return 3;
+    } else if (desirability < 50) {
+        return 4;
+    } else if (desirability < 60) {
+        return 5;
+    } else if (desirability < 70) {
+        return 6;
+    } else if (desirability < 80) {
+        return 7;
+    } else if (desirability < 90) {
         return 8;
     } else {
         return 9;
