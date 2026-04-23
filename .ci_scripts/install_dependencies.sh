@@ -101,7 +101,7 @@ then
   sudo add-apt-repository universe && sudo add-apt-repository ppa:savoury1/multimedia && sudo apt-get update && sudo apt-get -y install libgl1-mesa-dev libsdl2-dev libsdl2-mixer-dev libfuse2
 elif [ "$BUILD_TARGET" == "flatpak" ]
 then
-  sudo apt-get update && sudo apt-get -y install flatpak-builder appstream appstream-compose
+  sudo apt-get update && sudo apt-get -y install flatpak-builder
   sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
   sudo flatpak-builder repo res/com.github.keriew.augustus.json --install-deps-from=flathub --install-deps-only --delete-build-dirs
   sudo rm -R .flatpak-builder
