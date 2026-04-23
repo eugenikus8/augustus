@@ -90,12 +90,12 @@ jobs:
       SKIP_UPLOAD: ${{ matrix.SKIP_UPLOAD }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: recursive
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         if: ${{ matrix.cache-key }}
         with:
           path: deps
@@ -130,7 +130,7 @@ jobs:
           ./.ci_scripts/build_upload.sh
         continue-on-error: true
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.name }}
           path: deploy/
@@ -161,12 +161,12 @@ jobs:
       SKIP_UPLOAD: ${{ matrix.SKIP_UPLOAD }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: recursive
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: deps
           key: windows-${{ matrix.cache-key }}-${{ env.SDL_VERSION }}-${{ env.SDL_MIXER_VERSION }}
@@ -182,7 +182,7 @@ jobs:
         uses: ilammy/setup-nasm@v1
       - name: Install cv2pdb
         if: matrix.COMPILER == 'mingw-32' || matrix.COMPILER == 'mingw-64'
-        uses: robinraju/release-downloader@v1.8
+        uses: robinraju/release-downloader@v1.13
         with:
           repository: "rainers/cv2pdb"
           tag: "v0.53"
@@ -204,7 +204,7 @@ jobs:
         run: ./.ci_scripts/build_upload.ps1
         continue-on-error: true
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.name }}
           path: deploy\
