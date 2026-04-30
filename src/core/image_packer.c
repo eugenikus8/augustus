@@ -11,7 +11,7 @@ typedef struct empty_area {
     struct empty_area *prev, *next;
 } empty_area;
 
-typedef struct {
+typedef struct internal_data {
     image_packer_rect **sorted_rects;
     unsigned int num_rects;
     unsigned int image_width;
