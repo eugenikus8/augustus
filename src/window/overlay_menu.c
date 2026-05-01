@@ -230,6 +230,8 @@ static void handle_hover_menu(void)
 
         if (e.submenu != NULL) {
             data.selected_overlay_clicked = e.overlay;
+        } else {
+            data.selected_overlay_clicked = 0;
         }
     }
 }
