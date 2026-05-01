@@ -334,7 +334,9 @@ static void draw_foreground(void)
 {
     window_city_draw();
 
-    if (!data.show_menu) return;
+    if (!data.show_menu) {
+        return;
+    }
 
     const int base_x = get_sidebar_x_offset() - SIDEBAR_MARGIN_X;
 
