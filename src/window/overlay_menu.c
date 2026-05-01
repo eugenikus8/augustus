@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 #define MENU_X_OFFSET 170
-#define SUBMENU_X_OFFSET 348
+#define SUBMENU_X_OFFSET 350
 #define MENU_Y_OFFSET 72
 #define MENU_ITEM_HEIGHT 24
 #define MENU_CLICK_MARGIN 20
@@ -28,7 +28,7 @@
 #define TOP_MARGIN 74
 #define LABEL_WIDTH_BLOCKS 10
 #define SIDEBAR_MARGIN_X 10
-#define MAX_BUTTONS 20
+#define MAX_BUTTONS 64
 #define OVERLAY_MENU_END { -1, -1, JULIUS, NULL }
 
 static void button_menu_item(const generic_button *button);
@@ -40,12 +40,37 @@ typedef enum
     BUILDING_TYPE = 2,
 } translation_type;
 
+
 typedef struct overlay_menu_entry {
     int overlay;
     int translation;
     int translation_type;
     const struct overlay_menu_entry *submenu;
+
+    int independent_y;
 } overlay_menu_entry;
+
+
+static struct {
+    int selected_overlay_id;
+    int selected_overlay_clicked;
+
+    int hovered_overlay_id;
+
+    int show_menu;
+
+    time_millis hover_time;
+
+    unsigned int menu_focus_button_index;
+    generic_button buttons_main[MAX_BUTTONS];
+    generic_button buttons_sub[MAX_BUTTONS];
+    generic_button buttons_sub2[MAX_BUTTONS];
+
+    unsigned int focus_main;
+    unsigned int focus_sub;
+    unsigned int focus_sub2;
+} data;
+
 
 static const overlay_menu_entry OVERLAY_MENU_SENTINEL = OVERLAY_MENU_END;
 
@@ -100,38 +125,38 @@ static const overlay_menu_entry submenu_commerce[] = {
 };
 
 static const overlay_menu_entry submenu_housing_groups[] = {
-    { OVERLAY_HOUSING_GROUPS_TENTS, TR_OVERLAY_HOUSING_TENTS, AUGUSTUS, NULL},
-    { OVERLAY_HOUSING_GROUPS_SHACKS,TR_OVERLAY_HOUSING_SHACKS, AUGUSTUS, NULL},
-    { OVERLAY_HOUSING_GROUPS_HOVELS,TR_OVERLAY_HOUSING_HOVELS, AUGUSTUS, NULL},
-    { OVERLAY_HOUSING_GROUPS_CASAE,TR_OVERLAY_HOUSING_CASAS, AUGUSTUS, NULL},
-    { OVERLAY_HOUSING_GROUPS_INSULAE,TR_OVERLAY_HOUSE_INSULAS, AUGUSTUS, NULL},
-    { OVERLAY_HOUSING_GROUPS_VILLAS,TR_OVERLAY_HOUSE_VILLAS, AUGUSTUS, NULL},
-    { OVERLAY_HOUSING_GROUPS_PALACES,TR_OVERLAY_HOUSE_PALACES, AUGUSTUS, NULL},
+    { OVERLAY_HOUSING_GROUPS_TENTS, TR_OVERLAY_HOUSING_TENTS, AUGUSTUS, NULL, 1},
+    { OVERLAY_HOUSING_GROUPS_SHACKS,TR_OVERLAY_HOUSING_SHACKS, AUGUSTUS, NULL, 1},
+    { OVERLAY_HOUSING_GROUPS_HOVELS,TR_OVERLAY_HOUSING_HOVELS, AUGUSTUS, NULL, 1},
+    { OVERLAY_HOUSING_GROUPS_CASAE,TR_OVERLAY_HOUSING_CASAS, AUGUSTUS, NULL, 1},
+    { OVERLAY_HOUSING_GROUPS_INSULAE,TR_OVERLAY_HOUSE_INSULAS, AUGUSTUS, NULL, 1},
+    { OVERLAY_HOUSING_GROUPS_VILLAS,TR_OVERLAY_HOUSE_VILLAS, AUGUSTUS, NULL, 1},
+    { OVERLAY_HOUSING_GROUPS_PALACES,TR_OVERLAY_HOUSE_PALACES, AUGUSTUS, NULL, 1},
     OVERLAY_MENU_END
 };
 
 static const overlay_menu_entry submenu_housing[] = {
-    { OVERLAY_HOUSING_GROUPS, TR_OVERLAY_BY_GROUP, AUGUSTUS, submenu_housing_groups},
-    { OVERLAY_HOUSE_SMALL_TENT, BUILDING_HOUSE_SMALL_TENT, BUILDING_TYPE, NULL},
-    { OVERLAY_HOUSE_LARGE_TENT, BUILDING_HOUSE_LARGE_TENT, BUILDING_TYPE, NULL},
-    { OVERLAY_HOUSE_SMALL_SHACK, BUILDING_HOUSE_SMALL_SHACK, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_LARGE_SHACK, BUILDING_HOUSE_LARGE_SHACK, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_SMALL_HOVEL, BUILDING_HOUSE_SMALL_HOVEL, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_LARGE_HOVEL, BUILDING_HOUSE_LARGE_HOVEL, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_SMALL_CASA, BUILDING_HOUSE_SMALL_CASA, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_LARGE_CASA, BUILDING_HOUSE_LARGE_CASA, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_SMALL_INSULA, BUILDING_HOUSE_SMALL_INSULA, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_MEDIUM_INSULA, BUILDING_HOUSE_MEDIUM_INSULA, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_LARGE_INSULA, BUILDING_HOUSE_LARGE_INSULA, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_GRAND_INSULA, BUILDING_HOUSE_GRAND_INSULA, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_SMALL_VILLA, BUILDING_HOUSE_SMALL_VILLA, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_MEDIUM_VILLA, BUILDING_HOUSE_MEDIUM_VILLA, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_LARGE_VILLA, BUILDING_HOUSE_LARGE_VILLA, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_GRAND_VILLA, BUILDING_HOUSE_GRAND_VILLA, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_SMALL_PALACE, BUILDING_HOUSE_SMALL_PALACE, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_MEDIUM_PALACE, BUILDING_HOUSE_MEDIUM_PALACE, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_LARGE_PALACE, BUILDING_HOUSE_LARGE_PALACE, BUILDING_TYPE, NULL },
-    { OVERLAY_HOUSE_LUXURY_PALACE, BUILDING_HOUSE_LUXURY_PALACE, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSING_GROUPS, TR_OVERLAY_BY_GROUP, AUGUSTUS, submenu_housing_groups, 1},
+    { OVERLAY_HOUSE_SMALL_TENT, BUILDING_HOUSE_SMALL_TENT, BUILDING_TYPE, NULL, 1},
+    { OVERLAY_HOUSE_LARGE_TENT, BUILDING_HOUSE_LARGE_TENT, BUILDING_TYPE, NULL, 1},
+    { OVERLAY_HOUSE_SMALL_SHACK, BUILDING_HOUSE_SMALL_SHACK, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_LARGE_SHACK, BUILDING_HOUSE_LARGE_SHACK, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_SMALL_HOVEL, BUILDING_HOUSE_SMALL_HOVEL, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_LARGE_HOVEL, BUILDING_HOUSE_LARGE_HOVEL, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_SMALL_CASA, BUILDING_HOUSE_SMALL_CASA, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_LARGE_CASA, BUILDING_HOUSE_LARGE_CASA, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_SMALL_INSULA, BUILDING_HOUSE_SMALL_INSULA, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_MEDIUM_INSULA, BUILDING_HOUSE_MEDIUM_INSULA, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_LARGE_INSULA, BUILDING_HOUSE_LARGE_INSULA, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_GRAND_INSULA, BUILDING_HOUSE_GRAND_INSULA, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_SMALL_VILLA, BUILDING_HOUSE_SMALL_VILLA, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_MEDIUM_VILLA, BUILDING_HOUSE_MEDIUM_VILLA, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_LARGE_VILLA, BUILDING_HOUSE_LARGE_VILLA, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_GRAND_VILLA, BUILDING_HOUSE_GRAND_VILLA, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_SMALL_PALACE, BUILDING_HOUSE_SMALL_PALACE, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_MEDIUM_PALACE, BUILDING_HOUSE_MEDIUM_PALACE, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_LARGE_PALACE, BUILDING_HOUSE_LARGE_PALACE, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSE_LUXURY_PALACE, BUILDING_HOUSE_LUXURY_PALACE, BUILDING_TYPE, NULL, 1 },
     OVERLAY_MENU_END
 };
 
@@ -151,13 +176,76 @@ static const overlay_menu_entry overlay_menu[] = {
     OVERLAY_MENU_END
 };
 
-static struct {
-    int selected_overlay_id;
-    int selected_overlay_clicked;
-    int show_menu;
-    unsigned int menu_focus_button_index;
-    generic_button buttons[MAX_BUTTONS];
-} data;
+
+static overlay_menu_entry find_overlay(const overlay_menu_entry *entries, const int overlay_id)
+{
+    for (unsigned i = 0; entries[i].overlay != -1; i++) {
+        if (entries[i].overlay == overlay_id) {
+            return entries[i];
+        }
+
+        if (entries[i].submenu != NULL) {
+            const overlay_menu_entry found_sub_item = find_overlay(entries[i].submenu, overlay_id);
+            if (found_sub_item.overlay != OVERLAY_MENU_SENTINEL.overlay) {
+                return found_sub_item;
+            }
+        }
+    }
+
+    return OVERLAY_MENU_SENTINEL;
+}
+
+
+static void handle_hover_menu(void)
+{
+    time_millis now = time_get_millis();
+
+    if (data.focus_sub2 > 0) {
+        int idx = data.focus_sub2 - 1;
+        data.hovered_overlay_id = data.buttons_sub2[idx].parameter1;
+        data.hover_time = now;
+        return;
+    }
+
+    if (data.focus_sub > 0) {
+        int idx = data.focus_sub - 1;
+        data.hovered_overlay_id = data.buttons_sub[idx].parameter1;
+        data.hover_time = now;
+
+        const overlay_menu_entry e = find_overlay(overlay_menu, data.hovered_overlay_id);
+
+        if (e.submenu != NULL) {
+            data.selected_overlay_clicked = e.overlay;
+        }
+        return;
+    }
+
+    if (data.focus_main > 0) {
+        int idx = data.focus_main - 1;
+        data.hovered_overlay_id = data.buttons_main[idx].parameter1;
+        data.hover_time = now;
+
+        const overlay_menu_entry e =
+            find_overlay(overlay_menu, data.hovered_overlay_id);
+
+        if (e.submenu != NULL) {
+            data.selected_overlay_clicked = e.overlay;
+        }
+    }
+}
+
+
+static void handle_hover_timeout(void)
+{
+    if (data.focus_main == 0 &&
+        data.focus_sub == 0 &&
+        data.focus_sub2 == 0) {
+        if (time_get_millis() - data.hover_time > 900) {
+            data.selected_overlay_clicked = 0;
+        }
+    }
+}
+
 
 static void show_menu(void)
 {
@@ -181,16 +269,12 @@ static int get_sidebar_x_offset(void)
     return view_x + view_width;
 }
 
+
 static int is_mouse_hovering(const overlay_menu_entry *entry)
 {
-    const int index = (int) data.menu_focus_button_index - 1;
-
-    if (index < 0) {
-        return 0;
-    }
-
-    return data.buttons[index].parameter1 == entry->overlay;
+    return data.hovered_overlay_id == entry->overlay;
 }
+
 
 static const uint8_t *get_overlay_text(const overlay_menu_entry *entry)
 {
@@ -205,12 +289,13 @@ static const uint8_t *get_overlay_text(const overlay_menu_entry *entry)
     return lang_get_string(14, entry->overlay);
 }
 
-static void draw_menu_item(const overlay_menu_entry *entry, const int i, const int x_offset, const int button_index)
+
+static void draw_menu_item(const overlay_menu_entry *entry, const int i, const int x_offset, const int y_offset, const int button_index, generic_button *buttons)
 {
     const int x = x_offset - MENU_ITEM_WIDTH;
-    const int y = TOP_MARGIN + MENU_ITEM_HEIGHT * i;
+    const int y = y_offset + MENU_ITEM_HEIGHT * i;
 
-    data.buttons[button_index] = (generic_button) {
+    buttons[button_index] = (generic_button) {
         .x = (short) x,
         .y = (short) y,
         .width = MENU_ITEM_WIDTH,
@@ -219,14 +304,12 @@ static void draw_menu_item(const overlay_menu_entry *entry, const int i, const i
         .parameter1 = entry->overlay,
     };
 
-    label_draw(x, y, LABEL_WIDTH_BLOCKS, is_mouse_hovering(entry) ? LABEL_TYPE_NORMAL : LABEL_TYPE_HOVER);
+    int is_hovered = is_mouse_hovering(entry) || data.hovered_overlay_id == entry->overlay;
 
-    text_draw_centered(get_overlay_text(entry),
-        x_offset - MENU_ITEM_WIDTH,
-        y + 4,
-        MENU_ITEM_WIDTH,
-        FONT_NORMAL_GREEN,
-        COLOR_MASK_NONE);
+    label_draw(x, y, LABEL_WIDTH_BLOCKS, is_hovered ? LABEL_TYPE_NORMAL : LABEL_TYPE_HOVER);
+
+    text_draw_centered(get_overlay_text(entry), x_offset - MENU_ITEM_WIDTH, y + 4,
+        MENU_ITEM_WIDTH,  FONT_NORMAL_GREEN, COLOR_MASK_NONE);
 
     if (entry->submenu != NULL) {
         const int image_id = assets_get_image_id("UI", "Expand Menu Icon");
@@ -234,47 +317,86 @@ static void draw_menu_item(const overlay_menu_entry *entry, const int i, const i
     }
 }
 
-static overlay_menu_entry find_overlay(const overlay_menu_entry *entries, const int overlay_id)
+
+static int draw_menu(const overlay_menu_entry *entries, int x_offset, int y_offset, generic_button *buttons)
 {
-    for (unsigned i = 0; entries[i].overlay != -1; i++) {
-        if (entries[i].overlay == overlay_id) {
-            return entries[i];
-        }
-
-        if (entries[i].submenu != NULL) {
-            const overlay_menu_entry found_sub_item = find_overlay(entries[i].submenu, overlay_id);
-            if (found_sub_item.overlay != OVERLAY_MENU_SENTINEL.overlay) {
-                return found_sub_item;
-            }
-        }
-    }
-
-    return OVERLAY_MENU_SENTINEL;
-}
-
-static void draw_menu(const overlay_menu_entry *entries)
-{
-    const int x_offset = get_sidebar_x_offset() - SIDEBAR_MARGIN_X;
     int button_index = 0;
 
     for (int i = 0; entries[i].overlay != -1; i++) {
-        draw_menu_item(&entries[i], i, x_offset, button_index++);
+        draw_menu_item(&entries[i], i, x_offset, y_offset, button_index++, buttons);
     }
+
+    return button_index;
 }
+
 
 static void draw_foreground(void)
 {
     window_city_draw();
 
-    if (data.show_menu == 1) {
-        const overlay_menu_entry menu_item = find_overlay(overlay_menu, data.selected_overlay_clicked);
-        if (menu_item.submenu != NULL) {
-            draw_menu(menu_item.submenu);
+    if (!data.show_menu) return;
+
+    const int base_x = get_sidebar_x_offset() - SIDEBAR_MARGIN_X;
+
+    // menu
+    draw_menu(overlay_menu, base_x, TOP_MARGIN, data.buttons_main);
+
+    // submenu
+    const overlay_menu_entry selected = find_overlay(overlay_menu, data.selected_overlay_clicked);
+
+    if (selected.submenu != NULL) {
+        // circle sprite
+        for (int i = 0; overlay_menu[i].overlay != -1; i++) {
+            if (overlay_menu[i].overlay == selected.overlay) {
+                const int x = base_x - MENU_ITEM_WIDTH - 15;
+                const int y = TOP_MARGIN + MENU_ITEM_HEIGHT * i + 6;
+                image_draw(image_group(GROUP_BULLET), x, y, COLOR_MASK_NONE, SCALE_NONE);
+                break;
+            }
+        }
+
+        int selected_index = 0;
+        for (int i = 0; overlay_menu[i].overlay != -1; i++) {
+            if (overlay_menu[i].overlay == selected.overlay) {
+                selected_index = i;
+                break;
+            }
+        }
+
+        int submenu_y;
+        if (selected.submenu != NULL && selected.submenu[0].independent_y) {
+            submenu_y = TOP_MARGIN;
         } else {
-            draw_menu(overlay_menu);;
+            submenu_y = TOP_MARGIN + MENU_ITEM_HEIGHT * selected_index;
+        }
+        draw_menu(selected.submenu, base_x - SUBMENU_X_OFFSET + MENU_X_OFFSET, submenu_y, data.buttons_sub);
+
+        // subsubmenu (submenu_housing_groups)
+        const overlay_menu_entry sub_selected = find_overlay(selected.submenu, data.hovered_overlay_id);
+
+        int sub_index = 0;
+        for (int i = 0; selected.submenu[i].overlay != -1; i++) {
+            if (selected.submenu[i].overlay == sub_selected.overlay) {
+                sub_index = i;
+                break;
+            }
+        }
+
+        int sub_y;
+        if (selected.submenu &&
+            sub_selected.submenu &&
+            sub_selected.submenu[0].independent_y) {
+            sub_y = TOP_MARGIN;
+        } else {
+            sub_y = TOP_MARGIN + MENU_ITEM_HEIGHT * sub_index;
+        }
+
+        if (sub_selected.submenu != NULL) {
+            draw_menu(sub_selected.submenu, base_x - 2 * SUBMENU_X_OFFSET + MENU_X_OFFSET, sub_y, data.buttons_sub2);
         }
     }
 }
+
 
 static int click_outside_menu(const mouse *m, const int x_offset)
 {
@@ -285,12 +407,20 @@ static int click_outside_menu(const mouse *m, const int x_offset)
         m->y > MENU_Y_OFFSET + MENU_CLICK_MARGIN + MENU_ITEM_HEIGHT * MAX_BUTTONS);
 }
 
+
 static void handle_input(const mouse *m, const hotkeys *h)
 {
     const int x_offset = get_sidebar_x_offset();
     int handled = 0;
 
-    handled |= generic_buttons_handle_mouse(m, 0, 0, data.buttons, MAX_BUTTONS, &data.menu_focus_button_index);
+    handled |= generic_buttons_handle_mouse(m, 0, 0, data.buttons_main, MAX_BUTTONS, &data.focus_main);
+
+    handled |= generic_buttons_handle_mouse(m, 0, 0, data.buttons_sub, MAX_BUTTONS, &data.focus_sub);
+
+    handled |= generic_buttons_handle_mouse(m, 0, 0, data.buttons_sub2, MAX_BUTTONS, &data.focus_sub2);
+
+    handle_hover_menu();      // hover open
+    handle_hover_timeout();   // close
 
     if (!handled && click_outside_menu(m, x_offset)) {
         data.selected_overlay_clicked = 0;
@@ -298,8 +428,11 @@ static void handle_input(const mouse *m, const hotkeys *h)
         window_city_show();
     }
 
-    show_menu();
+    if (!data.show_menu) {
+        show_menu();
+    }
 }
+
 
 static void button_menu_item(const generic_button *button)
 {
