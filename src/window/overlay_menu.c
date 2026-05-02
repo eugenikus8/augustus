@@ -29,6 +29,7 @@
 #define LABEL_WIDTH_BLOCKS 10
 #define SIDEBAR_MARGIN_X 10
 #define MAX_BUTTONS 64
+#define HOVER_TIMEOUT_MILLIS 900
 #define OVERLAY_MENU_END { -1, -1, JULIUS, NULL }
 
 static void button_menu_item(const generic_button *button);
@@ -228,7 +229,7 @@ static void handle_hover_timeout(void)
     if (data.focus_main == 0 &&
         data.focus_sub == 0 &&
         data.focus_sub2 == 0) {
-        if (time_get_millis() - data.hover_time > 900) {
+        if (time_get_millis() - data.hover_time > HOVER_TIMEOUT_MILLIS) {
             data.selected_main_overlay = 0;
             data.selected_submenu2_overlay = 0;
         }
