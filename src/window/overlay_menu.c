@@ -445,32 +445,31 @@ static void draw_foreground(void)
         }
     }
 
-    // --- SUB MARKER ---
-    const int sub_marker_x = submenu_x - MENU_ITEM_WIDTH - 15;
-    const int sub_marker_y = submenu_y + MENU_ITEM_HEIGHT * sub_index + 6;
-
-    image_draw(
-        image_group(GROUP_BULLET),
-        sub_marker_x,
-        sub_marker_y,
-        COLOR_MASK_NONE,
-        SCALE_NONE
-    );
-
     // --- SUBSUBMENU (LEVEL 3) ---
-    if (sub_selected.submenu == NULL) {
-        return;
+    if (sub_selected.submenu != NULL) {
+
+        // --- SUB MARKER (drawn only if subsubmenu exists) ---
+        const int sub_marker_x = submenu_x - MENU_ITEM_WIDTH - 15;
+        const int sub_marker_y = submenu_y + MENU_ITEM_HEIGHT * sub_index + 6;
+
+        image_draw(
+            image_group(GROUP_BULLET),
+            sub_marker_x,
+            sub_marker_y,
+            COLOR_MASK_NONE,
+            SCALE_NONE
+        );
+
+        const int subsubmenu_x =
+            submenu_x - MENU_ITEM_WIDTH - 20;
+
+        draw_menu(
+            sub_selected.submenu,
+            subsubmenu_x,
+            submenu_y,
+            data.buttons_sub2
+        );
     }
-
-    const int subsubmenu_x =
-        submenu_x - MENU_ITEM_WIDTH - 20;
-
-    draw_menu(
-        sub_selected.submenu,
-        subsubmenu_x,
-        submenu_y,
-        data.buttons_sub2
-    );
 }
 
 static int click_outside_menu(const mouse *m, const int x_offset)
