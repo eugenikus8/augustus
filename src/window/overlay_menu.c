@@ -177,7 +177,6 @@ static const overlay_menu_entry overlay_menu[] = {
     OVERLAY_MENU_END
 };
 
-
 static overlay_menu_entry find_overlay(const overlay_menu_entry *entries, const int overlay_id)
 {
     for (unsigned i = 0; entries[i].overlay != -1; i++) {
@@ -192,34 +191,12 @@ static overlay_menu_entry find_overlay(const overlay_menu_entry *entries, const 
             }
         }
     }
-
     return OVERLAY_MENU_SENTINEL;
 }
-
 
 static void handle_hover_menu(void)
 {
     time_millis now = time_get_millis();
-
-    if (data.focus_sub2 > 0) {
-        int idx = data.focus_sub2 - 1;
-        int id = data.buttons_sub2[idx].parameter1;
-
-        data.hovered_overlay_id = id;
-        data.selected_submenu2_overlay = id;
-        data.hover_time = now;
-        return;
-    }
-
-
-
-    if (data.focus_sub > 0) {
-        int idx = data.focus_sub - 1;
-        data.hovered_overlay_id = data.buttons_sub[idx].parameter1;
-        data.hover_time = now;
-
-
-    }
 
     if (data.focus_main > 0) {
         int idx = data.focus_main - 1;
@@ -231,7 +208,6 @@ static void handle_hover_menu(void)
     if (data.focus_sub > 0) {
         int idx = data.focus_sub - 1;
         int id = data.buttons_sub[idx].parameter1;
-
         data.hovered_overlay_id = id;
         data.selected_submenu_overlay = id;
         data.hover_time = now;
@@ -240,15 +216,12 @@ static void handle_hover_menu(void)
     if (data.focus_sub2 > 0) {
         int idx = data.focus_sub2 - 1;
         int id = data.buttons_sub2[idx].parameter1;
-
         data.hovered_overlay_id = id;
         data.selected_submenu2_overlay = id;
         data.hover_time = now;
     }
 
 }
-
-
 
 static void handle_hover_timeout(void)
 {
@@ -261,7 +234,6 @@ static void handle_hover_timeout(void)
         }
     }
 }
-
 
 static void show_menu(void)
 {
@@ -285,12 +257,10 @@ static int get_sidebar_x_offset(void)
     return view_x + view_width;
 }
 
-
 static int is_mouse_hovering(const overlay_menu_entry *entry)
 {
     return data.hovered_overlay_id == entry->overlay;
 }
-
 
 static const uint8_t *get_overlay_text(const overlay_menu_entry *entry)
 {
@@ -304,7 +274,6 @@ static const uint8_t *get_overlay_text(const overlay_menu_entry *entry)
 
     return lang_get_string(14, entry->overlay);
 }
-
 
 static void draw_menu_item(const overlay_menu_entry *entry, const int i, const int x_offset, const int y_offset, const int button_index, generic_button *buttons)
 {
@@ -333,7 +302,6 @@ static void draw_menu_item(const overlay_menu_entry *entry, const int i, const i
     }
 }
 
-
 static int draw_menu(const overlay_menu_entry *entries, int x_offset, int y_offset, generic_button *buttons)
 {
     int button_index = 0;
@@ -344,7 +312,6 @@ static int draw_menu(const overlay_menu_entry *entries, int x_offset, int y_offs
 
     return button_index;
 }
-
 
 static void draw_foreground(void)
 {
@@ -481,7 +448,6 @@ static int click_outside_menu(const mouse *m, const int x_offset)
         m->y > MENU_Y_OFFSET + MENU_CLICK_MARGIN + MENU_ITEM_HEIGHT * MAX_BUTTONS);
 }
 
-
 static void handle_input(const mouse *m, const hotkeys *h)
 {
     const int x_offset = get_sidebar_x_offset();
@@ -506,7 +472,6 @@ static void handle_input(const mouse *m, const hotkeys *h)
         show_menu();
     }
 }
-
 
 static void button_menu_item(const generic_button *button)
 {
