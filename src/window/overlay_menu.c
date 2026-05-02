@@ -53,15 +53,16 @@ typedef struct overlay_menu_entry {
 
 static struct {
     int selected_overlay_id;
-    int selected_overlay_clicked;
+
+    int selected_main_overlay;
+    int selected_submenu_overlay; 
+    int selected_submenu2_overlay;
 
     int hovered_overlay_id;
 
     int show_menu;
-
     time_millis hover_time;
 
-    unsigned int menu_focus_button_index;
     generic_button buttons_main[MAX_BUTTONS];
     generic_button buttons_sub[MAX_BUTTONS];
     generic_button buttons_sub2[MAX_BUTTONS];
@@ -125,38 +126,38 @@ static const overlay_menu_entry submenu_commerce[] = {
 };
 
 static const overlay_menu_entry submenu_housing_groups[] = {
-    { OVERLAY_HOUSING_GROUPS_TENTS, TR_OVERLAY_HOUSING_TENTS, AUGUSTUS, NULL, 1},
-    { OVERLAY_HOUSING_GROUPS_SHACKS,TR_OVERLAY_HOUSING_SHACKS, AUGUSTUS, NULL, 1},
-    { OVERLAY_HOUSING_GROUPS_HOVELS,TR_OVERLAY_HOUSING_HOVELS, AUGUSTUS, NULL, 1},
-    { OVERLAY_HOUSING_GROUPS_CASAE,TR_OVERLAY_HOUSING_CASAS, AUGUSTUS, NULL, 1},
-    { OVERLAY_HOUSING_GROUPS_INSULAE,TR_OVERLAY_HOUSE_INSULAS, AUGUSTUS, NULL, 1},
-    { OVERLAY_HOUSING_GROUPS_VILLAS,TR_OVERLAY_HOUSE_VILLAS, AUGUSTUS, NULL, 1},
-    { OVERLAY_HOUSING_GROUPS_PALACES,TR_OVERLAY_HOUSE_PALACES, AUGUSTUS, NULL, 1},
+    { OVERLAY_HOUSING_GROUPS_TENTS, TR_OVERLAY_HOUSING_TENTS, AUGUSTUS, NULL},
+    { OVERLAY_HOUSING_GROUPS_SHACKS,TR_OVERLAY_HOUSING_SHACKS, AUGUSTUS, NULL},
+    { OVERLAY_HOUSING_GROUPS_HOVELS,TR_OVERLAY_HOUSING_HOVELS, AUGUSTUS, NULL},
+    { OVERLAY_HOUSING_GROUPS_CASAE,TR_OVERLAY_HOUSING_CASAS, AUGUSTUS, NULL},
+    { OVERLAY_HOUSING_GROUPS_INSULAE,TR_OVERLAY_HOUSE_INSULAS, AUGUSTUS, NULL},
+    { OVERLAY_HOUSING_GROUPS_VILLAS,TR_OVERLAY_HOUSE_VILLAS, AUGUSTUS, NULL},
+    { OVERLAY_HOUSING_GROUPS_PALACES,TR_OVERLAY_HOUSE_PALACES, AUGUSTUS, NULL},
     OVERLAY_MENU_END
 };
 
 static const overlay_menu_entry submenu_housing[] = {
-    { OVERLAY_HOUSING_GROUPS, TR_OVERLAY_BY_GROUP, AUGUSTUS, submenu_housing_groups, 1},
-    { OVERLAY_HOUSE_SMALL_TENT, BUILDING_HOUSE_SMALL_TENT, BUILDING_TYPE, NULL, 1},
-    { OVERLAY_HOUSE_LARGE_TENT, BUILDING_HOUSE_LARGE_TENT, BUILDING_TYPE, NULL, 1},
-    { OVERLAY_HOUSE_SMALL_SHACK, BUILDING_HOUSE_SMALL_SHACK, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_LARGE_SHACK, BUILDING_HOUSE_LARGE_SHACK, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_SMALL_HOVEL, BUILDING_HOUSE_SMALL_HOVEL, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_LARGE_HOVEL, BUILDING_HOUSE_LARGE_HOVEL, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_SMALL_CASA, BUILDING_HOUSE_SMALL_CASA, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_LARGE_CASA, BUILDING_HOUSE_LARGE_CASA, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_SMALL_INSULA, BUILDING_HOUSE_SMALL_INSULA, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_MEDIUM_INSULA, BUILDING_HOUSE_MEDIUM_INSULA, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_LARGE_INSULA, BUILDING_HOUSE_LARGE_INSULA, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_GRAND_INSULA, BUILDING_HOUSE_GRAND_INSULA, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_SMALL_VILLA, BUILDING_HOUSE_SMALL_VILLA, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_MEDIUM_VILLA, BUILDING_HOUSE_MEDIUM_VILLA, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_LARGE_VILLA, BUILDING_HOUSE_LARGE_VILLA, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_GRAND_VILLA, BUILDING_HOUSE_GRAND_VILLA, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_SMALL_PALACE, BUILDING_HOUSE_SMALL_PALACE, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_MEDIUM_PALACE, BUILDING_HOUSE_MEDIUM_PALACE, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_LARGE_PALACE, BUILDING_HOUSE_LARGE_PALACE, BUILDING_TYPE, NULL, 1 },
-    { OVERLAY_HOUSE_LUXURY_PALACE, BUILDING_HOUSE_LUXURY_PALACE, BUILDING_TYPE, NULL, 1 },
+    { OVERLAY_HOUSING_GROUPS, TR_OVERLAY_BY_GROUP, AUGUSTUS, submenu_housing_groups},
+    { OVERLAY_HOUSE_SMALL_TENT, BUILDING_HOUSE_SMALL_TENT, BUILDING_TYPE, NULL},
+    { OVERLAY_HOUSE_LARGE_TENT, BUILDING_HOUSE_LARGE_TENT, BUILDING_TYPE, NULL},
+    { OVERLAY_HOUSE_SMALL_SHACK, BUILDING_HOUSE_SMALL_SHACK, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_LARGE_SHACK, BUILDING_HOUSE_LARGE_SHACK, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_SMALL_HOVEL, BUILDING_HOUSE_SMALL_HOVEL, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_LARGE_HOVEL, BUILDING_HOUSE_LARGE_HOVEL, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_SMALL_CASA, BUILDING_HOUSE_SMALL_CASA, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_LARGE_CASA, BUILDING_HOUSE_LARGE_CASA, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_SMALL_INSULA, BUILDING_HOUSE_SMALL_INSULA, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_MEDIUM_INSULA, BUILDING_HOUSE_MEDIUM_INSULA, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_LARGE_INSULA, BUILDING_HOUSE_LARGE_INSULA, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_GRAND_INSULA, BUILDING_HOUSE_GRAND_INSULA, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_SMALL_VILLA, BUILDING_HOUSE_SMALL_VILLA, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_MEDIUM_VILLA, BUILDING_HOUSE_MEDIUM_VILLA, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_LARGE_VILLA, BUILDING_HOUSE_LARGE_VILLA, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_GRAND_VILLA, BUILDING_HOUSE_GRAND_VILLA, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_SMALL_PALACE, BUILDING_HOUSE_SMALL_PALACE, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_MEDIUM_PALACE, BUILDING_HOUSE_MEDIUM_PALACE, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_LARGE_PALACE, BUILDING_HOUSE_LARGE_PALACE, BUILDING_TYPE, NULL },
+    { OVERLAY_HOUSE_LUXURY_PALACE, BUILDING_HOUSE_LUXURY_PALACE, BUILDING_TYPE, NULL },
     OVERLAY_MENU_END
 };
 
@@ -202,39 +203,51 @@ static void handle_hover_menu(void)
 
     if (data.focus_sub2 > 0) {
         int idx = data.focus_sub2 - 1;
-        data.hovered_overlay_id = data.buttons_sub2[idx].parameter1;
+        int id = data.buttons_sub2[idx].parameter1;
+
+        data.hovered_overlay_id = id;
+        data.selected_submenu2_overlay = id;
         data.hover_time = now;
         return;
     }
+
+
 
     if (data.focus_sub > 0) {
         int idx = data.focus_sub - 1;
         data.hovered_overlay_id = data.buttons_sub[idx].parameter1;
         data.hover_time = now;
 
-        const overlay_menu_entry e = find_overlay(overlay_menu, data.hovered_overlay_id);
 
-        if (e.submenu != NULL) {
-            data.selected_overlay_clicked = e.overlay;
-        }
-        return;
     }
 
     if (data.focus_main > 0) {
         int idx = data.focus_main - 1;
         data.hovered_overlay_id = data.buttons_main[idx].parameter1;
+        data.selected_main_overlay = data.hovered_overlay_id;
         data.hover_time = now;
-
-        const overlay_menu_entry e =
-            find_overlay(overlay_menu, data.hovered_overlay_id);
-
-        if (e.submenu != NULL) {
-            data.selected_overlay_clicked = e.overlay;
-        } else {
-            data.selected_overlay_clicked = 0;
-        }
     }
+
+    if (data.focus_sub > 0) {
+        int idx = data.focus_sub - 1;
+        int id = data.buttons_sub[idx].parameter1;
+
+        data.hovered_overlay_id = id;
+        data.selected_submenu_overlay = id;
+        data.hover_time = now;
+    }
+
+    if (data.focus_sub2 > 0) {
+        int idx = data.focus_sub2 - 1;
+        int id = data.buttons_sub2[idx].parameter1;
+
+        data.hovered_overlay_id = id;
+        data.selected_submenu2_overlay = id;
+        data.hover_time = now;
+    }
+
 }
+
 
 
 static void handle_hover_timeout(void)
@@ -243,7 +256,8 @@ static void handle_hover_timeout(void)
         data.focus_sub == 0 &&
         data.focus_sub2 == 0) {
         if (time_get_millis() - data.hover_time > 900) {
-            data.selected_overlay_clicked = 0;
+            data.selected_main_overlay = 0;
+            data.selected_submenu2_overlay = 0;
         }
     }
 }
@@ -342,65 +356,122 @@ static void draw_foreground(void)
 
     const int base_x = get_sidebar_x_offset() - SIDEBAR_MARGIN_X;
 
-    // menu
+    // --- MAIN MENU ---
     draw_menu(overlay_menu, base_x, TOP_MARGIN, data.buttons_main);
 
-    // submenu
-    const overlay_menu_entry selected = find_overlay(overlay_menu, data.selected_overlay_clicked);
+    // --- MAIN SELECTED ---
+    const overlay_menu_entry main_selected =
+        find_overlay(overlay_menu, data.selected_main_overlay);
 
-    if (selected.submenu != NULL) {
-        // circle sprite
-        for (int i = 0; overlay_menu[i].overlay != -1; i++) {
-            if (overlay_menu[i].overlay == selected.overlay) {
-                const int x = base_x - MENU_ITEM_WIDTH - 15;
-                const int y = TOP_MARGIN + MENU_ITEM_HEIGHT * i + 6;
-                image_draw(image_group(GROUP_BULLET), x, y, COLOR_MASK_NONE, SCALE_NONE);
-                break;
-            }
-        }
+    if (main_selected.submenu == NULL) {
+        return;
+    }
 
-        int selected_index = 0;
-        for (int i = 0; overlay_menu[i].overlay != -1; i++) {
-            if (overlay_menu[i].overlay == selected.overlay) {
-                selected_index = i;
-                break;
-            }
-        }
-
-        int submenu_y;
-        if (selected.submenu != NULL && selected.submenu[0].independent_y) {
-            submenu_y = TOP_MARGIN;
-        } else {
-            submenu_y = TOP_MARGIN + MENU_ITEM_HEIGHT * selected_index;
-        }
-        draw_menu(selected.submenu, base_x - SUBMENU_X_OFFSET + MENU_X_OFFSET, submenu_y, data.buttons_sub);
-
-        // subsubmenu (submenu_housing_groups)
-        const overlay_menu_entry sub_selected = find_overlay(selected.submenu, data.hovered_overlay_id);
-
-        int sub_index = 0;
-        for (int i = 0; selected.submenu[i].overlay != -1; i++) {
-            if (selected.submenu[i].overlay == sub_selected.overlay) {
-                sub_index = i;
-                break;
-            }
-        }
-
-        int sub_y;
-        if (selected.submenu &&
-            sub_selected.submenu &&
-            sub_selected.submenu[0].independent_y) {
-            sub_y = TOP_MARGIN;
-        } else {
-            sub_y = TOP_MARGIN + MENU_ITEM_HEIGHT * sub_index;
-        }
-
-        if (sub_selected.submenu != NULL) {
-            draw_menu(sub_selected.submenu, base_x - 2 * SUBMENU_X_OFFSET + MENU_X_OFFSET, sub_y, data.buttons_sub2);
+    // --- MAIN INDEX ---
+    int main_index = 0;
+    for (int i = 0; overlay_menu[i].overlay != -1; i++) {
+        if (overlay_menu[i].overlay == main_selected.overlay) {
+            main_index = i;
+            break;
         }
     }
-}
 
+    // --- MAIN MARKER ---
+    const int main_marker_x = base_x - MENU_ITEM_WIDTH - 15;
+    const int main_marker_y = TOP_MARGIN + MENU_ITEM_HEIGHT * main_index + 6;
+
+    image_draw(
+        image_group(GROUP_BULLET),
+        main_marker_x,
+        main_marker_y,
+        COLOR_MASK_NONE,
+        SCALE_NONE
+    );
+
+    // --- SUBMENU HEIGHT ---
+    int submenu_height = 0;
+    for (int i = 0; main_selected.submenu[i].overlay != -1; i++) {
+        submenu_height++;
+    }
+    submenu_height *= MENU_ITEM_HEIGHT;
+
+    // --- SCREEN BOUNDS ---
+    int view_x, view_y, view_width, view_height;
+    city_view_get_viewport(&view_x, &view_y, &view_width, &view_height);
+
+    int submenu_y;
+
+    if (main_selected.submenu[0].independent_y) {
+        submenu_y = TOP_MARGIN;
+    } else {
+        submenu_y = TOP_MARGIN + MENU_ITEM_HEIGHT * main_index;
+
+        int bottom = submenu_y + submenu_height;
+        int screen_bottom = view_y + view_height;
+
+        if (bottom > screen_bottom) {
+            submenu_y = screen_bottom - submenu_height;
+            if (submenu_y < TOP_MARGIN) {
+                submenu_y = TOP_MARGIN;
+            }
+        }
+    }
+
+    // --- SUBMENU (LEVEL 2) ---
+    const int submenu_x =
+        base_x - SUBMENU_X_OFFSET + MENU_X_OFFSET;
+
+    draw_menu(
+        main_selected.submenu,
+        submenu_x,
+        submenu_y,
+        data.buttons_sub
+    );
+
+    // --- SUB SELECTED ---
+    const overlay_menu_entry sub_selected =
+        find_overlay(main_selected.submenu, data.selected_submenu_overlay);
+
+    if (sub_selected.overlay == -1) {
+        return;
+    }
+
+    // --- SUB INDEX ---
+    int sub_index = 0;
+    for (int i = 0; main_selected.submenu[i].overlay != -1; i++) {
+        if (main_selected.submenu[i].overlay == sub_selected.overlay) {
+            sub_index = i;
+            break;
+        }
+    }
+
+    // --- SUB MARKER ---
+    const int sub_marker_x = submenu_x - MENU_ITEM_WIDTH - 15;
+    const int sub_marker_y = submenu_y + MENU_ITEM_HEIGHT * sub_index + 6;
+
+    image_draw(
+        image_group(GROUP_BULLET),
+        sub_marker_x,
+        sub_marker_y,
+        COLOR_MASK_NONE,
+        SCALE_NONE
+    );
+
+    // --- SUBSUBMENU (LEVEL 3) ---
+    if (sub_selected.submenu == NULL) {
+        return;
+    }
+
+    const int subsubmenu_x =
+        submenu_x - MENU_ITEM_WIDTH - 20;
+
+    draw_menu(
+        sub_selected.submenu,
+        subsubmenu_x,
+        submenu_y,
+        data.buttons_sub2
+    );
+}
 
 static int click_outside_menu(const mouse *m, const int x_offset)
 {
@@ -427,7 +498,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     handle_hover_timeout();   // close
 
     if (!handled && click_outside_menu(m, x_offset)) {
-        data.selected_overlay_clicked = 0;
+        data.selected_main_overlay = 0;
         hide_menu();
         window_city_show();
     }
@@ -440,13 +511,18 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
 static void button_menu_item(const generic_button *button)
 {
-    const overlay_menu_entry selected_overlay = find_overlay(overlay_menu, button->parameter1);
-    data.selected_overlay_clicked = selected_overlay.overlay;
+    const overlay_menu_entry selected_overlay =
+        find_overlay(overlay_menu, button->parameter1);
+
+    data.selected_main_overlay = selected_overlay.overlay;
 
     if (selected_overlay.submenu != NULL) {
         show_menu();
     } else {
         data.selected_overlay_id = selected_overlay.overlay;
+
+        data.selected_submenu2_overlay = 0;
+
         hide_menu();
         game_state_set_overlay(selected_overlay.overlay);
         window_city_show();
