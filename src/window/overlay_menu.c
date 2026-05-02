@@ -311,11 +311,11 @@ static void draw_menu_item(const overlay_menu_entry *entry, const int i, const i
     label_draw(x, y, LABEL_WIDTH_BLOCKS, is_hovered ? LABEL_TYPE_NORMAL : LABEL_TYPE_HOVER);
 
     text_draw_centered(get_overlay_text(entry), x_offset - MENU_ITEM_WIDTH, y + 4,
-        MENU_ITEM_WIDTH,  FONT_NORMAL_GREEN, COLOR_MASK_NONE);
+        MENU_ITEM_WIDTH, FONT_NORMAL_GREEN, COLOR_MASK_NONE);
 
     if (entry->submenu != NULL) {
-        const int image_id = assets_get_image_id("UI", "Expand Menu Icon");
-        image_draw(image_id, x + MENU_ITEM_WIDTH - 16, y + 3, COLOR_MASK_NONE, SCALE_NONE);
+        const int image_id = assets_get_image_id("UI", "Expand Menu Icon Left");
+        image_draw(image_id, x + 3, y + 3, COLOR_MASK_NONE, SCALE_NONE);
     }
 }
 
