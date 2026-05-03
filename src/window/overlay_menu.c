@@ -199,16 +199,17 @@ static overlay_menu_entry find_overlay(const overlay_menu_entry *entries, const 
 
 static void handle_hover_menu(void)
 {
-    if (data.clicked_menu_item != -1) {
-        return; // sticky mode active, ignore hover switching
-    }
-
     time_millis now = time_get_millis();
 
     if (data.focus_main > 0) {
         int idx = data.focus_main - 1;
         data.hovered_overlay_id = data.buttons_main[idx].parameter1;
-        data.selected_main_overlay = data.hovered_overlay_id;
+
+        // only update selection if NOT sticky
+        if (data.clicked_menu_item == -1) {
+            data.selected_main_overlay = data.hovered_overlay_id;
+        }
+
         data.hover_time = now;
     }
 
@@ -216,7 +217,11 @@ static void handle_hover_menu(void)
         int idx = data.focus_sub - 1;
         int id = data.buttons_sub[idx].parameter1;
         data.hovered_overlay_id = id;
-        data.selected_submenu_overlay = id;
+
+        if (data.clicked_menu_item == -1) {
+            data.selected_submenu_overlay = id;
+        }
+
         data.hover_time = now;
     }
 
@@ -224,7 +229,11 @@ static void handle_hover_menu(void)
         int idx = data.focus_sub2 - 1;
         int id = data.buttons_sub2[idx].parameter1;
         data.hovered_overlay_id = id;
-        data.selected_submenu2_overlay = id;
+
+        if (data.clicked_menu_item == -1) {
+            data.selected_submenu2_overlay = id;
+        }
+
         data.hover_time = now;
     }
 
