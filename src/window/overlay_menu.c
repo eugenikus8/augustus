@@ -59,6 +59,8 @@ static struct {
     int selected_submenu_overlay; 
     int selected_submenu2_overlay;
 
+    int clicked_menu_item;
+
     int hovered_overlay_id;
 
     int show_menu;
@@ -197,6 +199,10 @@ static overlay_menu_entry find_overlay(const overlay_menu_entry *entries, const 
 
 static void handle_hover_menu(void)
 {
+    if (data.clicked_menu_item != -1) {
+        return; // sticky mode active, ignore hover switching
+    }
+
     time_millis now = time_get_millis();
 
     if (data.focus_main > 0) {
@@ -226,11 +232,16 @@ static void handle_hover_menu(void)
 
 static void handle_hover_timeout(void)
 {
+    if (data.clicked_menu_item != -1) {
+        return; // disable timeout in sticky mode
+    }
+
     if (data.focus_main == 0 &&
         data.focus_sub == 0 &&
         data.focus_sub2 == 0) {
         if (time_get_millis() - data.hover_time > HOVER_TIMEOUT_MILLIS) {
             data.selected_main_overlay = 0;
+            data.selected_submenu_overlay = 0;
             data.selected_submenu2_overlay = 0;
         }
     }
@@ -401,7 +412,10 @@ static void draw_foreground(void)
         find_overlay(main_selected.submenu, data.selected_submenu_overlay);
 
     if (sub_selected.overlay == -1) {
-        return;
+        // do not kill submenu1 if sticky is active
+        if (data.clicked_menu_item == -1) {
+            return;
+        }
     }
 
     // --- SUB INDEX ---
@@ -465,6 +479,10 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
     if (!handled && click_outside_menu(m, x_offset)) {
         data.selected_main_overlay = 0;
+        data.selected_submenu_overlay = 0;
+        data.selected_submenu2_overlay = 0;
+        data.clicked_menu_item = -1;
+
         hide_menu();
         window_city_show();
     }
@@ -479,19 +497,35 @@ static void button_menu_item(const generic_button *button)
     const overlay_menu_entry selected_overlay =
         find_overlay(overlay_menu, button->parameter1);
 
+    // toggle same item
+    if (data.clicked_menu_item == selected_overlay.overlay) {
+        data.clicked_menu_item = -1;
+
+        // return to hover mode
+        data.selected_main_overlay = 0;
+        data.selected_submenu_overlay = 0;
+        data.selected_submenu2_overlay = 0;
+        return;
+    }
+
+    // set new sticky item
+    data.clicked_menu_item = selected_overlay.overlay;
     data.selected_main_overlay = selected_overlay.overlay;
 
     if (selected_overlay.submenu != NULL) {
         show_menu();
-    } else {
-        data.selected_overlay_id = selected_overlay.overlay;
-
-        data.selected_submenu2_overlay = 0;
-
-        hide_menu();
-        game_state_set_overlay(selected_overlay.overlay);
-        window_city_show();
+        return;
     }
+
+    // leaf node
+    data.selected_overlay_id = selected_overlay.overlay;
+    data.selected_submenu_overlay = 0;
+    data.selected_submenu2_overlay = 0;
+    data.clicked_menu_item = -1;
+
+    hide_menu();
+    game_state_set_overlay(selected_overlay.overlay);
+    window_city_show();
 }
 
 void window_overlay_menu_show(void)
@@ -502,6 +536,9 @@ void window_overlay_menu_show(void)
         draw_foreground,
         handle_input
     };
+
+    data.clicked_menu_item = -1;
+
     window_show(&window);
 }
 
