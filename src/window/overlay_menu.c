@@ -30,6 +30,7 @@
 #define SIDEBAR_MARGIN_X 10
 #define MAX_BUTTONS 64
 #define HOVER_TIMEOUT_MILLIS 900
+#define NO_ITEM -1
 #define OVERLAY_MENU_END { -1, -1, JULIUS, NULL }
 
 static void button_menu_item(const generic_button *button);
@@ -182,7 +183,7 @@ static const overlay_menu_entry overlay_menu[] = {
 
 static overlay_menu_entry find_overlay(const overlay_menu_entry *entries, const int overlay_id)
 {
-    for (unsigned i = 0; entries[i].overlay != -1; i++) {
+    for (unsigned i = 0; entries[i].overlay != NO_ITEM; i++) {
         if (entries[i].overlay == overlay_id) {
             return entries[i];
         }
@@ -206,7 +207,7 @@ static void handle_hover_menu(void)
         data.hovered_overlay_id = data.buttons_main[idx].parameter1;
 
         // only update selection if NOT sticky
-        if (data.clicked_menu_item == -1) {
+        if (data.clicked_menu_item == NO_ITEM) {
             data.selected_main_overlay = data.hovered_overlay_id;
         }
 
@@ -218,7 +219,7 @@ static void handle_hover_menu(void)
         int id = data.buttons_sub[idx].parameter1;
         data.hovered_overlay_id = id;
 
-        if (data.clicked_menu_item == -1) {
+        if (data.clicked_menu_item == NO_ITEM) {
             data.selected_submenu_overlay = id;
         }
 
@@ -230,7 +231,7 @@ static void handle_hover_menu(void)
         int id = data.buttons_sub2[idx].parameter1;
         data.hovered_overlay_id = id;
 
-        if (data.clicked_menu_item == -1) {
+        if (data.clicked_menu_item == NO_ITEM) {
             data.selected_submenu2_overlay = id;
         }
 
@@ -241,7 +242,7 @@ static void handle_hover_menu(void)
 
 static void handle_hover_timeout(void)
 {
-    if (data.clicked_menu_item != -1) {
+    if (data.clicked_menu_item != NO_ITEM) {
         return; // disable timeout in sticky mode
     }
 
@@ -327,7 +328,7 @@ static int draw_menu(const overlay_menu_entry *entries, int x_offset, int y_offs
 {
     int button_index = 0;
 
-    for (int i = 0; entries[i].overlay != -1; i++) {
+    for (int i = 0; entries[i].overlay != NO_ITEM; i++) {
         draw_menu_item(&entries[i], i, x_offset, y_offset, button_index++, buttons);
     }
 
@@ -357,7 +358,7 @@ static void draw_foreground(void)
 
     // --- MAIN INDEX ---
     int main_index = 0;
-    for (int i = 0; overlay_menu[i].overlay != -1; i++) {
+    for (int i = 0; overlay_menu[i].overlay != NO_ITEM; i++) {
         if (overlay_menu[i].overlay == main_selected.overlay) {
             main_index = i;
             break;
@@ -378,7 +379,7 @@ static void draw_foreground(void)
 
     // --- SUBMENU HEIGHT ---
     int submenu_height = 0;
-    for (int i = 0; main_selected.submenu[i].overlay != -1; i++) {
+    for (int i = 0; main_selected.submenu[i].overlay != NO_ITEM; i++) {
         submenu_height++;
     }
     submenu_height *= MENU_ITEM_HEIGHT;
@@ -420,16 +421,16 @@ static void draw_foreground(void)
     const overlay_menu_entry sub_selected =
         find_overlay(main_selected.submenu, data.selected_submenu_overlay);
 
-    if (sub_selected.overlay == -1) {
+    if (sub_selected.overlay == NO_ITEM) {
         // do not kill submenu1 if sticky is active
-        if (data.clicked_menu_item == -1) {
+        if (data.clicked_menu_item == NO_ITEM) {
             return;
         }
     }
 
     // --- SUB INDEX ---
     int sub_index = 0;
-    for (int i = 0; main_selected.submenu[i].overlay != -1; i++) {
+    for (int i = 0; main_selected.submenu[i].overlay != NO_ITEM; i++) {
         if (main_selected.submenu[i].overlay == sub_selected.overlay) {
             sub_index = i;
             break;
@@ -490,7 +491,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         data.selected_main_overlay = 0;
         data.selected_submenu_overlay = 0;
         data.selected_submenu2_overlay = 0;
-        data.clicked_menu_item = -1;
+        data.clicked_menu_item = NO_ITEM;
 
         hide_menu();
         window_city_show();
@@ -508,7 +509,7 @@ static void button_menu_item(const generic_button *button)
 
     // toggle same item
     if (data.clicked_menu_item == selected_overlay.overlay) {
-        data.clicked_menu_item = -1;
+        data.clicked_menu_item = NO_ITEM;
 
         // return to hover mode
         data.selected_main_overlay = 0;
@@ -530,7 +531,7 @@ static void button_menu_item(const generic_button *button)
     data.selected_overlay_id = selected_overlay.overlay;
     data.selected_submenu_overlay = 0;
     data.selected_submenu2_overlay = 0;
-    data.clicked_menu_item = -1;
+    data.clicked_menu_item = NO_ITEM;
 
     hide_menu();
     game_state_set_overlay(selected_overlay.overlay);
@@ -546,7 +547,7 @@ void window_overlay_menu_show(void)
         handle_input
     };
 
-    data.clicked_menu_item = -1;
+    data.clicked_menu_item = NO_ITEM;
 
     window_show(&window);
 }
