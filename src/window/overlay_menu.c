@@ -198,6 +198,45 @@ static overlay_menu_entry find_overlay(const overlay_menu_entry *entries, const 
     return OVERLAY_MENU_SENTINEL;
 }
 
+static int find_overlay_path(const overlay_menu_entry *entries, int target, int *out_main, int *out_sub, int *out_sub2)
+{
+    for (int i = 0; entries[i].overlay != NO_ITEM; i++) {
+        const overlay_menu_entry *e = &entries[i];
+
+        if (e->overlay == target) {
+            *out_main = target;
+            *out_sub = 0;
+            *out_sub2 = 0;
+            return 1;
+        }
+
+        if (e->submenu) {
+            for (int j = 0; e->submenu[j].overlay != NO_ITEM; j++) {
+                const overlay_menu_entry *s = &e->submenu[j];
+
+                if (s->overlay == target) {
+                    *out_main = e->overlay;
+                    *out_sub = s->overlay;
+                    *out_sub2 = 0;
+                    return 1;
+                }
+
+                if (s->submenu) {
+                    for (int k = 0; s->submenu[k].overlay != NO_ITEM; k++) {
+                        if (s->submenu[k].overlay == target) {
+                            *out_main = e->overlay;
+                            *out_sub = s->overlay;
+                            *out_sub2 = target;
+                            return 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return 0;
+}
+
 static void handle_hover_menu(void)
 {
     time_millis now = time_get_millis();
@@ -369,13 +408,7 @@ static void draw_foreground(void)
     const int main_marker_x = base_x - MENU_ITEM_WIDTH - 15;
     const int main_marker_y = TOP_MARGIN + MENU_ITEM_HEIGHT * main_index + 6;
 
-    image_draw(
-        image_group(GROUP_BULLET),
-        main_marker_x,
-        main_marker_y,
-        COLOR_MASK_NONE,
-        SCALE_NONE
-    );
+    image_draw(image_group(GROUP_BULLET), main_marker_x, main_marker_y, COLOR_MASK_NONE, SCALE_NONE);
 
     // --- SUBMENU HEIGHT ---
     int submenu_height = 0;
@@ -410,12 +443,7 @@ static void draw_foreground(void)
     const int submenu_x =
         base_x - SUBMENU_X_OFFSET + MENU_X_OFFSET;
 
-    draw_menu(
-        main_selected.submenu,
-        submenu_x,
-        submenu_y,
-        data.buttons_sub
-    );
+    draw_menu(main_selected.submenu, submenu_x, submenu_y, data.buttons_sub);
 
     // --- SUB SELECTED ---
     const overlay_menu_entry sub_selected =
@@ -444,23 +472,11 @@ static void draw_foreground(void)
         const int sub_marker_x = submenu_x - MENU_ITEM_WIDTH - 15;
         const int sub_marker_y = submenu_y + MENU_ITEM_HEIGHT * sub_index + 6;
 
-        image_draw(
-            image_group(GROUP_BULLET),
-            sub_marker_x,
-            sub_marker_y,
-            COLOR_MASK_NONE,
-            SCALE_NONE
-        );
+        image_draw(image_group(GROUP_BULLET), sub_marker_x, sub_marker_y, COLOR_MASK_NONE, SCALE_NONE);
 
-        const int subsubmenu_x =
-            submenu_x - MENU_ITEM_WIDTH - 20;
+        const int subsubmenu_x = submenu_x - MENU_ITEM_WIDTH - 20;
 
-        draw_menu(
-            sub_selected.submenu,
-            subsubmenu_x,
-            submenu_y,
-            data.buttons_sub2
-        );
+        draw_menu(sub_selected.submenu, subsubmenu_x, submenu_y, data.buttons_sub2);
     }
 }
 
@@ -504,51 +520,104 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
 static void button_menu_item(const generic_button *button)
 {
-    const overlay_menu_entry selected_overlay =
-        find_overlay(overlay_menu, button->parameter1);
+    int main_id = 0;
+    int sub_id = 0;
+    int sub2_id = 0;
 
-    // toggle same item
-    if (data.clicked_menu_item == selected_overlay.overlay) {
-        data.clicked_menu_item = NO_ITEM;
+    find_overlay_path(overlay_menu, button->parameter1, &main_id, &sub_id, &sub2_id);
 
-        // return to hover mode
-        data.selected_main_overlay = 0;
+    const overlay_menu_entry selected = find_overlay(overlay_menu, button->parameter1);
+
+    // CLICK ON MAIN //
+    if (button->parameter1 == main_id) {
+        // if same main - toggle (close all)
+        if (data.selected_main_overlay == main_id &&
+            data.clicked_menu_item != NO_ITEM) {
+
+            data.selected_main_overlay = 0;
+            data.selected_submenu_overlay = 0;
+            data.selected_submenu2_overlay = 0;
+            data.clicked_menu_item = NO_ITEM;
+            return;
+        }
+
+        data.selected_main_overlay = main_id;
         data.selected_submenu_overlay = 0;
         data.selected_submenu2_overlay = 0;
+
+        // if submenu exists - open and pin with auto-selection
+        if (selected.submenu != NULL) {
+            const overlay_menu_entry *sub1 = &selected.submenu[0];
+
+            if (sub1->overlay != NO_ITEM) {
+                data.selected_submenu_overlay = sub1->overlay;
+
+                // if sub2 exists - also open
+                if (sub1->submenu != NULL && sub1->submenu[0].overlay != NO_ITEM) {
+                    data.selected_submenu2_overlay = sub1->submenu[0].overlay;
+                    data.clicked_menu_item = sub1->submenu[0].overlay;
+                } else {
+                    data.clicked_menu_item = sub1->overlay;
+                }
+            } else {
+                data.clicked_menu_item = main_id;
+            }
+
+            show_menu();
+            return;
+        }
+
+        // if this is leaf
+        data.clicked_menu_item = NO_ITEM;
+        data.selected_overlay_id = selected.overlay;
+
+        hide_menu();
+        game_state_set_overlay(selected.overlay);
+        window_city_show();
         return;
     }
 
-    // set new sticky item
-    data.clicked_menu_item = selected_overlay.overlay;
-    data.selected_main_overlay = selected_overlay.overlay;
+    // Remaining logic (sub/sub2) //
 
-    if (selected_overlay.submenu != NULL) {
+    if (data.clicked_menu_item == button->parameter1) {
+        if (sub2_id == button->parameter1) {
+            data.selected_submenu2_overlay = 0;
+        } else if (sub_id == button->parameter1) {
+            data.selected_submenu_overlay = 0;
+            data.selected_submenu2_overlay = 0;
+        }
+
+        data.clicked_menu_item = NO_ITEM;
+        return;
+    }
+
+    // set sticky
+    data.clicked_menu_item = button->parameter1;
+
+    data.selected_main_overlay = main_id;
+    data.selected_submenu_overlay = sub_id;
+    data.selected_submenu2_overlay = sub2_id;
+
+    if (selected.submenu != NULL) {
         show_menu();
         return;
     }
 
-    // leaf node
-    data.selected_overlay_id = selected_overlay.overlay;
+    // leaf
+    data.selected_overlay_id = selected.overlay;
     data.selected_submenu_overlay = 0;
     data.selected_submenu2_overlay = 0;
     data.clicked_menu_item = NO_ITEM;
 
     hide_menu();
-    game_state_set_overlay(selected_overlay.overlay);
+    game_state_set_overlay(selected.overlay);
     window_city_show();
 }
 
 void window_overlay_menu_show(void)
 {
-    const window_type window = {
-        WINDOW_OVERLAY_MENU,
-        draw_background,
-        draw_foreground,
-        handle_input
-    };
-
+    const window_type window = {WINDOW_OVERLAY_MENU, draw_background, draw_foreground, handle_input};
     data.clicked_menu_item = NO_ITEM;
-
     window_show(&window);
 }
 
