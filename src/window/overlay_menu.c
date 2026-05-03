@@ -526,14 +526,21 @@ static void button_menu_item(const generic_button *button)
 
     find_overlay_path(overlay_menu, button->parameter1, &main_id, &sub_id, &sub2_id);
 
-    const overlay_menu_entry selected = find_overlay(overlay_menu, button->parameter1);
+    const overlay_menu_entry selected =
+        find_overlay(overlay_menu, button->parameter1);
 
-    // CLICK ON MAIN //
-    if (button->parameter1 == main_id) {
-        // if same main - toggle (close all)
-        if (data.selected_main_overlay == main_id &&
-            data.clicked_menu_item != NO_ITEM) {
+    const int clicked_main = (button->parameter1 == main_id);
 
+    const int has_submenu = (selected.submenu != NULL && selected.submenu[0].overlay != NO_ITEM);
+
+    const int is_same_main = (data.selected_main_overlay == main_id);
+
+    // =========================
+    // CLICK ON MAIN
+    // =========================
+    if (clicked_main) {
+        // toggle same main (reset all)
+        if (is_same_main && data.clicked_menu_item != NO_ITEM) {
             data.selected_main_overlay = 0;
             data.selected_submenu_overlay = 0;
             data.selected_submenu2_overlay = 0;
@@ -541,73 +548,76 @@ static void button_menu_item(const generic_button *button)
             return;
         }
 
+        // reset sticky state BEFORE applying new selection
+        data.clicked_menu_item = NO_ITEM;
+
         data.selected_main_overlay = main_id;
         data.selected_submenu_overlay = 0;
         data.selected_submenu2_overlay = 0;
 
-        // if submenu exists - open and pin with auto-selection
-        if (selected.submenu != NULL) {
-            const overlay_menu_entry *sub1 = &selected.submenu[0];
+        // =========================
+        // CASE 1: MAIN WITHOUT SUBMENU
+        // =========================
+        if (!has_submenu) {
+            data.selected_overlay_id = selected.overlay;
 
-            if (sub1->overlay != NO_ITEM) {
-                data.selected_submenu_overlay = sub1->overlay;
-
-                // if sub2 exists - also open
-                if (sub1->submenu != NULL && sub1->submenu[0].overlay != NO_ITEM) {
-                    data.selected_submenu2_overlay = sub1->submenu[0].overlay;
-                    data.clicked_menu_item = sub1->submenu[0].overlay;
-                } else {
-                    data.clicked_menu_item = sub1->overlay;
-                }
-            } else {
-                data.clicked_menu_item = main_id;
-            }
-
-            show_menu();
+            hide_menu();
+            game_state_set_overlay(selected.overlay);
+            window_city_show();
             return;
         }
 
-        // if this is leaf
-        data.clicked_menu_item = NO_ITEM;
-        data.selected_overlay_id = selected.overlay;
+        // =========================
+        // CASE 2: MAIN WITH SUBMENU
+        // =========================
+        const overlay_menu_entry *sub1 = &selected.submenu[0];
 
-        hide_menu();
-        game_state_set_overlay(selected.overlay);
-        window_city_show();
-        return;
-    }
+        if (sub1->overlay != NO_ITEM) {
+            data.selected_submenu_overlay = sub1->overlay;
 
-    // Remaining logic (sub/sub2) //
+            // sub2 auto-open if exists
+            if (sub1->submenu &&
+                sub1->submenu[0].overlay != NO_ITEM) {
+                data.selected_submenu2_overlay =
+                    sub1->submenu[0].overlay;
 
-    if (data.clicked_menu_item == button->parameter1) {
-        if (sub2_id == button->parameter1) {
-            data.selected_submenu2_overlay = 0;
-        } else if (sub_id == button->parameter1) {
-            data.selected_submenu_overlay = 0;
-            data.selected_submenu2_overlay = 0;
+                data.clicked_menu_item =
+                    sub1->submenu[0].overlay;
+            } else {
+                data.clicked_menu_item =
+                    sub1->overlay;
+            }
         }
 
-        data.clicked_menu_item = NO_ITEM;
+        show_menu();
         return;
     }
 
-    // set sticky
-    data.clicked_menu_item = button->parameter1;
+    // =========================
+    // CLICK ON SUB / SUB2 / LEAF
+    // =========================
+
+    // IMPORTANT:
+    // allow immediate override even if something was sticky
+    data.clicked_menu_item = NO_ITEM;
 
     data.selected_main_overlay = main_id;
     data.selected_submenu_overlay = sub_id;
     data.selected_submenu2_overlay = sub2_id;
 
-    if (selected.submenu != NULL) {
+    const int has_children = (selected.submenu != NULL);
+
+    if (has_children) {
         show_menu();
         return;
     }
 
-    // leaf
+    // =========================
+    // LEAF FINAL SELECTION
+    // =========================
     data.selected_overlay_id = selected.overlay;
     data.selected_submenu_overlay = 0;
     data.selected_submenu2_overlay = 0;
-    data.clicked_menu_item = NO_ITEM;
 
     hide_menu();
     game_state_set_overlay(selected.overlay);
