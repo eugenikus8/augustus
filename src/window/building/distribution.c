@@ -1077,6 +1077,8 @@ const uint8_t *window_building_storage_resource_hover_tooltip(building_info_cont
         uint8_t *cursor = text;
 
         cursor = string_copy(resource_get_data(resource)->text, cursor, 256 - (int) (cursor - text));
+        cursor = string_copy(string_from_ascii("\n"), cursor, 256 - (int) (cursor - text));
+        cursor = string_copy(translation_for(TR_BUILDING_DEPOTS), cursor, 256 - (int) (cursor - text));
 
         if (source_count > 0) {
             cursor = string_copy(string_from_ascii("\n"), cursor, 256 - (int) (cursor - text));
