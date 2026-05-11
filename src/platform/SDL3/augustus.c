@@ -591,6 +591,7 @@ static int init_sdl(int enable_joysticks)
 
     SDL_SetHint(SDL_HINT_TRACKPAD_IS_TOUCH_ONLY, "0");
     SDL_SetHint(SDL_HINT_VITA_ENABLE_BACK_TOUCH, "0");
+    SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
 
     if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK)) {
         // Try starting SDL without joystick support
@@ -613,9 +614,6 @@ static int init_sdl(int enable_joysticks)
 
     SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
     SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
-#ifdef __ANDROID__
-    SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
-#endif
     
     int version = SDL_GetVersion();
     SDL_Log("SDL initialized, version %u.%u.%u",
@@ -762,6 +760,9 @@ static void setup(const augustus_args *args)
         // We always want this info
         SDL_Log("Augustus version %s, %s build", system_version(), system_architecture());
         SDL_Log("Running on: %s", system_OS());
+        int version = SDL_GetVersion();
+        SDL_Log("SDL initialized, version %u.%u.%u",
+            SDL_VERSIONNUM_MAJOR(version), SDL_VERSIONNUM_MINOR(version), SDL_VERSIONNUM_MICRO(version));
     }
 
     if (args->force_windowed && setting_fullscreen()) {
