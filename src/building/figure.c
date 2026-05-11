@@ -260,7 +260,7 @@ static void spawn_figure_warehouse(building *b)
         if (task != WAREHOUSE_TASK_NONE) {
             figure *f = figure_create(FIGURE_WAREHOUSEMAN, road.x, road.y, DIR_4_BOTTOM);
             f->action_state = FIGURE_ACTION_50_WAREHOUSEMAN_CREATED;
-            f->loads_sold_or_carrying = 0; // spawn with 0, load is decided by the action. 
+            f->loads_sold_or_carrying = 0; // spawn with 0, load is decided by the action.
             //this way we transfer resources from buildings to figures directly, without having to keep track
             if (task == WAREHOUSE_TASK_GETTING) {
                 f->resource_id = RESOURCE_NONE;
@@ -2030,7 +2030,7 @@ void building_figure_generate(void)
         // range of building types
         if (b->type >= BUILDING_HOUSE_SMALL_TENT && b->type <= BUILDING_HOUSE_GRAND_INSULA) {
             if (!config_get(CONFIG_GP_CH_HOUSING_DO_NOT_SPAWN_PLEBIANS) &&
-                config_get(CONFIG_GP_CH_GLOBAL_LABOUR)) {
+                config_get(CONFIG_GP_CH_GLOBAL_LABOUR) && b->size && b->house_population) {
                 spawn_plebian(b);
             }
             if (city_labor_unemployment_percentage() > BEGGAR_UNEMPLOYMENT_THRESHOLD) {
