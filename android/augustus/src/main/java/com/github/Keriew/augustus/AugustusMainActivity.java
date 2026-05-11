@@ -17,11 +17,19 @@ public class AugustusMainActivity extends SDLActivity {
 
     @Override
     protected String[] getLibraries() {
-        return new String[]{
+        if (getSDLVersion() == 3) {
+            return new String[]{
+                "SDL3",
+                "SDL3_mixer",
+                "augustus"
+            };
+        } else {
+            return new String[]{
                 "SDL2",
                 "SDL2_mixer",
                 "augustus"
-        };
+            };
+        }
     }
 
     @SuppressWarnings("unused")
@@ -47,6 +55,7 @@ public class AugustusMainActivity extends SDLActivity {
         return getResources().getDisplayMetrics().density;
     }
 
+    private native int getSDLVersion();
     private native void gotDirectory();
     private native void releaseAssetManager();
 }
