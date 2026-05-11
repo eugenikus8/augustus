@@ -27,8 +27,3 @@ void platform_hide_virtual_keyboard(void)
         SDL_StopTextInput();
     }
 }
-
-JNIEXPORT jint JNICALL Java_com_github_Keriew_augustus_AugustusMainActivity_getSDLVersion(JNIEnv *env, jobject thiz)
-{
-    return SDL_MAJOR_VERSION;
-}
