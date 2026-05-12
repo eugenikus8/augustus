@@ -2086,6 +2086,9 @@ static translation_string all_strings[] = {
     {TR_CONFIG_GP_CH_HOUSING_DO_NOT_SPAWN_PLEBIANS, "Houses do not spawn aimless wandering plebeians"},
     {TR_FIGURE_TYPE_DOG, "Dog"},
     {TR_CONFIG_GP_CH_HOUSING_DO_NOT_SPAWN_DOGS, "Houses do not spawn wandering dogs"},
+    {TR_BUILDING_DEPOTS, "Cart depots"},
+    {TR_DESTRIBUTION_SOURCE, "used as source: "},
+    {TR_DESTRIBUTION_DESTINATION, "used as destination: "},
 };
 
 void translation_english(const translation_string **strings, int *num_strings)
