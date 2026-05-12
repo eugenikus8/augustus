@@ -71,7 +71,7 @@ android {
     defaultConfig {
         compileSdk = 37
         applicationId "com.github.Keriew.augustus"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 37
 
         versionName getVersion.versionName
@@ -117,7 +117,6 @@ android {
             ext.alwaysUpdateBuildId = false
             applicationIdSuffix ".debug"
             if (rootProject.ext.findAAR('augustus/libs', 'SDL3') && rootProject.ext.findAAR('augustus/libs', 'SDL3_mixer')) {
-                println 'Using pre-packed SDL3 AAR'
                 rootProject.ext.usingAAR = 3
                 externalNativeBuild.cmake.arguments += "-DSDL_VERSION=3"
                 dependencies.debugImplementation files(rootProject.ext.findAAR('augustus/libs', 'SDL3'), rootProject.ext.findAAR('augustus/libs', 'SDL3_mixer'))
@@ -133,7 +132,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig = signingConfigs.release
             if (rootProject.ext.findAAR('augustus/libs', 'SDL3') && rootProject.ext.findAAR('augustus/libs', 'SDL3_mixer')) {
-                println 'Using pre-packed SDL3 AAR'
                 rootProject.ext.usingAAR = 3
                 externalNativeBuild.cmake.arguments += "-DSDL_VERSION=3"
                 dependencies.releaseImplementation files(rootProject.ext.findAAR('augustus/libs', 'SDL3'), rootProject.ext.findAAR('augustus/libs', 'SDL3_mixer'))
@@ -166,7 +164,6 @@ repositories {
 dependencies {
     if (!rootProject.ext.usingAAR) {
         if (rootProject.ext.findAAR('augustus/libs', 'SDL3') && rootProject.ext.findAAR('augustus/libs', 'SDL3_mixer')) {
-            println 'Using pre-packed SDL3 AAR'
             implementation files(rootProject.ext.findAAR('augustus/libs', 'SDL3'), rootProject.ext.findAAR('augustus/libs', 'SDL3_mixer'))
             rootProject.ext.usingAAR = 3
         } else if (file('libs/SDL2.aar').exists()) {

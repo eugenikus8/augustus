@@ -43,7 +43,7 @@ android {
 
     defaultConfig {
         compileSdk = 37
-        minSdkVersion 21
+        minSdkVersion 23
 
         ndk {
             abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'

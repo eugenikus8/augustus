@@ -1,5 +1,3 @@
-import java.util.regex.Pattern
-
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
@@ -14,13 +12,9 @@ buildscript {
     }
 }
 
+apply from: file('gradle/find-aar.gradle')
+
 ext {
-    findAAR = { dirPath, baseName ->
-        def dir = file(dirPath)
-        if (!dir.exists()) return null
-        def re = ~/^${Pattern.quote(baseName)}(?:-\d+\.\d+\.\d+)?\.aar$/
-        return dir.listFiles()?.find { f -> f.isFile() && f.name ==~ re }
-    }
     usingAAR = 0
     if (findAAR('augustus/libs', 'SDL3') && findAAR('augustus/libs', 'SDL3_mixer')) {
         usingAAR = 3
