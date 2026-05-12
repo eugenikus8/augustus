@@ -62,7 +62,7 @@ static const figure_phrase_data FIGURE_PHRASE_DATA[FIGURE_SOUND_MAX] = {
     [FIGURE_SOUND_IMMIGRANT] = { "immigrant", 3 },
     [FIGURE_SOUND_ENEMY] = { "enemy" },
     [FIGURE_SOUND_MISSIONARY] = { "missionary", 4 },
-    [FIGURE_SOUND_GRANARY_BOY] = { "granary_boy" },
+    [FIGURE_SOUND_GRANARY_BOY] = { "granboy", 3 },
     [FIGURE_SOUND_OX_CART_PUSHER] = { .total_phrases = 1, .phrases = (const char *[]) { "Ox" } },
     [FIGURE_SOUND_DOG] = { .total_phrases = 1, .phrases = (const char *[]) { "Dog_Bark" } }
 };
