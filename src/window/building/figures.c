@@ -447,7 +447,7 @@ static void draw_cartpusher(building_info_context *c, figure *f)
             c->x_offset + 118 + width, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_MASK_NONE);
     }
 
-    int phrase_height = lang_text_draw_multiline(130, 21 * c->figure.sound_id + c->figure.phrase_id + 1,
+    int phrase_height = lang_text_draw_multiline(130, 21 * (c->figure.sound_id - 1) + c->figure.phrase_id + 1,
         c->x_offset + 90, c->y_offset + 160, BLOCK_SIZE * (c->width_blocks - 8), FONT_NORMAL_BROWN);
 
     if (!f->building_id) {
@@ -593,7 +593,7 @@ static void draw_supplier(building_info_context *c, figure *f)
         }
     }
     if (c->figure.phrase_id >= 0) {
-        lang_text_draw_multiline(130, 21 * c->figure.sound_id + c->figure.phrase_id + 1,
+        lang_text_draw_multiline(130, 21 * (c->figure.sound_id - 1) + c->figure.phrase_id + 1,
             c->x_offset + 90, c->y_offset + 160, 16 * (c->width_blocks - 8), FONT_NORMAL_BROWN);
     }
 }
@@ -620,7 +620,7 @@ static void draw_monument_worker(building_info_context *c, figure *f)
             c->x_offset + 90 + width, c->y_offset + 135, COLOR_MASK_NONE, SCALE_NONE);
     }
     if (c->figure.phrase_id >= 0) {
-        lang_text_draw_multiline(130, 21 * c->figure.sound_id + c->figure.phrase_id + 1,
+        lang_text_draw_multiline(130, 21 * (c->figure.sound_id - 1) + c->figure.phrase_id + 1,
             c->x_offset + 90, c->y_offset + 160, BLOCK_SIZE * (c->width_blocks - 8), FONT_NORMAL_BROWN);
     }
 
@@ -644,12 +644,12 @@ static void draw_normal_figure(building_info_context *c, figure *f)
     }
 
     if (c->figure.phrase_id >= 0) {
-        lang_text_draw_multiline(130, 21 * c->figure.sound_id + c->figure.phrase_id + 1,
+        lang_text_draw_multiline(130, 21 * (c->figure.sound_id - 1) + c->figure.phrase_id + 1,
             c->x_offset + 90, c->y_offset + 160, BLOCK_SIZE * (c->width_blocks - 8), FONT_NORMAL_BROWN);
     }
 
     if (c->figure.phrase_id >= 0) {
-        lang_text_draw_multiline(130, 21 * c->figure.sound_id + c->figure.phrase_id + 1,
+        lang_text_draw_multiline(130, 21 * (c->figure.sound_id - 1) + c->figure.phrase_id + 1,
             c->x_offset + 90, c->y_offset + 160, 16 * (c->width_blocks - 8), FONT_NORMAL_BROWN);
     }
     if (f->tourist.tourist_money_spent) {
