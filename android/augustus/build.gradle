@@ -14,34 +14,27 @@ tasks.register('getVersion') {
         versionDetail = ""
     } else {
         try {
-            def stdout = new ByteArrayOutputStream()
-            def stderr = new ByteArrayOutputStream()
-
-            def tweakResult = exec {
+            def tweakExec = providers.exec {
                 commandLine "git", "rev-list", "--count", "HEAD", "^tags/v${versionMajor}.${versionMinor}.${versionPatch}"
-                workingDir = "../.."
-                standardOutput = stdout
-                errorOutput = stderr
+                workingDir = file("../..")
                 ignoreExitValue = true
-            }.exitValue
+            }
+            def tweakResult = tweakExec.result.get().exitValue
+            versionTweak = tweakExec.standardOutput.asText.get().trim().toInteger()
 
-            versionTweak = stdout.toString().trim().toInteger()
-            stdout.reset()
-
-            def lastCommitResult = exec {
+            def commitExec = providers.exec {
                 commandLine "git", "rev-parse", "--short", "--verify", "HEAD"
-                workingDir "../.."
-                standardOutput = stdout
-                errorOutput = stderr
+                workingDir = file("../..")
                 ignoreExitValue = true
-            }.exitValue
-            def versionCommit = stdout.toString().trim()
+            }
+            def lastCommitResult = commitExec.result.get().exitValue
+            def versionCommit = commitExec.standardOutput.asText.get().trim()
 
-            def isDirty = exec {
+            def isDirty = providers.exec {
                 commandLine "git", "diff-index", "--quiet", "HEAD", "--"
-                workingDir "../.."
+                workingDir = file("../..")
                 ignoreExitValue = true
-            }.exitValue
+            }.result.get().exitValue
 
             versionDetail = ""
             if (tweakResult == 0) {
