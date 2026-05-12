@@ -2084,6 +2084,8 @@ static translation_string all_strings[] = {
     {TR_WINDOW_ADVISOR_EPITHETS_TOOLTIP_PANTHEON, "Дары Пантеона"},
     {TR_FIGURE_TYPE_PLEBIAN, "Плебей"},
     {TR_CONFIG_GP_CH_HOUSING_DO_NOT_SPAWN_PLEBIANS, "Дома не создают бесцельно блуждающих плебеев"},
+    {TR_FIGURE_TYPE_DOG, "Собака"},
+    {TR_CONFIG_GP_CH_HOUSING_DO_NOT_SPAWN_DOGS, "Дома не создают блуждающих собак"},
     {TR_BUILDING_DEPOTS, "Станции повозок"},
     {TR_DESTRIBUTION_SOURCE, "используют как источник: "},
     {TR_DESTRIBUTION_DESTINATION, "используют как назначение: "},
