@@ -416,6 +416,14 @@ static int dog_phrase(figure *f)
     return 0;
 }
 
+static int dog_phrase(figure *f)
+{
+    if (++f->phrase_sequence_exact >= 1) {
+        f->phrase_sequence_exact = 0;
+    }
+    return 7 + f->phrase_sequence_exact;
+}
+
 static int homeless_phrase(figure *f)
 {
     if (++f->phrase_sequence_exact >= 2) {
