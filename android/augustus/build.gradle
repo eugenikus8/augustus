@@ -65,21 +65,21 @@ tasks.register('getVersion') {
 }
 
 android {
-    compileSdk 36
-    ndkVersion "28.1.13356709"
+    compileSdk = 37
+    ndkVersion = "29.0.14206865"
 
     defaultConfig {
-        compileSdk 35
+        compileSdk = 37
         applicationId "com.github.Keriew.augustus"
         minSdkVersion 21
-        targetSdkVersion 36
+        targetSdkVersion 37
 
         versionName getVersion.versionName
         versionCode getVersion.versionCode
 
         externalNativeBuild {
             cmake {
-                version "3.31.5"
+                version = "4.1.2"
                 arguments "-DAV1_VIDEO_SUPPORT=ON", "-DTARGET_PLATFORM=android", "-DANDROID_STL=c++_shared"
             }
         }
@@ -98,7 +98,7 @@ android {
         }
     }
     buildFeatures {
-        prefab true
+        prefab = true
     }
     signingConfigs {
         release {
@@ -130,8 +130,8 @@ android {
         }
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig = signingConfigs.release
             if (rootProject.ext.findAAR('augustus/libs', 'SDL3') && rootProject.ext.findAAR('augustus/libs', 'SDL3_mixer')) {
                 println 'Using pre-packed SDL3 AAR'
                 rootProject.ext.usingAAR = 3
@@ -147,11 +147,11 @@ android {
     }
     externalNativeBuild {
         cmake {
-            version "3.31.5"
+            version = "4.1.2"
             path "../../CMakeLists.txt"
         }
     }
-    namespace 'com.github.Keriew.augustus'
+    namespace = 'com.github.Keriew.augustus'
 }
 
 /** play {
@@ -179,5 +179,5 @@ dependencies {
             rootProject.ext.usingAAR = 0
         }
     }
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
 }
