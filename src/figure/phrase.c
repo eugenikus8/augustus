@@ -61,7 +61,7 @@ static const figure_phrase_data FIGURE_PHRASE_DATA[FIGURE_SOUND_MAX] = {
     [FIGURE_SOUND_EMIGRANT] = { "emigrate", 4 },
     [FIGURE_SOUND_IMMIGRANT] = { "immigrant", 3 },
     [FIGURE_SOUND_ENEMY] = { "enemy" },
-    [FIGURE_SOUND_MISSIONARY] = { "missionary", 3 },
+    [FIGURE_SOUND_MISSIONARY] = { "missionary", 4 },
     [FIGURE_SOUND_GRANARY_BOY] = { "granary_boy" },
     [FIGURE_SOUND_OX_CART_PUSHER] = { .total_phrases = 1, .phrases = (const char *[]) { "Ox" } },
     [FIGURE_SOUND_DOG] = { .total_phrases = 1, .phrases = (const char *[]) { "Dog_Bark" } }
@@ -96,7 +96,8 @@ static const char *generate_sound_file(figure_sound_types sound_id, int phrase_i
     if ((unsigned int) phrase_id >= phrase_data->total_phrases) {
         return 0;
     }
-    snprintf(filename, FILE_NAME_MAX, "wavs/%s_exact%u.wav", phrase_data->name, phrase_id + 1);
+    const char *name = (sound_id == FIGURE_SOUND_MISSIONARY && phrase_id == 3) ? "mission" : phrase_data->name;
+    snprintf(filename, FILE_NAME_MAX, "wavs/%s_exact%u.wav", name, phrase_id + 1);
     return filename;
 }
 
