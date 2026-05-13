@@ -68,8 +68,9 @@ static struct {
     } fps;
     struct {
         FILE *file;
-        char messages[MAX_STORED_LOG_MESSAGES][LOG_TEXT_SIZE];
+        char (*messages)[LOG_TEXT_SIZE];
         unsigned int total;
+        unsigned int size;
     } log;
 } data = { 1 };
 
@@ -81,7 +82,15 @@ static void write_to_output(FILE *output, const char *message)
 
 static void write_to_buffer(const char *message)
 {
-    snprintf(data.log.messages[data.log.total % MAX_STORED_LOG_MESSAGES], LOG_TEXT_SIZE, "%s", message);
+    if (data.log.total == data.log.size) {
+        data.log.size += MAX_STORED_LOG_MESSAGES;
+        char (*new_messages)[LOG_TEXT_SIZE] = realloc(data.log.messages, sizeof(char) * LOG_TEXT_SIZE * data.log.size);
+        if (!new_messages) {
+            return;
+        }
+        data.log.messages = new_messages;
+    }
+    snprintf(data.log.messages[data.log.total], LOG_TEXT_SIZE, "%s", message);
     data.log.total++;
 }
 
@@ -113,14 +122,14 @@ static void write_messages_in_buffer(void)
         return;
     }
 
-    unsigned int start_index = data.log.total > MAX_STORED_LOG_MESSAGES ?
-        data.log.total % MAX_STORED_LOG_MESSAGES : 0;
-    unsigned int total = data.log.total > MAX_STORED_LOG_MESSAGES ? MAX_STORED_LOG_MESSAGES : data.log.total;
-    for (unsigned int i = 0; i < total; i++) {
-        write_to_output(data.log.file, data.log.messages[(i + start_index) % MAX_STORED_LOG_MESSAGES]);
+    for (unsigned int i = 0; i < data.log.total; i++) {
+        write_to_output(data.log.file, data.log.messages[i]);
     }
 
     data.log.total = 0;
+    free(data.log.messages);
+    data.log.messages = 0;
+    data.log.size = 0;
 }
 
 static void backup_log(const char *filename, const char *filename_old)
