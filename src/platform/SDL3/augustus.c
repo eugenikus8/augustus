@@ -43,6 +43,8 @@
 #endif
 
 #define INTPTR(d) (*(int*)(d))
+#define MAX_STORED_LOG_MESSAGES 10
+#define LOG_TEXT_SIZE 300
 
 enum {
     USER_EVENT_QUIT,
@@ -61,13 +63,32 @@ static struct {
         int last_fps;
         Uint32 last_update_time;
     } fps;
-    FILE *log_file;
+    struct {
+        FILE *file;
+        char (*messages)[LOG_TEXT_SIZE];
+        unsigned int total;
+        unsigned int size;
+    } log;
 } data = { 1 };
 
 static void write_to_output(FILE *output, const char *message)
 {
     fwrite(message, sizeof(char), strlen(message), output);
     fflush(output);
+}
+
+static void write_to_buffer(const char *message)
+{
+    if (data.log.total == data.log.size) {
+        data.log.size += MAX_STORED_LOG_MESSAGES;
+        char (*new_messages)[LOG_TEXT_SIZE] = realloc(data.log.messages, sizeof(char) * LOG_TEXT_SIZE * data.log.size);
+        if (!new_messages) {
+            return;
+        }
+        data.log.messages = new_messages;
+    }
+    snprintf(data.log.messages[data.log.total], LOG_TEXT_SIZE, "%s", message);
+    data.log.total++;
 }
 
 #ifdef __IOS__
@@ -77,10 +98,12 @@ static void setup(const augustus_args *args);
 
 static void write_log(void *userdata, int category, SDL_LogPriority priority, const char *message)
 {
-    char log_text[300] = { 0 };
-    snprintf(log_text, 300, "%s %s\n", priority == SDL_LOG_PRIORITY_ERROR ? "ERROR: " : "INFO: ", message);
-    if (data.log_file) {
-        write_to_output(data.log_file, log_text);
+    char log_text[LOG_TEXT_SIZE] = { 0 };
+    snprintf(log_text, LOG_TEXT_SIZE, "%s %s\n", priority == SDL_LOG_PRIORITY_ERROR ? "ERROR: " : "INFO: ", message);
+    if (data.log.file) {
+        write_to_output(data.log.file, log_text);
+    } else {
+        write_to_buffer(log_text);
     }
     // On Windows MSVC, we can at least get output to the debug window
 #if defined(_MSC_VER) && !defined(NDEBUG)
@@ -88,6 +111,22 @@ static void write_log(void *userdata, int category, SDL_LogPriority priority, co
 #else
     write_to_output(stdout, log_text);
 #endif
+}
+
+static void write_messages_in_buffer(void)
+{
+    if (!data.log.file) {
+        return;
+    }
+
+    for (unsigned int i = 0; i < data.log.total; i++) {
+        write_to_output(data.log.file, data.log.messages[i]);
+    }
+
+    data.log.total = 0;
+    free(data.log.messages);
+    data.log.messages = 0;
+    data.log.size = 0;
 }
 
 static void backup_log(const char *filename, const char *filename_old)
@@ -110,16 +149,18 @@ static void setup_logging(void)
 
     // On some platforms (vita, android), not removing the file will not empty it when reopening for writing
     file_remove(log_file);
-    data.log_file = file_open(log_file, "wt");
+    data.log.file = file_open(log_file, "wt");
     SDL_SetLogOutputFunction(write_log, NULL);
+
+    write_messages_in_buffer();
 }
 
 static void teardown_logging(void)
 {
     log_repeated_messages();
 
-    if (data.log_file) {
-        file_close(data.log_file);
+    if (data.log.file) {
+        file_close(data.log.file);
     }
 }
 
@@ -735,10 +776,8 @@ static void setup(const augustus_args *args)
     system_setup_crash_handler();
     setup_logging();
 
-    if (data.log_file) {
-        SDL_Log("Augustus version %s, %s build", system_version(), system_architecture());
-        SDL_Log("Running on: %s", system_OS());
-    }
+    SDL_Log("Augustus version %s, %s build", system_version(), system_architecture());
+    SDL_Log("Running on: %s", system_OS());
 
     if (!init_sdl(args->enable_joysticks)) {
         SDL_Log("Exiting: SDL init failed");
@@ -758,14 +797,8 @@ static void setup(const augustus_args *args)
 
     // If starting the log file failed (because, for example, the executable path isn't writable)
     // try again, placing the log file on the C3 path
-    if (!data.log_file) {
+    if (!data.log.file) {
         setup_logging();
-        // We always want this info
-        SDL_Log("Augustus version %s, %s build", system_version(), system_architecture());
-        SDL_Log("Running on: %s", system_OS());
-        int version = SDL_GetVersion();
-        SDL_Log("SDL initialized, version %u.%u.%u",
-            SDL_VERSIONNUM_MAJOR(version), SDL_VERSIONNUM_MINOR(version), SDL_VERSIONNUM_MICRO(version));
     }
 
     if (args->force_windowed && setting_fullscreen()) {
