@@ -1003,17 +1003,8 @@ static void get_depot_resource_orders_count(int building_id, resource_type resou
     int max_buildings = building_count();
     for (int i = 1; i < max_buildings; i++) {
         building *b = building_get(i);
-        if (!b) {
-            continue;
-        }
-        if (b->state == BUILDING_STATE_UNUSED) {
-            continue;
-        }
-        if (b->type != BUILDING_DEPOT) {
-            continue;
-        }
-        order *o = &b->data.depot.current_order;
-        if (o->resource_type != resource) {
+        if (!b || b->state == BUILDING_STATE_UNUSED || b->type != BUILDING_DEPOT ||
+            b->data.depot.current_order.resource_type != resource) {
             continue;
         }
         if (o->src_storage_id == building_id) {
