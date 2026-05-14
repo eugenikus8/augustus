@@ -234,6 +234,9 @@ static void set_default_controller_mapping(joystick_model *model, SDL_Gamepad *g
         mapping_element *action = &model->mapping[model->num_mappings];
         action->action = mapping->action;
         for (int j = 0; j < JOYSTICK_MAPPING_ELEMENTS_MAX; j++) {
+            if (!binds[j]) {
+                continue;
+            }
             switch (binds[j]->input_type) {
                 case SDL_GAMEPAD_BINDTYPE_AXIS:
                     action->element[j].type = JOYSTICK_ELEMENT_AXIS;
