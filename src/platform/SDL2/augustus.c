@@ -22,6 +22,7 @@
 #include "platform/ios/ios.h"
 #include "platform/joystick.h"
 #include "platform/keyboard_input.h"
+#include "platform/log.h"
 #include "platform/platform.h"
 #include "platform/prefs.h"
 #include "platform/renderer.h"
@@ -64,67 +65,12 @@ static struct {
         int last_fps;
         Uint32 last_update_time;
     } fps;
-    FILE *log_file;
 } data = { 1 };
-
-static void write_to_output(FILE *output, const char *message)
-{
-    fwrite(message, sizeof(char), strlen(message), output);
-    fflush(output);
-}
 
 #ifdef __IOS__
 static augustus_args args;
 static void setup(const augustus_args *args);
 #endif
-
-static void write_log(void *userdata, int category, SDL_LogPriority priority, const char *message)
-{
-    char log_text[300] = { 0 };
-    snprintf(log_text, 300, "%s %s\n", priority == SDL_LOG_PRIORITY_ERROR ? "ERROR: " : "INFO: ", message);
-    if (data.log_file) {
-        write_to_output(data.log_file, log_text);
-    }
-    // On Windows MSVC, we can at least get output to the debug window
-#if defined(_MSC_VER) && !defined(NDEBUG)
-    OutputDebugStringA(log_text);
-#else
-    write_to_output(stdout, log_text);
-#endif
-}
-
-static void backup_log(const char *filename, const char *filename_old)
-{
-    // On some platforms (vita, android), not removing the file will not empty it when reopening for writing
-    file_remove(filename_old);
-    platform_file_manager_copy_file(filename, filename_old);
-}
-
-static void setup_logging(void)
-{
-    const char *filename = "augustus-log.txt";
-    const char *backup_filename = "augustus-log-backup.txt";
-    char log_file[FILE_NAME_MAX];
-    char log_file_old[FILE_NAME_MAX];
-    const char *pref_dir = platform_get_logging_path();
-    snprintf(log_file, FILE_NAME_MAX, "%s%s", pref_dir ? pref_dir : "", filename);
-    snprintf(log_file_old, FILE_NAME_MAX, "%s%s", pref_dir ? pref_dir : "", backup_filename);
-    backup_log(log_file, log_file_old);
-
-    // On some platforms (vita, android), not removing the file will not empty it when reopening for writing
-    file_remove(log_file);
-    data.log_file = file_open(log_file, "wt");
-    SDL_LogSetOutputFunction(write_log, NULL);
-}
-
-static void teardown_logging(void)
-{
-    log_repeated_messages();
-
-    if (data.log_file) {
-        file_close(data.log_file);
-    }
-}
 
 static void post_event(int code)
 {
@@ -445,12 +391,11 @@ static void handle_event(SDL_Event *event)
 
 static void teardown(void)
 {
-    log_repeated_messages();
     SDL_Log("Exiting game");
     game_exit();
     platform_screen_destroy();
+    platform_log_teardown();
     SDL_Quit();
-    teardown_logging();
 
 #ifdef __IOS__
     // iOS apps are not allowed to self-terminate. To avoid being stuck on a blank screen here, we start the game again.
@@ -659,12 +604,10 @@ static int pre_init(const char *custom_data_dir)
 static void setup(const augustus_args *args)
 {
     system_setup_crash_handler();
-    setup_logging();
+    platform_log_setup();
 
-    if (data.log_file) {
-        SDL_Log("Augustus version %s, %s build", system_version(), system_architecture());
-        SDL_Log("Running on: %s", system_OS());
-    }
+    SDL_Log("Augustus version %s, %s build", system_version(), system_architecture());
+    SDL_Log("Running on: %s", system_OS());
 
     if (!init_sdl(args->enable_joysticks)) {
         SDL_Log("Exiting: SDL init failed");
@@ -684,11 +627,8 @@ static void setup(const augustus_args *args)
 
     // If starting the log file failed (because, for example, the executable path isn't writable)
     // try again, placing the log file on the C3 path
-    if (!data.log_file) {
-        setup_logging();
-        // We always want this info
-        SDL_Log("Augustus version %s, %s build", system_version(), system_architecture());
-        SDL_Log("Running on: %s", system_OS());
+    if (!platform_log_is_ready()) {
+        platform_log_setup();
     }
 
     if (args->force_windowed && setting_fullscreen()) {

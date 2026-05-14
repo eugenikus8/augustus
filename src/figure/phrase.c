@@ -96,6 +96,8 @@ static const char *generate_sound_file(figure_sound_types sound_id, int phrase_i
     if ((unsigned int) phrase_id >= phrase_data->total_phrases) {
         return 0;
     }
+    // We need to account for the wrongly named "mission" file for the missionary figure,
+    // which contains the correct phrase and is used in the original game, instead of the expected "missionary_exact4.wav"
     const char *name = (sound_id == FIGURE_SOUND_MISSIONARY && phrase_id == 3) ? "mission" : phrase_data->name;
     snprintf(filename, FILE_NAME_MAX, "wavs/%s_exact%u.wav", name, phrase_id + 1);
     return filename;

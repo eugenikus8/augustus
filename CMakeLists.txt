@@ -249,6 +249,7 @@ set(PLATFORM_FILES
     ${PROJECT_SOURCE_DIR}/src/platform/crash_handler.c
     ${PROJECT_SOURCE_DIR}/src/platform/file_manager.c
     ${PROJECT_SOURCE_DIR}/src/platform/icon.c
+    ${PROJECT_SOURCE_DIR}/src/platform/log.c
     ${PROJECT_SOURCE_DIR}/src/platform/prefs.c
     ${PROJECT_SOURCE_DIR}/src/platform/SDL${SDL_VERSION}/augustus.c
     ${PROJECT_SOURCE_DIR}/src/platform/SDL${SDL_VERSION}/cursor.c
