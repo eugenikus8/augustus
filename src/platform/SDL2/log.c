@@ -1,7 +1,5 @@
 #include "platform/log.h"
 
-#include "core/log.h"
-
 #include "SDL.h"
 
 static void (*write_function)(const char *message, int is_error);
