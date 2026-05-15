@@ -41,7 +41,7 @@ static struct {
 
 static int scale_logical_to_pixels(int logical_value)
 {
-    return (int) (logical_value * scale.percentage / 100 / scale.screen_density);
+    return (int) (logical_value * scale.percentage / 100 * scale.screen_density);
 }
 
 static int scale_pixels_to_logical(int pixel_value)
@@ -387,9 +387,6 @@ void system_show_error_message_box(const char *title, const char *message)
 
 void system_set_mouse_position(int *x, int *y)
 {
-    if (!platform_cursor_has_hardware_cursor() || platform_cursor_is_forced_software_cursor()) {
-        return;
-    }
     *x = calc_bound(*x, 0, screen_width() - 1);
     *y = calc_bound(*y, 0, screen_height() - 1);
     SDL_WarpMouseInWindow(SDL.window, scale_logical_to_pixels(*x), scale_logical_to_pixels(*y));
