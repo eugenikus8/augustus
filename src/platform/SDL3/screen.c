@@ -10,6 +10,7 @@
 #include "graphics/menu.h"
 #include "graphics/screen.h"
 #include "platform/android/android.h"
+#include "platform/cursor.h"
 #include "platform/icon.h"
 #include "platform/renderer.h"
 #include "platform/switch/switch.h"
@@ -226,12 +227,17 @@ int platform_screen_resize(int pixel_width, int pixel_height, int save)
         setting_set_display(setting_fullscreen(), logical_width, logical_height);
     }
 
-    if (platform_renderer_create_render_texture(logical_width, logical_height)) {
-        screen_set_resolution(logical_width, logical_height);
-        return 1;
-    } else {
+    if (!platform_renderer_create_render_texture(logical_width, logical_height)) {
         return 0;
     }
+
+    screen_set_resolution(logical_width, logical_height);
+
+    if (!platform_cursor_has_hardware_cursor()) {
+        mouse_center_cursor();
+    }
+
+    return 1;
 }
 
 int system_scale_display(int display_scale_percentage)
@@ -381,6 +387,9 @@ void system_show_error_message_box(const char *title, const char *message)
 
 void system_set_mouse_position(int *x, int *y)
 {
+    if (!platform_cursor_has_hardware_cursor() || platform_cursor_is_forced_software_cursor()) {
+        return;
+    }
     *x = calc_bound(*x, 0, screen_width() - 1);
     *y = calc_bound(*y, 0, screen_height() - 1);
     SDL_WarpMouseInWindow(SDL.window, scale_logical_to_pixels(*x), scale_logical_to_pixels(*y));
