@@ -661,12 +661,25 @@ static void setup(const augustus_args *args)
     platform_init_callback();
 #endif
 
+// On Android, there is no reliable way to check if there is a mouse connected.
+// To circumvent that and have a cursor available for joystick control,
+// we force the software cursor when there is a joystick connected.
+#ifdef __ANDROID__
+    if (joysticks_are_connected()) {
+#else
     if (args->use_software_cursor) {
+#endif
         platform_cursor_force_software_mode();
     }
 
     // This has to come after platform_screen_create, otherwise it fails on Nintendo Switch
     system_init_cursors(config_get(CONFIG_SCREEN_CURSOR_SCALE));
+
+    // If there's no hardware cursor support and no joysticks, let's assume there are touch controls and hide the cursor,
+    // otherwise it would be annoying to have a cursor permanently on screen with no way to move it
+    if (!platform_cursor_has_hardware_cursor() && !joysticks_are_connected()) {
+        system_hide_cursor();
+    }
 
     time_set_millis(system_get_ticks());
 
