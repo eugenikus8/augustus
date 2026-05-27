@@ -421,6 +421,18 @@ static int cartpusher_returning_empty(figure *f)
     }
 }
 
+static int draw_building_label(building *b, int x, int y)
+{
+    if (!b) {
+        return 0;
+    }
+    int width = lang_text_draw(41, b->type, x, y, FONT_NORMAL_BROWN);
+    if (b->storage_id) {
+        width += text_draw_number(b->storage_id, 0, "", x + width, y, FONT_NORMAL_BROWN, COLOR_MASK_NONE);
+    }
+    return width;
+}
+
 static void draw_cartpusher(building_info_context *c, figure *f)
 {
     if (building_get(f->building_id)->type == BUILDING_ARMOURY) {
@@ -456,6 +468,16 @@ static void draw_cartpusher(building_info_context *c, figure *f)
     building *source_building = building_get(f->building_id);
     building *target_building = building_get(f->destination_building_id);
     building *last_destination_building = building_get(f->last_destinatation_id);
+
+    building *from = source_building;
+    building *to = target_building;
+
+    int reverse_direction = source_building->type == BUILDING_WAREHOUSE || source_building->type == BUILDING_GRANARY;
+    if (reverse_direction) {
+        from = target_building;
+        to = source_building;
+    }
+
     int is_returning = 0;
     switch (f->action_state) {
         case FIGURE_ACTION_27_CARTPUSHER_RETURNING:
@@ -477,31 +499,30 @@ static void draw_cartpusher(building_info_context *c, figure *f)
 
         if (f->action_state == FIGURE_ACTION_234_CARTPUSHER_GOING_TO_ROME_CREATED
             || f->action_state == FIGURE_ACTION_235_CARTPUSHER_GOING_TO_ROME) {
-            text_draw(translation_for(TR_FIGURES_CARTPUSHER_GOING_TO_ROME), x_base, y_base, FONT_NORMAL_BROWN, 0);
+            text_draw(translation_for(TR_FIGURES_CARTPUSHER_GOING_TO_ROME),
+                x_base, y_base, FONT_NORMAL_BROWN, 0);
         } else {
             if (is_returning) {
-                width = lang_text_draw(129, 16, x_base, y_base, FONT_NORMAL_BROWN); //returning to
-                width += lang_text_draw(41, source_building->type, x_base + width, y_base, FONT_NORMAL_BROWN); //type
-                if (source_building->storage_id) {
-                    width += text_draw_number(source_building->storage_id, 0, "", x_base + width, y_base, FONT_NORMAL_BROWN, COLOR_MASK_NONE); //from number
-                }
-                width += lang_text_draw(129, 14, x_base + width, y_base, FONT_NORMAL_BROWN);
-                if (last_destination_building) {
-                    width += lang_text_draw(41, last_destination_building->type, x_base + width, y_base, FONT_NORMAL_BROWN);
-                    if (last_destination_building->storage_id) {
-                        width += text_draw_number(last_destination_building->storage_id, 0, "", x_base + width, y_base, FONT_NORMAL_BROWN, COLOR_MASK_NONE); //from number
-                    }
+                building *return_from = reverse_direction ? from : last_destination_building;
+                building *return_to = source_building;
+
+                width = lang_text_draw(129, 16, x_base, y_base, FONT_NORMAL_BROWN); //Returning to
+                width += draw_building_label(return_to, x_base + width, y_base);
+
+                width += lang_text_draw(129, 14, x_base + width, y_base, FONT_NORMAL_BROWN); //from
+                if (return_from) {
+                    width += draw_building_label(return_from, x_base + width, y_base);
                 }
             } else {
-                width = lang_text_draw(129, 15, x_base, y_base, FONT_NORMAL_BROWN); //going to
-                width += lang_text_draw(41, target_building->type, x_base + width, y_base, FONT_NORMAL_BROWN);
-                if (target_building->storage_id) {
-                    width += text_draw_number(target_building->storage_id, 0, "", x_base + width, y_base, FONT_NORMAL_BROWN, COLOR_MASK_NONE); //from number
-                }
-                width += lang_text_draw(129, 14, x_base + width, y_base, FONT_NORMAL_BROWN); //from 
-                width += lang_text_draw(41, source_building->type, x_base + width, y_base, FONT_NORMAL_BROWN);
-                if (source_building->storage_id) {
-                    width += text_draw_number(source_building->storage_id, 0, "", x_base + width, y_base, FONT_NORMAL_BROWN, COLOR_MASK_NONE); //from number
+                width = lang_text_draw(129, 15, x_base, y_base, FONT_NORMAL_BROWN); //Going to
+                width += draw_building_label(to, x_base + width, y_base);
+
+                width += lang_text_draw(129, 14, x_base + width, y_base, FONT_NORMAL_BROWN); //from
+                width += draw_building_label(from, x_base + width, y_base);
+
+                if (f->collecting_item_id != RESOURCE_NONE) {
+                    image_draw(resource_get_data(f->collecting_item_id)->image.icon,
+                        x_base + width + 4, y_base - 5, COLOR_MASK_NONE, SCALE_NONE);
                 }
             }
         }

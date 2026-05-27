@@ -904,10 +904,6 @@ void figure_warehouseman_action(figure *f)
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
                 f->state = FIGURE_STATE_DEAD;
-            } else if (f->wait_ticks++ > FIGURE_REROUTE_DESTINATION_TICKS) {
-                f->action_state = FIGURE_ACTION_233_WAREHOUSEMAN_RECONSIDER_TARGET;
-                figure_warehouseman_action(f);
-                return;
             }
             break;
         case FIGURE_ACTION_55_WAREHOUSEMAN_AT_GRANARY:
@@ -958,10 +954,6 @@ void figure_warehouseman_action(figure *f)
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
                 f->state = FIGURE_STATE_DEAD;
-            } else if (f->wait_ticks++ > FIGURE_REROUTE_DESTINATION_TICKS) {
-                f->action_state = FIGURE_ACTION_233_WAREHOUSEMAN_RECONSIDER_TARGET;
-                figure_warehouseman_action(f);
-                return;
             }
             break;
         case FIGURE_ACTION_58_WAREHOUSEMAN_AT_WAREHOUSE:
