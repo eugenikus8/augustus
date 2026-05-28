@@ -437,20 +437,27 @@ static void draw_cartpusher(building_info_context *c, figure *f)
     }
 
     if (f->collecting_item_id != RESOURCE_NONE) {
-        width += lang_text_draw(129, 17, c->x_offset + 92 + width, c->y_offset + 139, FONT_NORMAL_BROWN); //Collecting
-        image_draw(resource_get_data(f->collecting_item_id)->image.icon,
-            c->x_offset + 92 + width, c->y_offset + 135, COLOR_MASK_NONE, SCALE_NONE);
+        if (f->resource_id != RESOURCE_NONE) {
+            width += lang_text_draw(129, 18, c->x_offset + 92 + width, c->y_offset + 139, FONT_NORMAL_BROWN); //Returning with
+        } else {
+            width += lang_text_draw(129, 17, c->x_offset + 92 + width, c->y_offset + 139, FONT_NORMAL_BROWN); //Collecting
+        }
     }
 
-    if (f->resource_id != RESOURCE_NONE) {
-        image_draw(resource_get_data(f->resource_id)->image.icon,
-            c->x_offset + 92 + width, c->y_offset + 135, COLOR_MASK_NONE, SCALE_NONE);
+    int ICON_SLOT = 24;
+    if (f->collecting_item_id != RESOURCE_NONE || f->resource_id != RESOURCE_NONE) {
+        int res_id = (f->collecting_item_id != RESOURCE_NONE) ? f->collecting_item_id : f->resource_id;
+        const image *img = image_get(resource_get_data(res_id)->image.icon);
+        int icon_x = (ICON_SLOT - img->original.width) / 2;
+        int icon_y = (ICON_SLOT - img->original.height) / 2;
+        image_draw(resource_get_data(res_id)->image.icon,
+            c->x_offset + 92 + width + icon_x, c->y_offset + 133 + icon_y, COLOR_MASK_NONE, SCALE_NONE);
+        width += ICON_SLOT;
     }
 
-    if (f->loads_sold_or_carrying > 0 && f->resource_id != RESOURCE_NONE &&
-        !cartpusher_returning_empty(f)) {
-        text_draw_number(f->loads_sold_or_carrying, 'x', "",
-            c->x_offset + 118 + width, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_MASK_NONE);
+    if (f->loads_sold_or_carrying > 0 && f->resource_id != RESOURCE_NONE && !cartpusher_returning_empty(f)) {
+        width += text_draw_number(f->loads_sold_or_carrying, 'x', "",
+            c->x_offset + 92 + width, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_MASK_NONE);
     }
 
     int phrase_height = lang_text_draw_multiline(130, 21 * (c->figure.sound_id - 1) + c->figure.phrase_id + 1,
