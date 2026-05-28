@@ -421,18 +421,6 @@ static int cartpusher_returning_empty(figure *f)
     }
 }
 
-static int draw_building_label(building *b, int x, int y)
-{
-    if (!b) {
-        return 0;
-    }
-    int width = lang_text_draw(41, b->type, x, y, FONT_NORMAL_BROWN);
-    if (b->storage_id) {
-        width += text_draw_number(b->storage_id, 0, "", x + width, y, FONT_NORMAL_BROWN, COLOR_MASK_NONE);
-    }
-    return width;
-}
-
 static void draw_cartpusher(building_info_context *c, figure *f)
 {
     if (building_get(f->building_id)->type == BUILDING_ARMOURY) {
@@ -446,6 +434,12 @@ static void draw_cartpusher(building_info_context *c, figure *f)
         width = text_draw(translation_for(TR_FIGURE_TYPE_ARMORY_CARTPUSHER), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, 0);
     } else {
         width = lang_text_draw(64, f->type, c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN);
+    }
+
+    if (f->collecting_item_id != RESOURCE_NONE) {
+        width += lang_text_draw(129, 17, c->x_offset + 92 + width, c->y_offset + 139, FONT_NORMAL_BROWN); //Collecting
+        image_draw(resource_get_data(f->collecting_item_id)->image.icon,
+            c->x_offset + 92 + width, c->y_offset + 135, COLOR_MASK_NONE, SCALE_NONE);
     }
 
     if (f->resource_id != RESOURCE_NONE) {
@@ -469,15 +463,6 @@ static void draw_cartpusher(building_info_context *c, figure *f)
     building *target_building = building_get(f->destination_building_id);
     building *last_destination_building = building_get(f->last_destinatation_id);
 
-    building *from = source_building;
-    building *to = target_building;
-
-    int reverse_direction = source_building->type == BUILDING_WAREHOUSE || source_building->type == BUILDING_GRANARY;
-    if (reverse_direction) {
-        from = target_building;
-        to = source_building;
-    }
-
     int is_returning = 0;
     switch (f->action_state) {
         case FIGURE_ACTION_27_CARTPUSHER_RETURNING:
@@ -490,6 +475,17 @@ static void draw_cartpusher(building_info_context *c, figure *f)
             is_returning = 1;
             break;
     }
+
+    int is_getting = 0;
+    switch (f->action_state) {
+        case FIGURE_ACTION_54_WAREHOUSEMAN_GETTING_FOOD:
+        case FIGURE_ACTION_57_WAREHOUSEMAN_GETTING_RESOURCE:
+        case FIGURE_ACTION_56_WAREHOUSEMAN_RETURNING_WITH_FOOD:
+        case FIGURE_ACTION_59_WAREHOUSEMAN_RETURNING_WITH_RESOURCE:
+            is_getting = 1;
+            break;
+    }
+
     if (f->action_state != FIGURE_ACTION_132_DOCKER_IDLING) {
         int x_base = c->x_offset + 40;
         int y_base = c->y_offset + 216;
@@ -499,30 +495,43 @@ static void draw_cartpusher(building_info_context *c, figure *f)
 
         if (f->action_state == FIGURE_ACTION_234_CARTPUSHER_GOING_TO_ROME_CREATED
             || f->action_state == FIGURE_ACTION_235_CARTPUSHER_GOING_TO_ROME) {
-            text_draw(translation_for(TR_FIGURES_CARTPUSHER_GOING_TO_ROME),
-                x_base, y_base, FONT_NORMAL_BROWN, 0);
+            text_draw(translation_for(TR_FIGURES_CARTPUSHER_GOING_TO_ROME), x_base, y_base, FONT_NORMAL_BROWN, 0);
         } else {
+            building *to_building = 0;
+            building *from_building = 0;
+
             if (is_returning) {
-                building *return_from = reverse_direction ? from : last_destination_building;
-                building *return_to = source_building;
-
-                width = lang_text_draw(129, 16, x_base, y_base, FONT_NORMAL_BROWN); //Returning to
-                width += draw_building_label(return_to, x_base + width, y_base);
-
-                width += lang_text_draw(129, 14, x_base + width, y_base, FONT_NORMAL_BROWN); //from
-                if (return_from) {
-                    width += draw_building_label(return_from, x_base + width, y_base);
+                width = lang_text_draw(129, 16, x_base, y_base, FONT_NORMAL_BROWN); //returning to
+                to_building = source_building;
+                if (is_getting) {
+                    from_building = target_building;
+                } else {
+                    from_building = last_destination_building;
                 }
             } else {
-                width = lang_text_draw(129, 15, x_base, y_base, FONT_NORMAL_BROWN); //Going to
-                width += draw_building_label(to, x_base + width, y_base);
+                width = lang_text_draw(129, 15, x_base, y_base, FONT_NORMAL_BROWN); //going to
+                if (is_getting) {
+                    to_building = source_building;
+                    from_building = target_building;
+                } else {
+                    to_building = target_building;
+                    from_building = source_building;
+                }
+            }
 
-                width += lang_text_draw(129, 14, x_base + width, y_base, FONT_NORMAL_BROWN); //from
-                width += draw_building_label(from, x_base + width, y_base);
-
-                if (f->collecting_item_id != RESOURCE_NONE) {
-                    image_draw(resource_get_data(f->collecting_item_id)->image.icon,
-                        x_base + width + 4, y_base - 5, COLOR_MASK_NONE, SCALE_NONE);
+            if (to_building) {
+                width += lang_text_draw(41, to_building->type, x_base + width, y_base, FONT_NORMAL_BROWN);
+                if (to_building->storage_id) {
+                    width += text_draw_number(to_building->storage_id, 0, "",
+                        x_base + width, y_base, FONT_NORMAL_BROWN, COLOR_MASK_NONE);
+                }
+            }
+            width += lang_text_draw(129, 14, x_base + width, y_base, FONT_NORMAL_BROWN); //from
+            if (from_building) {
+                width += lang_text_draw(41, from_building->type, x_base + width, y_base, FONT_NORMAL_BROWN);
+                if (from_building->storage_id) {
+                    width += text_draw_number(from_building->storage_id, 0, "",
+                        x_base + width, y_base, FONT_NORMAL_BROWN, COLOR_MASK_NONE);
                 }
             }
         }
