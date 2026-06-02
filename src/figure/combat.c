@@ -460,7 +460,8 @@ void figure_combat_attack_figure_at(figure *f, int grid_offset)
             attack = 1;
         } else if (category & FIGURE_CATEGORY_HOSTILE && opponent_category & FIGURE_CATEGORY_CITIZEN) {
             attack = 1;
-        } else if (category & FIGURE_CATEGORY_HOSTILE && opponent_category & FIGURE_CATEGORY_CRIMINAL) {
+        } else if (category & FIGURE_CATEGORY_HOSTILE && !(category & FIGURE_CATEGORY_CRIMINAL) &&
+            opponent_category & FIGURE_CATEGORY_CRIMINAL) {
             attack = 1;
         } else if (category & FIGURE_CATEGORY_AGGRESSIVE_ANIMAL && opponent_category & FIGURE_CATEGORY_CITIZEN) {
             attack = 1;
