@@ -451,6 +451,12 @@ int text_draw_number(int value, char prefix, const char *postfix, int x, int y, 
     return text_draw_number_scaled(value, prefix, ascii_postfix, x, y, font, color, SCALE_NONE);
 }
 
+int text_draw_number_right_aligned( int value, char prefix, const char *postfix, int right_x, int y, font_t font, color_t color)
+{
+    int width = text_get_number_width(value, prefix, postfix, font);
+    return text_draw_number(value, prefix, postfix, right_x - width, y, font, color);
+}
+
 void text_draw_number_finances(int value, int x, int y, font_t font, color_t color)
 {
     const font_definition *def = font_definition_for(font);
