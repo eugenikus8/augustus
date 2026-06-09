@@ -3,7 +3,9 @@
 #include "assets/assets.h"
 #include "building/distribution.h"
 #include "building/industry.h"
+#include "building/properties.h"
 #include "core/config.h"
+#include "core/string.h"
 #include "figure/properties.h"
 #include "game/state.h"
 #include "graphics/image.h"
@@ -17,6 +19,8 @@
 #include "widget/city/draw.h"
 #include "widget/city/highway.h"
 
+#define TOOLTIP_WITH_PREFIX_MAX_LENGTH 128
+
 enum crime_level {
     NO_CRIME = 0,
     MINOR_CRIME = 1,
@@ -26,6 +30,20 @@ enum crime_level {
     LARGE_CRIME = 5,
     RAMPANT_CRIME = 6,
 };
+
+static const uint8_t *health_prefix_to_tooltip_text(int current, int max, const uint8_t *message)
+{
+    static uint8_t text[TOOLTIP_WITH_PREFIX_MAX_LENGTH];
+    uint8_t *cursor = text;
+    cursor += string_from_int(cursor, current, 0);
+    cursor = string_copy(string_from_ascii("/"), cursor, TOOLTIP_WITH_PREFIX_MAX_LENGTH - (cursor - text));
+    cursor += string_from_int(cursor, max, 0);
+    if (message) {
+        cursor = string_copy(string_from_ascii(" - "), cursor, TOOLTIP_WITH_PREFIX_MAX_LENGTH - (cursor - text));
+        string_copy(message, cursor, TOOLTIP_WITH_PREFIX_MAX_LENGTH - (cursor - text));
+    }
+    return text;
+}
 
 static int is_problem_cartpusher(int figure_id)
 {
@@ -232,6 +250,9 @@ static int get_column_height_crime(const building *b)
 
 static int get_tooltip_fire(tooltip_context *c, int grid_offset)
 {
+    if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
+        return 0;
+    }
     building *b = building_get(map_building_at(grid_offset));
     if (b->fire_risk <= 0) {
         return 46;
@@ -250,24 +271,45 @@ static int get_tooltip_fire(tooltip_context *c, int grid_offset)
 
 static int get_tooltip_damage(tooltip_context *c, int grid_offset)
 {
-    building *b = building_get(map_building_at(grid_offset));
-    if (b->damage_risk <= 0) {
-        return 52;
-    } else if (b->damage_risk <= 40) {
-        return 53;
-    } else if (b->damage_risk <= 80) {
-        return 54;
-    } else if (b->damage_risk <= 120) {
-        return 55;
-    } else if (b->damage_risk <= 160) {
-        return 56;
-    } else {
-        return 57;
+    if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
+        return 0;
     }
+    building *b = building_get(map_building_at(grid_offset));
+    int text_id;
+    if (b->damage_risk <= 0) {
+        text_id = 52;
+    } else if (b->damage_risk <= 40) {
+        text_id = 53;
+    } else if (b->damage_risk <= 80) {
+        text_id = 54;
+    } else if (b->damage_risk <= 120) {
+        text_id = 55;
+    } else if (b->damage_risk <= 160) {
+        text_id = 56;
+    } else {
+        text_id = 57;
+    }
+    if (building_properties_for_type(b->type)->show_durability) {
+        int current_hp;
+        int max_hp;
+        map_building_get_health(b, grid_offset, &current_hp, &max_hp);
+        const building_properties *props = building_properties_for_type(b->type);
+        if (props->fire_proof) {
+            c->precomposed_text = health_prefix_to_tooltip_text(current_hp, max_hp, 0);
+        } else {
+            const uint8_t *message = lang_get_string(66, text_id);
+            c->precomposed_text = health_prefix_to_tooltip_text(current_hp, max_hp, message);
+        }
+        return 1;
+    }
+    return text_id;
 }
 
 static int get_tooltip_crime(tooltip_context *c, int grid_offset)
 {
+    if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
+        return 0;
+    }
     building *b = building_get(map_building_at(grid_offset));
     int crime = get_crime_level(b);
     if (crime == RAMPANT_CRIME) {
