@@ -254,6 +254,9 @@ static int get_tooltip_fire(tooltip_context *c, int grid_offset)
         return 0;
     }
     building *b = building_get(map_building_at(grid_offset));
+    if (b->type == BUILDING_ROADBLOCK) {
+        return 0;
+    }
     if (b->fire_risk <= 0) {
         return 46;
     } else if (b->fire_risk <= 20) {
@@ -275,6 +278,9 @@ static int get_tooltip_damage(tooltip_context *c, int grid_offset)
         return 0;
     }
     building *b = building_get(map_building_at(grid_offset));
+    if (b->type == BUILDING_ROADBLOCK) {
+        return 0;
+    }
     int text_id;
     if (b->damage_risk <= 0) {
         text_id = 52;
@@ -311,6 +317,9 @@ static int get_tooltip_crime(tooltip_context *c, int grid_offset)
         return 0;
     }
     building *b = building_get(map_building_at(grid_offset));
+    if (b->type == BUILDING_ROADBLOCK) {
+        return 0;
+    }
     int crime = get_crime_level(b);
     if (crime == RAMPANT_CRIME) {
         return 63;
