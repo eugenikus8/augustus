@@ -2,12 +2,14 @@
 
 #include "assets/assets.h"
 #include "building/distribution.h"
+#include "building/image.h"
 #include "building/industry.h"
 #include "building/properties.h"
 #include "core/config.h"
 #include "core/string.h"
 #include "figure/properties.h"
 #include "game/state.h"
+#include "graphics/graphics.h"
 #include "graphics/image.h"
 #include "map/building.h"
 #include "map/bridge.h"
@@ -272,6 +274,84 @@ static int get_tooltip_fire(tooltip_context *c, int grid_offset)
     }
 }
 
+static void get_building_health(int x, int y, float scale, int grid_offset)
+{
+    if (!map_property_is_draw_tile(grid_offset)) {
+        return;
+    }
+    building *b = building_get(map_building_at(grid_offset));
+    const image *img = image_get(building_image_get(b));
+    if (!building_properties_for_type(b->type)->show_durability) {
+        return;
+    }
+
+/*  // Do not display health bars for this buildings
+    if (b->type == BUILDING_WALL || b->type == BUILDING_PALISADE || b->type == BUILDING_PALISADE_GATE) {
+        return;
+    }
+*/
+    int current_hp;
+    int max_hp;
+    map_building_get_health(b, grid_offset, &current_hp, &max_hp);
+
+    // Do not display health bars for buildings at full health
+    if (current_hp >= max_hp || max_hp <= 0) {
+        return;
+    }
+
+    int center_x = (x + 30 * b->size);
+    int center_y = y;
+    if (img->top) {
+        center_y -= img->top->original.height;
+    }
+    center_x = (int) (center_x / scale);
+    center_y = (int) (center_y / scale);
+
+    int bar_width = 30;
+    int bar_height = 6;
+    int y_offset = 75;
+
+    switch (b->type) {
+        case BUILDING_TOWER:
+            y_offset = 85;
+            break;
+        case BUILDING_GATEHOUSE:
+            y_offset = 80;
+            break;
+        case BUILDING_WALL:
+            y_offset = -5;
+            break;
+        case BUILDING_PALISADE:
+            y_offset = 40;
+            break;
+    }
+    int draw_x = center_x - bar_width / 2;
+    int draw_y = center_y + y_offset / scale;
+
+    color_t hp_color;
+    int percent = current_hp * 100 / max_hp;
+    if (percent > 75) {
+        hp_color = COLOR_FONT_GREEN;
+    } else if (percent > 50) {
+        hp_color = COLOR_FONT_ORANGE_LIGHT;
+    } else if (percent > 25) {
+        hp_color = COLOR_FONT_ORANGE;
+    } else {
+        hp_color = COLOR_FONT_RED;
+    }
+
+    int fill_width = (bar_width - 2) * percent / 100;
+    if (percent > 0 && fill_width < 1) {
+        fill_width = 1;
+    }
+    // border
+    graphics_draw_rect(draw_x, draw_y, bar_width, bar_height, COLOR_BLACK);
+    // background
+    graphics_fill_rect(draw_x + 1, draw_y + 1, bar_width - 2, bar_height - 2, COLOR_FONT_LIGHT_GRAY);
+    // current hp
+    graphics_fill_rect(draw_x + 1, draw_y + 1, fill_width, bar_height - 2, hp_color);
+}
+
 static int get_tooltip_damage(tooltip_context *c, int grid_offset)
 {
     if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
@@ -440,7 +520,8 @@ const city_overlay *city_overlay_for_damage(void)
         .show_building = show_building_damage,
         .show_figure = show_figure_damage,
         .get_column_height = get_column_height_damage,
-        .get_tooltip = get_tooltip_damage
+        .get_tooltip = get_tooltip_damage,
+        .draw_layer = get_building_health
     };
     return &overlay;
 }
@@ -500,7 +581,8 @@ const city_overlay *city_overlay_for_enemy(void)
     static city_overlay overlay = {
         .type = OVERLAY_ENEMY,
         .show_building = show_building_enemy,
-        .show_figure = show_figure_enemy
+        .show_figure = show_figure_enemy,
+        .draw_layer = get_building_health
     };
     return &overlay;
 }
