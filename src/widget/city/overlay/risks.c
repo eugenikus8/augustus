@@ -285,11 +285,11 @@ static void get_building_health(int x, int y, float scale, int grid_offset)
         return;
     }
 
-/*  // Do not display health bars for this buildings
-    if (b->type == BUILDING_WALL || b->type == BUILDING_PALISADE || b->type == BUILDING_PALISADE_GATE) {
-        return;
-    }
-*/
+    // Do not display health bars for this buildings
+    //if (b->type == BUILDING_WALL || b->type == BUILDING_PALISADE || b->type == BUILDING_PALISADE_GATE) {
+    //    return;
+    //}
+
     int current_hp;
     int max_hp;
     map_building_get_health(b, grid_offset, &current_hp, &max_hp);
@@ -319,7 +319,7 @@ static void get_building_health(int x, int y, float scale, int grid_offset)
             y_offset = 80;
             break;
         case BUILDING_WALL:
-            y_offset = -5;
+            y_offset = 5;
             break;
         case BUILDING_PALISADE:
             y_offset = 40;
