@@ -301,8 +301,9 @@ static void draw_trader(building_info_context *c, figure *f)
 
     //LAND TRADE POLICY (Caravanserai)
     if (f->type != FIGURE_TRADE_SHIP) {
-        if (!building_monument_working(BUILDING_CARAVANSERAI)) {
-            text_draw(translation_for(TR_BUILDING_CARAVANSERAI_NOT_WORKING), x_offset, y_offset, FONT_NORMAL_RED, 0);
+        if (!building_monument_working(BUILDING_CARAVANSERAI) || !building_caravanserai_is_fully_functional()) {
+            text_draw(translation_for(TR_BUILDING_CARAVANSERAI_NOT_WORKING),
+                x_offset, y_offset, FONT_NORMAL_RED, 0);
             return;
         }
         trade_policy policy = city_trade_policy_get(LAND_TRADE_POLICY);
@@ -334,7 +335,7 @@ static void draw_trader(building_info_context *c, figure *f)
 
     //SEA TRADE POLICY (Lighthouse)
     if (f->type == FIGURE_TRADE_SHIP) {
-        if (!building_monument_working(BUILDING_LIGHTHOUSE)) {
+        if (!building_monument_working(BUILDING_LIGHTHOUSE) || !building_lighthouse_is_fully_functional()) {
             text_draw(translation_for(TR_BUILDING_LIGHTHOUSE_NOT_WORKING), x_offset, y_offset, FONT_NORMAL_RED, 0);
             return;
         }

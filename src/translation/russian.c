@@ -439,7 +439,7 @@ static translation_string all_strings[] = {
     {TR_BUILDING_LIGHTHOUSE_BONUS_DESC, "Свет на вершине этой великой башни безопасно направляет корабли в ваш город из самых дальних уголков мира. Рыбацкие лодки движутся на 10% быстрее, а морские штормы длятся вдвое короче."},
     {TR_BUILDING_LIGHTHOUSE_NO_TIMBER, "Остатки древесины на исходе, и хранители маяка изо всех сил пытаются найти топливо, чтобы не погас огонь. Кораблям, приближающимся к твоим берегам, все труднее разглядеть угасающий свет маяка."},
     {TR_BUILDING_LIGHTHOUSE_POLICY_TITLE, "Морская торговая политика"},
-    {TR_BUILDING_LIGHTHOUSE_NO_POLICY, "Не выбрана"},
+    {TR_BUILDING_LIGHTHOUSE_NO_POLICY, "Не выбрана политика морской торговли"},
     {TR_BUILDING_LIGHTHOUSE_NOT_WORKING, "Маяк не работает!"},
     {TR_BUILDING_LIGHTHOUSE_POLICY_TEXT, "Выберите морскую торговую политику в вашем городе."},
     {TR_BUILDING_LIGHTHOUSE_POLICY_1_TITLE, "Соглашение по продаже"},
