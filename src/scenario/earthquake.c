@@ -123,10 +123,12 @@ static void advance_earthquake_to_tile(int x, int y)
     map_tiles_clear_highway(grid_offset, 0);
     map_terrain_set(grid_offset, 0);
     map_tiles_set_earthquake(x, y);
+    map_tiles_update_all_empty_land();
     map_tiles_update_all_gardens();
     map_tiles_update_all_roads();
     map_tiles_update_all_highways();
     map_tiles_update_all_plazas();
+    map_tiles_update_all_meadow();
     map_tiles_update_all_walls();
     map_tiles_update_all_aqueducts(0);
 
