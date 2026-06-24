@@ -6,6 +6,8 @@
 #include "building/roadblock.h"
 #include "figure/figure.h"
 #include "game/save_version.h"
+#include "map/building.h"
+#include "map/grid.h"
 #include "map/image.h"
 
 #define TYPE_DATA_ORIGINAL_BUFFER_SIZE 42
@@ -776,6 +778,30 @@ void migrate_altar_rotations(void)
                 image_id == venus_base_image_id + 1)
             {
                 b->subtype.orientation = 1;
+            }
+        }
+    }
+}
+
+void migrate_fort_rotations(void)
+{
+    for (int i = 1; i < building_count(); i++) {
+        building *b = building_get(i);
+        if (b->state != BUILDING_STATE_IN_USE && b->state != BUILDING_STATE_MOTHBALLED && b->state != BUILDING_STATE_CREATED) {
+            continue;
+        }
+        if (building_is_fort(b->type)) {
+            const int offsets_x[] = { 3, -1, -4, 0 };
+            const int offsets_y[] = { -1, -4, 0, 3 };
+            for (int i = 0; i < 4; i++) {
+                building *ground = building_get(map_building_at(map_grid_offset(b->x + offsets_x[i], b->y + offsets_y[i])));
+                if (!ground) {
+                    continue;
+                }
+                if (ground->formation_id != b->formation_id) {
+                    continue;
+                }
+                b->data.fort.orientation = i;
             }
         }
     }
