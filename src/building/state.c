@@ -124,6 +124,8 @@ static void write_type_data(buffer *buf, const building *b)
         buffer_write_u16(buf, b->data.rubble.og_grid_offset);
         buffer_write_u8(buf, b->data.rubble.og_size);
         buffer_write_u8(buf, b->data.rubble.og_orientation);
+    } else if (building_is_fort(b->type)) {
+        buffer_write_u8(buf, b->data.fort.orientation);
     } else {
         buffer_write_u8(buf, b->data.entertainment.num_shows);
         buffer_write_u8(buf, b->data.entertainment.days1);
@@ -449,6 +451,8 @@ static void read_type_data(buffer *buf, building *b, int version)
         b->data.rubble.og_grid_offset = buffer_read_u16(buf);
         b->data.rubble.og_size = buffer_read_u8(buf);
         b->data.rubble.og_orientation = buffer_read_u8(buf);
+    } else if (building_is_fort(b->type)) {
+        b->data.fort.orientation = buffer_read_u8(buf);
     } else {
         if (version <= SAVE_GAME_LAST_STATIC_RESOURCES) {
             buffer_skip(buf, 26);
