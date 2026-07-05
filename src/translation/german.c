@@ -156,7 +156,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_ROTATE_MANUALLY, "Drehe Torhaus und Triumphbogen mit Schnelltaste"},
     {TR_CONFIG_SCHOOL_WALKERS, "Vergrößere Laufreichweite von Schülern"},
     {TR_CONFIG_SCROLL_SPEED, "Scrollgeschwindigkeit:"},
-    {TR_CONFIG_SHOW_CONSTRUCTION_SIZE, "Zeige Konstruktionsgröße beim Bauen"},	
+    {TR_CONFIG_SHOW_CONSTRUCTION_SIZE, "Zeige Konstruktionsgröße beim Bauen"},
     {TR_CONFIG_SHOW_DESIRABILITY_RANGE, "Beim Bau eines Nymphäums oder Mausoleums Attraktivität zeigen"},
     {TR_CONFIG_SHOW_INTRO_VIDEO, "Intro-Videos abspielen"},
     {TR_CONFIG_SHOW_MARKET_RANGE, "Zeige die Reichweite beim Bau von Märkten" },
@@ -203,8 +203,8 @@ static translation_string all_strings[] = {
     {TR_USER_DIRECTORIES_WINDOW_USER_PATH, "Benutzerverzeichnis:" },
     {TR_USER_DIRECTORIES_USER_PATH_CHANGED_TITLE, "Benutzerpfad geändert"},
     {TR_USER_DIRECTORIES_USER_PATH_CHANGED_TEXT, "Der Benutzerpfad wurde erfolgreich geändert.\nMöchten Sie Ihre Dateien kopieren?"},
-    {TR_USER_DIRECTORIES_USER_PATH_CHANGED_OVERWRITE, "Vorhandene Dateien überschreiben"},	
-	/* Sidebar */	
+    {TR_USER_DIRECTORIES_USER_PATH_CHANGED_OVERWRITE, "Vorhandene Dateien überschreiben"},
+	/* Sidebar */
 	{TR_SIDEBAR_EXTRA_INVASIONS, "Invasionen"},
     {TR_SIDEBAR_EXTRA_INVASION_UNDERWAY, "Invasion im Gange"},
     {TR_SIDEBAR_EXTRA_NO_INVASIONS, "Keine Invasionen"},
@@ -477,7 +477,7 @@ static translation_string all_strings[] = {
     {TR_ADVISOR_TRADE_NO_BUYERS, "Niemand kauft diese Ressource."},
     {TR_ADVISOR_TRADE_NO_SELLERS, "Niemand verkauft diese Ressource."},
     {TR_ADVISOR_TRADE_NOT_IMPORTING, "kein Import"},
-    {TR_ADVISOR_TRADE_NOT_EXPORTING, "kein Export"},	
+    {TR_ADVISOR_TRADE_NOT_EXPORTING, "kein Export"},
     {TR_ADVISOR_TRADE_RESOURCE_NOT_STORABLE, "Kann nicht gelagert werden."},
     {TR_ADVISOR_TRADE_RESOURCE_NOT_STORABLE_OR_TRADABLE, "Ressource kann nicht gelagert oder gehandelt werden."},
     {TR_ADVISOR_OPEN_TO_IMPORT, "Öffnet Handelsroute für Import"},
@@ -638,7 +638,7 @@ static translation_string all_strings[] = {
     {TR_TOOLTIP_OVERLAY_TAVERN_5, "Dieses Haus wurde kürzlich von einer Gastwirtin mit Wein versorgt."},
     {TR_TOOLTIP_OVERLAY_TAVERN_6, "Dieses Haus wurde kürzlich von einer Gastwirtin mit Wein und Fleisch versorgt. Hoch die Gläser!"},
     {TR_ZOOM, "Zoom:"},
-	/* Besondere Befehle */	
+	/* Besondere Befehle */
     {TR_MARKET_SPECIAL_ORDERS_HEADER, "Zu sammelnde Waren"},
     {TR_MARKET_TRADING, "Handel"},
     {TR_MARKET_NOT_TRADING, "kein Handel"},
@@ -749,7 +749,7 @@ static translation_string all_strings[] = {
 	/* Gebäude - Dock */
     {TR_BUILDING_DOCK_CITIES_CONFIG_DESC, "Städte mit eröffneter Seeroute:"},
     {TR_BUILDING_DOCK_CITIES_NO_ROUTES, "Es wurden keine Seerouten eröffnet."},
-    /* Gebäude - Forts */	
+    /* Gebäude - Forts */
     {TR_BUILDING_FORT_LEGIONARIES, "Legionäre" },
     {TR_BUILDING_FORT_JAVELIN, "Hilfstruppen - Wurfspeere" },
     {TR_BUILDING_FORT_MOUNTED, "Hilfstruppen - Berittene" },
@@ -798,7 +798,7 @@ static translation_string all_strings[] = {
     {TR_BUILDING_CARAVANSERAI_POLICY_3_TITLE, "Consilium Quantitas Terrae"},
     {TR_BUILDING_CARAVANSERAI_POLICY_3, "Mengenpolitik: Handelskarawanen tragen 4 zusätzliche Waren, aber die Karawanserei verbraucht 20 % mehr Nahrung."},
     {TR_BUILDING_CARAVANSERAI_NO_EMPLOYEES, "Diese Karawanserei hat keine Angestellten. Lebensmittel können nicht abgeholt werden." },
-	/* Gebäude - Karrendepot */	
+	/* Gebäude - Karrendepot */
     {TR_BUILDING_DEPOT, "Karren-Depot"},
     {TR_BUILDING_CAT_DEPOT, "Katzen-Depot"},
     {TR_BUILDING_DEPOT_DESC, "Das Karren-Depot sendet Karren aus, um die Waren je nach Auftrag zwischen Lagerhäusern und Silos umzuschlagen. Karren müssen nach jeder Lieferung zum Depot zurückkehren."},
@@ -841,7 +841,7 @@ static translation_string all_strings[] = {
     {TR_BUILDING_COLOSSEUM_PHASE_3_TEXT, "Anmutige Bögen ragen in den Himmel, um das mächtige Kolosseum in die Höhe zu halten."},
     {TR_BUILDING_COLOSSEUM_PHASE_4_TEXT, "Das Kolosseum ragt in den Himmel, seine Wände sind mit schimmerndem Marmor und Statuen verkleidet."},
     {TR_BUILDING_COLOSSEUM_NEEDS_WORKERS, "Das Kolosseum ist unterbesetzt. Es werden mehr Arbeiter benötigt, damit alle Ihre Bürger die Spiele genießen können."},
-    {TR_WINDOW_BUILDING_GAMES_REMAINING_DURATION, "Die Großen Spiele werden fortgesetzt für weitere"}, // ...XX Days, 
+    {TR_WINDOW_BUILDING_GAMES_REMAINING_DURATION, "Die Großen Spiele werden fortgesetzt für weitere"}, // ...XX Days,
     {TR_WINDOW_GAMES_OPTION_1, "Naumachie abhalten"},
     {TR_WINDOW_GAMES_OPTION_2, "Tierhetze abhalten"},
     {TR_WINDOW_GAMES_OPTION_3, "Kalendae des Januarius abhalten"},
@@ -855,7 +855,7 @@ static translation_string all_strings[] = {
     {TR_WINDOW_GAMES_COST, "Kosten:"},
     {TR_WINDOW_GAMES_PERSONAL_FUNDS, "(Sparguthaben)"},
     {TR_WINDOW_GAMES_NOT_ENOUGH_FUNDS, "Nicht genügend Sparguthaben."},
-    {TR_WINDOW_GAMES_NOT_ENOUGH_RESOURCES, "Nicht genügend Ressourcen gelagert."}, 	
+    {TR_WINDOW_GAMES_NOT_ENOUGH_RESOURCES, "Nicht genügend Ressourcen gelagert."},
     {TR_WINDOW_GAMES_NO_VENUE, "Anlage nicht gebaut oder hat keine Arbeiter."},
     {TR_WINDOW_GAMES_NO_WATER_ACCESS, "Die Anlage hat keinen Zugang zu einem Reservoir."},
     /* Gebäude - Lararium und Mausoleen */
@@ -1088,11 +1088,11 @@ static translation_string all_strings[] = {
     {TR_BUILDING_LEGION_STARVING, "Schwach vor Hunger"},
     {TR_BUILDING_LEGION_FOOD_BONUS, "Reichhaltiges Nahrungsangebot steigert die Moral"},
     {TR_BUILDING_LEGION_FOOD_STATUS, "Versorgungsstatus"},
-    /* Gebäude - Wachturm */	
+    /* Gebäude - Wachturm */
 	{TR_BUILDING_WATCHTOWER, "Wachturm"},
     {TR_BUILDING_WATCHTOWER_DESC, "Bogenschützen auf den Zinnen dieses Turms halten wachsam Ausschau nach jedem Anzeichen von Eindringlingen, während Wächter unten auf den Straßen patrouillieren."},
     {TR_BUILDING_WATCHTOWER_DESC_NO_SOLDIERS, "Dieser Wachturm braucht einen Wächter aus der Kaserne, bevor er unsere Stadt schützen kann."},
-    /* Gebäude - Waffenkammer */	
+    /* Gebäude - Waffenkammer */
     {TR_BUILDING_ARMOURY, "Waffenkammer" },
     {TR_BUILDING_ARMOURY_DESC, "Die Waffenkammer sorgt dafür, dass unsere Soldaten schnell und effizient mit Waffen versorgt werden. Diese Barbaren sind der römischen Logistik nicht gewachsen!" },
     {TR_BUILDING_ARMOURY_NO_EMPLOYEES, "Ohne Zugang zu Mitarbeitern kann die Waffenkammer keine Waffen an unsere Soldaten liefern. Möge Mars uns beschützen, denn die unbewaffneten Legionen werden es sicher nicht tun!"},
@@ -2093,7 +2093,7 @@ static translation_string all_strings[] = {
     {TR_CITY_WARNING_WORKCAMP_NEEDED, "Dieses Gebäude braucht ein Arbeiterlager"},
     {TR_CITY_WARNING_BUILD_WORKCAMP, "Bauen Sie ein Arbeiterlager"},
     {TR_BUILDING_HIGHWAY_STATION, "Wegewarte"},
-    {TR_BUILDING_HIGHWAY_STATION_DESC, "Die Wegewarte beherbergt talentierte Arbeiter, die das römische Straßensystem intakt halten. Eine stetige Versorgung mit Sand und Stein, durch ein Arbeiterlager, wird die Kosten neuer Schnellstraßen halbieren sowie ihre Instanhaltungskosten."},
+    {TR_BUILDING_HIGHWAY_STATION_DESC, "Die Wegewarte beherbergt talentierte Arbeiter, die das römische Straßensystem intakt halten. Eine stetige Versorgung mit Sand und Stein, durch ein Arbeiterlager, wird die Kosten neuer Schnellstraßen halbieren sowie ihre Instandhaltungskosten."},
     {TR_BUILDING_HIGHWAY_STATION_NO_EMPLOYEES, "Die Wegearte hat keine Arbeitskräfte. Demnach ist die Wartung der Schnellstraßen eingestellt."},
     {TR_BUILDING_HIGHWAY_STATION_NO_RESOURCES, "Die Wegewarte braucht mehr Sand und Stein, um das Wegenetz instand zu halten."},
     {TR_BUILDING_HIGHWAY_STATION_FUNCTIONAL, "Die Wegewarte kümmert sich rund um die Uhr um unsere Wege und Straßen. Die Kosten und Instandhaltungskosten von Schnellstraßen sind halbiert."},
@@ -2108,8 +2108,8 @@ static translation_string all_strings[] = {
     {TR_WARNING_DEPOT_RESOURCE_CHANGE, "Ändern der Resource unmöglich, solange noch Oxen aktiv sind!"},
     {TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_WAIT_LOAD, "Unser Karren wartet darauf, beladen zu werden."},
     {TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_WAIT_UNLOAD, "Unser Karren wartet darauf, entladen zu werden."},
-    {TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_GETTING_FOOD, "Unser Karren ist auf dem Weg zum Silo, um Essen zu holen."},
-    {TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_GETTING_GOODS, "Unser Karren ist auf dem Weg zum Lagerhaus, um Güter zu holen."},
+    {TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_GETTING_FOOD, "Unser Karren ist auf dem Weg zum Silo für Essen."},
+    {TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_GETTING_GOODS, "Unser Karren ist auf dem Weg zum Lagerhaus für Güter."},
     {TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_DELIVER, "Unser Karren liefert Güter aus."},
     {TR_WINDOW_BUILDING_DEPOT_CART_PUSHER_WAIT, "Unser Karren wartet auf neue Anweisungen."},
     {TR_TOOLTIP_DEPOT_CLEAR_SRC, "Quelle löschen"},
@@ -2179,12 +2179,12 @@ static translation_string all_strings[] = {
     {TR_CONFIG_SHOW_SHORELINE_DESIRABILITY, "Zeige Küstenattraktivitätsboni in der Spezialkarte"},
     {TR_CONFIG_SHOW_ELEVATION_DESIRABILITY, "Zeige Plateauattraktivitätsboni in der Spezialkarte"},
     {TR_BUILDING_TRIUMPHAL_ARCH_PHASE_1, "(Stützen)"},
-    {TR_BUILDING_TRIUMPHAL_ARCH_PHASE_2, "Fassade"},
+    {TR_BUILDING_TRIUMPHAL_ARCH_PHASE_2, "(Fassade)"},
     {TR_BUILDING_TRIUMPHAL_ARCH_PHASE_1_TEXT, "Maurer legen das Fundament und errichten Pfeiler für einen kolossalen Triumphbogen, der zur ewig gebührenden Ehrung eurer Armeen errichtet wird, um diese glorreiche Erinnerung auch an die nächsten Generationen weiterzugeben."},
     {TR_BUILDING_TRIUMPHAL_ARCH_PHASE_2_TEXT, "Begabte Handwerker stellen die Marmorfassade des Triumphbogens fertig, welche mit verschiedensten Reliefs und Ornamenten verziert wird, um Euren Triumph über diese Barbaren würdig darzustellen."},
     {TR_BUILDING_TRIUMPHAL_ARCH_CONSTRUCTION_DESC, "Der Triumphbogen benötigt keine Resourcen aus Ihrer Stadt, um gebaut zu werden. Alle benötigten Resourcen werden von Rom zur Verfügung gestellt."},
     {TR_CITY_MESSAGE_TITLE_TRIUMPHAL_ARCH_COMPLETE, "Triumphbogen fertiggestellt"},
-    {TR_CITY_MESSAGE_TEXT_TRIUMPHAL_ARCH_COMPLETE, "Der Triumphbogen ist nun fertig gestellt und wird bis in alle Ewigkeit dastehen, um die Leute daran zu erinnern, dass niemand Rom besiegen kann und insbesondere nicht Sie. Seine kunstvollen Ornamente stellen die Stärke und Opfer Ihrer Legionen dar, damit sie allen ein Zeichen und Beispiel seien."},
+    {TR_CITY_MESSAGE_TEXT_TRIUMPHAL_ARCH_COMPLETE, "Der Triumphbogen ist nun fertiggestellt und wird bis in alle Ewigkeit dastehen, um die Leute daran zu erinnern, dass niemand Rom besiegen kann und insbesondere nicht Sie besiegen kann. Seine kunstvollen Ornamente stellen die Stärke und Opfer Ihrer Legionen dar, damit sie allen ein Zeichen und Beispiel seien."},
     {TR_BUILDING_TRIUMPHAL_ARCH_SUPPLIED_BY_ROME, "(Geliefert von Rom)"},
 };
 
