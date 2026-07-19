@@ -322,7 +322,8 @@ static int overlay_should_show_roadblock(const building *b)
         return 1;
     }
     return !draw_context.overlay->show_building || draw_context.overlay->show_building(b);
-  
+}
+
 static color_t full_grid_color(void)
 {
     if (!config_get(CONFIG_UI_CLIMATE_GRID_COLORS)) {
