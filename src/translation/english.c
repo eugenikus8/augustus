@@ -86,6 +86,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_UI_SHOW_GRID_TOOLTIP, "Display a construction grid on the whole map."},
     {TR_CONFIG_UI_SHOW_PARTIAL_GRID_AROUND_CONSTRUCTION, "Show partial grid around construction"},
     {TR_CONFIG_UI_SHOW_PARTIAL_GRID_AROUND_CONSTRUCTION_TOOLTIP, "Display a 2-tile-wide grid around buildings during placement."},
+    {TR_CONFIG_UI_CLIMATE_GRID_COLORS, "Show climate-based colors for full grid"},
     {TR_CONFIG_UI_ALWAYS_SHOW_ROTATION_BUTTONS, "Always show rotation buttons"},
     {TR_CONFIG_UI_ALWAYS_SHOW_ROTATION_BUTTONS_TOOLTIP, "Rotation buttons are displayed automatically if a building has variants or can be rotated (aimed for mouse-only or touch controls)."},
     {TR_CONFIG_FIX_IMMIGRATION_BUG, "Fix immigration bug on very hard"},
