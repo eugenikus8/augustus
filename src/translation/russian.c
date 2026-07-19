@@ -86,6 +86,8 @@ static translation_string all_strings[] = {
     {TR_CONFIG_UI_SHOW_GRID_TOOLTIP, "Показывает строительную сетку по всей карте."},
     {TR_CONFIG_UI_SHOW_PARTIAL_GRID_AROUND_CONSTRUCTION, "Строительная сетка только вокруг строения"},
     {TR_CONFIG_UI_SHOW_PARTIAL_GRID_AROUND_CONSTRUCTION_TOOLTIP, "Показывает сетку в две клетки вокруг здания во время постройки."},
+    {TR_CONFIG_UI_CLIMATE_GRID_COLORS, "Раскрашивать всю сетку по климату"},
+    {TR_CONFIG_UI_CLIMATE_GRID_COLORS_TOOLTIP, "Цвет строительной сетки автоматически изменяется в зависимости от климата карты."},
     {TR_CONFIG_UI_ALWAYS_SHOW_ROTATION_BUTTONS, "Всегда показывать кнопки поворота"},
     {TR_CONFIG_UI_ALWAYS_SHOW_ROTATION_BUTTONS_TOOLTIP, "Кнопки поворота будут отображаться автоматически, если постройка имеет варианты или ее можно повернуть."},
     {TR_CONFIG_FIX_IMMIGRATION_BUG, "Исправить ошибку иммиграции на 'Очень сложной' сложности игры"},
