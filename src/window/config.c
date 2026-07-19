@@ -1013,6 +1013,7 @@ static const uint8_t *display_text_player_name(void)
 {
     return data.player_name;
 }
+
 static const uint8_t *display_text_game_speed(void)
 {
     return percentage_string(data.display_text, game_speed_get_speed(data.config_values[CONFIG_ORIGINAL_GAME_SPEED].new_value));
@@ -1726,7 +1727,7 @@ static void op_draw_bg_header(const config_widget *w, int x, int y, int avail_te
     // y is constant - if y+5 works, keep it this way, it should be right in the middle of the text's y axis
     // Draw lines on either side of the header text, with a small gap
     graphics_draw_inset_rect(x, y + 5, line_width, 2, COLOR_INSET_BLACK, COLOR_INSET_DARK);
-    graphics_draw_inset_rect(header_text_width + x + line_width, y + 5, line_width, 2, COLOR_INSET_BLACK, COLOR_INSET_DARK);
+    graphics_draw_inset_rect(header_text_width + x + line_width - 5, y + 5, line_width, 2, COLOR_INSET_BLACK, COLOR_INSET_DARK);
 }
 
 static void op_draw_fg_header(const config_widget *w, int x, int y, int avail_text_w, int focused)
