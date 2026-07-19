@@ -1809,7 +1809,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_UI_ANIMATE_TRADE_ROUTES_TOOLTIP, "Торговые маршруты анимируются на карте империи."},
     {TR_HOTKEY_NEXT_TRACK, "Следующий случайный трек"},
     {TR_CONFIG_MOVE_LEGION_SOUND_SWAP, "Альтернативный звук движения легиона"},
-    {TR_CONFIG_MOVE_LEGION_SOUND_SWAP_TOOLTIP, "Крик Аааааааааааа заменен звуком марширования"},
+    {TR_CONFIG_MOVE_LEGION_SOUND_SWAP_TOOLTIP, "Крик \"Ааааааа!\" при перемещении легиона заменен звуком марширования."},
     {TR_BUILDING_INFO_REPAIR_BUILDING, "Восстановить здание"},
     {TR_WARNING_REPAIR_IMPOSSIBLE, "Невозможно восстановить это здание"},
     {TR_WARNING_REPAIR_BURNING, "Невозможно восстановить, пока здание горит"},

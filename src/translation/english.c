@@ -1809,7 +1809,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_UI_ANIMATE_TRADE_ROUTES_TOOLTIP, "Trading paths are animated on the Empire map (custom scenarios only)."},
     {TR_HOTKEY_NEXT_TRACK, "Next random track"},
     {TR_CONFIG_MOVE_LEGION_SOUND_SWAP, "Alternative legion move sound"},
-    {TR_CONFIG_MOVE_LEGION_SOUND_SWAP_TOOLTIP, "Aaaaaaaaaaa replacement marching sound"},
+    {TR_CONFIG_MOVE_LEGION_SOUND_SWAP_TOOLTIP, "The \"Aaaaaah!\" scream played when moving a legion has been replaced with marching sounds."},
     {TR_BUILDING_INFO_REPAIR_BUILDING, "Repair building"},
     {TR_WARNING_REPAIR_IMPOSSIBLE, "Can't repair this building"},
     {TR_WARNING_REPAIR_BURNING, "Can't repair while the building is on fire"},
