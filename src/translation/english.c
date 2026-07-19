@@ -1605,13 +1605,13 @@ static translation_string all_strings[] = {
     {TR_USER_DIRECTORIES_WINDOW_TITLE, "Set user directory"},
     {TR_USER_DIRECTORIES_WINDOW_USER_PATH, "User directory:"},
     {TR_USER_DIRECTORIES_WINDOW_USER_PATH_TOOLTIP,
-        "- Default (Caesar III installation folder)\n"
+        "- Default (Caesar III installation path, no sub-directories)\n"
             "Stores all new files in the Caesar III folder (where c3.exe is located).\n"
-        "- Caesar III installation folder with sub-folders\n"
-            "Creates the required sub-folders ('campaigns', 'config', 'savegames', 'scenarios', etc.) and moves existing user files (.svx, .ini, etc.) into them.\n"
-        "- Recommended (OS user directory)\n"
+        "- Caesar III installation path, using sub-directories\n"
+            "Creates the required sub-folders (campaigns, config, savegames, scenarios) and moves existing user files (.svx, .ini) into them.\n"
+        "- Recommended (user directory path of the operating system)\n"
             "Stores user files in the operating system's user directory (e.g. \"C:/Users/***/AppData/Roaming\" on Windows) instead of the Caesar III installation folder.\n"
-        "- Custom directory\n"
+        "- Set custom directory...\n"
             "Stores all user files in a directory of your choice, organized into sub-folders.\n"
         "Note:\n"
             "- Log files are always saved to the Windows user data folder:\nC:/Users/***/AppData/Roaming/augustus/augustus"},
