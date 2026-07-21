@@ -112,7 +112,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_DYNAMIC_GRANARIES, "Block unconnected granary roads"},
     {TR_CONFIG_MORE_STOCKPILE, "Houses stockpile more goods from market"},
     {TR_CONFIG_NO_SUPPLIER_DISTRIBUTION, "Market buyers don't distribute goods to houses"},
-    {TR_CONFIG_NO_SUPPLIER_DISTRIBUTION_TOOLTIP, "Market buyers will not distribute wine to houses on their way to storage buildings. This prevents plebeian houses from accidentally upgrading into patrician villas."},
+   {TR_CONFIG_NO_SUPPLIER_DISTRIBUTION_TOOLTIP, "Market buyers will not distribute goods (e.g. wine) to houses on their way to storage buildings. This prevents plebeian houses from accidentally upgrading into patrician villas."},
     {TR_CONFIG_IMMEDIATELY_DELETE_BUILDINGS, "Immediately destroy buildings"},
     {TR_CONFIG_GETTING_GRANARIES_GO_OFFROAD, "Cart pushers from getting granaries can go off-road"},
     {TR_CONFIG_GETTING_GRANARIES_GO_OFFROAD_TOOLTIP, "Cart pushers from granaries set to \"Get\" can leave roads when collecting food from granaries set to \"Accept\", so a road connection between them is no longer required."},
