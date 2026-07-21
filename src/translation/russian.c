@@ -59,6 +59,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_VIDEO_SOUND, "ВКЛ звук видео"},
     {TR_CONFIG_SCROLL_SPEED, "Скорость прокрутки:"},
     {TR_CONFIG_SHOW_INTRO_VIDEO, "Проигрывать вступительные видеоролики"},
+    {TR_CONFIG_SHOW_INTRO_VIDEO_TOOLTIP, "Воспроизводить вступительные ролики при запуске игры и входе в редактор карт."},
     {TR_CONFIG_SIDEBAR_INFO, "Боковая информационная панель"},
     {TR_CONFIG_SIDEBAR_INFO_TOOLTIP, "Отображать скорость игры, а также текущее состояние вашего города:\nЧисленность населения, Безработица, Рейтинги, Запросы."},
     {TR_CONFIG_SMOOTH_SCROLLING, "Плавная прокрутка карты"},
@@ -76,6 +77,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_SHOW_CONSTRUCTION_SIZE, "Отображать размер области строительства при зажатой кнопке мыши"},
     {TR_CONFIG_SHOW_CONSTRUCTION_SIZE_TOOLTIP, "- Отображает небольшой желтый текст, чтобы Вы могли видеть, сколько клеток в длину и ширину займет ваша постройка.\n - Полезно при прокладке дорог, постройке домов, сноса деревьев и всего, что можно строить растягиванием по клику мыши."},
     {TR_CONFIG_HIGHLIGHT_LEGIONS, "Подсвечивать легион под курсором"},
+    {TR_CONFIG_HIGHLIGHT_LEGIONS_TOOLTIP, "Подсвечивает солдат легиона при наведении на них курсора."},
     {TR_CONFIG_ROTATE_MANUALLY, "Поворачивать ворота и Триумфальную арку с помощью горячей клавиши"},
     {TR_CONFIG_SHOW_MILITARY_SIDEBAR, "Боковая военная панель"},
     {TR_CONFIG_SHOW_MILITARY_SIDEBAR_TOOLTIP, "При выборе легиона появится панель с подробным описанием его состояния: мораль, здоровье, численность и кнопки управления."},
@@ -97,9 +99,12 @@ static translation_string all_strings[] = {
     {TR_CONFIG_GRANDFESTIVAL, "Великий фестиваль дает дополнительное благословение от божества"},
     {TR_CONFIG_DIFFICULTY, "Сложность:"},
     {TR_CONFIG_MAX_GRAND_TEMPLES, "Максимальное количество великих храмов в городе:"},
+    {TR_CONFIG_MAX_GRAND_TEMPLES_TOOLTIP, "Управляет ограничением на строительство Великих храмов. Установите значение 5, чтобы можно было построить все Великие храмы."},
     {TR_CONFIG_INFINITE, "Бесконечно"},
     {TR_CONFIG_GODS_EFFECTS, "Гнев или благословение богов"},
+    {TR_CONFIG_GODS_EFFECTS_TOOLTIP, "Включает божественные благословения и проклятия. Боги могут награждать или наказывать ваш город в зависимости от своего настроения."},
     {TR_CONFIG_JEALOUS_GODS, "ОТКЛ ревность богов"},
+    {TR_CONFIG_JEALOUS_GODS_TOOLTIP, "Боги больше не ревнуют, если одному из них посвящено больше храмов, чем остальным."},
     {TR_CONFIG_GLOBAL_LABOUR, "Глобальный пул работников"},
     {TR_CONFIG_GLOBAL_LABOUR_TOOLTIP, "Убирает необходимость строить дома рядом с производством. Теперь любое здание с доступом к дороге будет укомплектовано рабочими, независимо от удаленности их места проживания."},
     {TR_CONFIG_SCHOOL_WALKERS, "Увеличить зону покрытия школ"},
@@ -109,6 +114,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_FIXED_WORKERS_TOOLTIP, "Включение этой опции фиксирует Ваш объем занятого населения на 45% от числа всех плебеев, вне зависимости от возраста."},
     {TR_CONFIG_EXTRA_FORTS, "Разрешить строительство 4-х дополнительных фортов"},
     {TR_CONFIG_WOLVES_BLOCK, "Запретить строительство около волков"},
+    {TR_CONFIG_WOLVES_BLOCK_TOOLTIP, "Волки также запрещают строительство поблизости, как и вражеские юниты."},
     {TR_CONFIG_DYNAMIC_GRANARIES, "Блокировать тупиковые выходы из амбара"},
     {TR_CONFIG_MORE_STOCKPILE, "Дома запасают больше товаров с рынка"},
     {TR_CONFIG_NO_SUPPLIER_DISTRIBUTION, "Закупщицы с рынка не продают товары"},
@@ -117,6 +123,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_GETTING_GRANARIES_GO_OFFROAD, "Если Амбар \"Получает еду\", носильщикам не нужна дорога"},
     {TR_CONFIG_GETTING_GRANARIES_GO_OFFROAD_TOOLTIP, "Носильщики из амбаров с режимом \"Получает еду\" могут сходить с дорог при получении еды из амбаров с режимом \"Принимать\", поэтому дорожное соединение между ними больше не требуется."},
     {TR_CONFIG_GRANARIES_GET_DOUBLE, "Если Амбар \"Получает еду\", удвоить вместимость тележек"},
+    {TR_CONFIG_GRANARIES_GET_DOUBLE_TOOLTIP, "Толкатели тележек забирают из амбаров-источников до 16 единиц пищи вместо 8."},
     {TR_CONFIG_ALLOW_EXPORTING_FROM_GRANARIES, "Разрешить торговцам экспорт еды из амбаров"},
     {TR_CONFIG_ALLOW_EXPORTING_FROM_GRANARIES_TOOLTIP, "В оригинальном C3 импорт и экспорт еды, а также запросы Цезаря могли быть выполнены, только если она находилась на складе. В Augustus можно использовать для этих целей амбары."},
     {TR_CONFIG_TOWER_SENTRIES_GO_OFFROAD, "Часовым на башнях не нужна дорога к казарме"},
@@ -131,9 +138,13 @@ static translation_string all_strings[] = {
     {TR_CONFIG_RANDOM_COLLAPSES_TAKE_MONEY, "Вместо разрушения, разрушающаяся шахта заберет часть денег"},
     {TR_CONFIG_RANDOM_COLLAPSES_TAKE_MONEY_TOOLTIP, "При активации случайных событий, соответствующие здания не разрушаются. Вместо этого их текущее производство сбрасывается, а деньги забираются из городской казны (250 Ден)."},
     {TR_CONFIG_MULTIPLE_BARRACKS, "Разрешить постройку нескольких казарм"},
+    {TR_CONFIG_MULTIPLE_BARRACKS_TOOLTIP, "Убирает ограничение на количество казарм."},
     {TR_CONFIG_NOT_ACCEPTING_WAREHOUSES, "Склады и амбары ничего не принимают при постройке"},
+    {TR_CONFIG_NOT_ACCEPTING_WAREHOUSES_TOOLTIP, "Новые склады и амбары не принимают товары, пока вы их не настроите. Помогает избежать захламления и позволяет точно управлять хранением товаров."},
     {TR_CONFIG_NOT_ACCEPTING_MARKETS, "Рынки ничем не торгуют при постройке"},
+    {TR_CONFIG_NOT_ACCEPTING_MARKETS_TOOLTIP, "Новые рынки не принимают товары, пока вы их не настроите. Включите, чтобы точно распределять товары между кварталами."},
     {TR_CONFIG_HOUSES_DONT_EXPAND_INTO_GARDENS, "Дома не расширяются в сады"},
+    {TR_CONFIG_HOUSES_DONT_EXPAND_INTO_GARDENS_TOOLTIP, "Сады считаются препятствием для расширения домов. Удалите их, если хотите, чтобы соседние дома могли расширяться и эволюционировать."},
     {TR_CONFIG_GP_CH_AUTO_CLEAR_TREES, "Автоматически очищать деревья и кустарники при размещении зданий"},
     {TR_CONFIG_GP_CH_AUTO_CLEAR_TREES_TOOLTIP, "При строительстве здания вся растительность на выбранном участке автоматически удаляется, а из городской казны списывается обычная стоимость расчистки."},
     {TR_CONFIG_ROAMERS_DONT_SKIP_CORNERS, "Бродячие граждане не пропускают углы"},
@@ -149,6 +160,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_DRAW_WEATHER, "Смена погоды"},
     {TR_CONFIG_DRAW_WEATHER_TOOLTIP, "Симуляция погодных эффектов (дождь, снег, песчаная буря), которые можно настраивать с помощью трех параметров (нажмите кнопку \"Применить\", чтобы запустить предпросмотр)\n Примечание: погодные явления не оказывают никакого влияния на город."},
     {TR_CONFIG_ASK_CONFIRMATION_ON_FILE_OVERWRITE, "Запрос при перезаписи файла"},
+    {TR_CONFIG_ASK_CONFIRMATION_ON_FILE_OVERWRITE_TOOLTIP, "Показывает запрос подтверждения перед заменой существующего файла."},
     {TR_CONFIG_GATES_DEFAULT_TO_PASS_ALL_WALKERS, "Невоенные ворота по умолчанию пропускают всех пешеходов"},
     {TR_CONFIG_GATES_DEFAULT_TO_PASS_ALL_WALKERS_TOOLTIP, "При постройке через дороги, Садовые стены и изгороди становятся Садовыми воротами и работают как дорожный блок. Если они служат только украшением, можно по умолчанию разрешить проход всем ходокам."},
     {TR_HOTKEY_TITLE, "Настройки горячих клавиш Augustus"},
@@ -494,8 +506,8 @@ static translation_string all_strings[] = {
     {TR_NO_EXTRA_ASSETS_TITLE, "Папка модов ('assets') не найдена"},
     {TR_NO_EXTRA_ASSETS_MESSAGE,
         "Мы не нашли установленную папку модов. \
-  Из-за этого, новые спрайты не будут отображаться.\n \
-  Убедитесь, что папка '/assets' существует на верхнем уровне каталога установки Caesar 3."},
+         Из-за этого, новые спрайты не будут отображаться.\n \
+         Убедитесь, что папка '/assets' существует на верхнем уровне каталога установки Caesar 3."},
     {TR_WARNING_WATER_NEEDED_FOR_BUILDING, "Здание нужно строить рядом с водой"},
     {TR_WARNING_OPEN_WATER_NEEDED_FOR_BUILDING, "Здание нужно строить рядом с судоходной водой"},
     {TR_TOOLTIP_OVERLAY_PANTHEON_ACCESS, "В этом доме есть доступ ко всем пяти богам Пантеона."},
@@ -504,6 +516,7 @@ static translation_string all_strings[] = {
     {TR_WARNING_RESOURCES_NOT_AVAILABLE, "Вы не можете получить необходимые материалы"},
     {TR_CONFIG_GP_CH_MONUMENTS_BOOST_CULTURE_RATING, "Великие храмы дают +6 к рейтингу культуры"},
     {TR_CONFIG_GP_CH_DISABLE_INFINITE_WOLVES_SPAWNING, "ОТКЛ бесконечных волков"},
+    {TR_CONFIG_GP_CH_DISABLE_INFINITE_WOLVES_SPAWNING_TOOLTIP, "Предотвращает бесконечное появление волков после их уничтожения."},
     {TR_BUTTON_BACK_TO_MAIN_MENU, "Обратно в глав. меню"},
     {TR_LABEL_PAUSE_MENU, "Пауза"},
     {TR_OVERLAY_LEVY, "Сборы"},
@@ -1607,16 +1620,16 @@ static translation_string all_strings[] = {
     {TR_USER_DIRECTORIES_WINDOW_TITLE, "Настройка"},
     {TR_USER_DIRECTORIES_WINDOW_USER_PATH, "Каталог пользов.:"},
     {TR_USER_DIRECTORIES_WINDOW_USER_PATH_TOOLTIP,
-        "- По умолчанию (путь установки Caesar III, без подкаталогов)\n"
-            "Все новые файлы сохраняются в папке Caesar III (где находится c3.exe).\n"
-        "- Путь установки Caesar III используя подкаталоги\n"
-            "Создает необходимые подпапки ('campaigns', 'config', 'savegames', 'scenarios' и т. д.) и перемещает существующие пользовательские файлы (.svx, .ini и т. д.) в соответствующие подкаталоги.\n"
-        "- Рекомендуется (пользовательская папка ОС)\n"
-            "Сохраняет пользовательские файлы в папке пользователя операционной системы (например, \"C:/Users/***/AppData/Roaming\" в Windows) вместо папки установки Caesar III.\n"
-        "- Указать пользовательский каталог...\n"
-            "Сохраняет все пользовательские файлы в выбранной вами папке, распределяя их по подпапкам.\n"
-        "Примечание:\n"
-        "- Файлы журналов (log) всегда сохраняются в пользовательской папке ОС Windows\n \"C:/Users/***/AppData/Roaming/augustus/augustus\"."},
+        "- По умолчанию (путь установки Caesar III, без подкаталогов)\n \
+            Все новые файлы сохраняются в папке Caesar III (где находится c3.exe).\n \
+        - Путь установки Caesar III используя подкаталоги\n \
+            Создает необходимые подпапки ('campaigns', 'config', 'savegames', 'scenarios' и т. д.) и перемещает существующие пользовательские файлы (.svx, .ini и т. д.) в соответствующие подкаталоги.\n \
+        - Рекомендуется (пользовательская папка ОС)\n \
+            Сохраняет пользовательские файлы в папке пользователя операционной системы (например, \"C:/Users/***/AppData/Roaming\" в Windows) вместо папки установки Caesar III.\n \
+        - Указать пользовательский каталог...\n \
+            Сохраняет все пользовательские файлы в выбранной вами папке, распределяя их по подпапкам.\n \
+        Примечание:\n \
+        - Файлы журналов (log) всегда сохраняются в пользовательской папке ОС Windows\n \"C:/Users/***/AppData/Roaming/augustus/augustus\"."},
     {TR_USER_DIRECTORIES_USER_PATH_CHANGED_TITLE, "Путь пользователя изменен"},
     {TR_USER_DIRECTORIES_USER_PATH_CHANGED_TEXT, "Путь пользователя был успешно изменен.\nНе хотите ли вы скопировать свои файлы?"},
     {TR_USER_DIRECTORIES_USER_PATH_CHANGED_OVERWRITE, "Перезаписать существующие файлы"},
@@ -1829,8 +1842,9 @@ static translation_string all_strings[] = {
     {TR_TOOLTIP_MINIMAL, "Минимум"},
     {TR_TOOLTIP_FULL, "Полные"},
     {TR_CONFIG_CLEAR_WARNINGS_RIGHTCLICK, "Щелчок правой кнопкой очистит предупреждения в обзоре города"},
+    {TR_CONFIG_CLEAR_WARNINGS_RIGHTCLICK_TOOLTIP, "Если есть городские предупреждения, щелчок правой кнопкой очищает их все сразу."},
     {TR_CONFIG_GP_CH_STORAGE_REQUESTS_RESPECT_MAINTAIN, "Запросы Цезаря учитывают \"Хранение\""},
-    {TR_CONFIG_GP_CH_STORAGE_REQUESTS_RESPECT_MAINTAIN_TOOLTIP, "Если в любом хранилище включен режим \"Хранение\", то запросы Цезаря могут использовать этот ресурс, однако его количество не уменьшится ниже установленного минимума."},
+    {TR_CONFIG_GP_CH_STORAGE_REQUESTS_RESPECT_MAINTAIN_TOOLTIP, "Если в любом хранилище включен режим \"Хранение\", то запросы Цезаря могут использовать этот ресурс, однако его количество не уменьшится ниже настроенного минимума."},
     {TR_CONFIG_ENABLE_MARKET_RANGE, "Ограниченная область доступа рынков"},
     {TR_CONFIG_ENABLE_MARKET_RANGE_TOOLTIP, "Если включено, у закупщиц будет ограничена дальность поиска товаров (40 клеток). Если также включена опция \"Отображать область доступа рынков при строительстве\", этот радиус будет отображаться."},
     {TR_PARAMETER_TYPE_FORMULA, "Формула"},
@@ -1945,6 +1959,7 @@ static translation_string all_strings[] = {
     {TR_CITY_MESSAGE_TITLE_GOVERNOR_RANK_CHANGE, "Звание губернатора"},
     {TR_TOOLTIP_OVERLAY_LEVY_PER_TILE, " Ден. налога в месяц за плитку"},
     {TR_CONFIG_UI_CV_BUILD_MENU_ICONS, "Иконки ресурсов в меню строительства"},
+    {TR_CONFIG_UI_CV_BUILD_MENU_ICONS_TOOLTIP, "Если здание производит ресурс, рядом с ним отображается соответствующая иконка."},
     {TR_EDITOR_RESET_FAVOR_MONTHLY, "Сброс ежемесячного благоволения"},
     {TR_CONFIG_UI_WT_ENABLE_SNOW_CENTRAL, "Снег в центральном климате"},
     {TR_EDITOR_UNABLE_TO_LOAD_MODEL_DATA_TITLE, "Не удалось загрузить характеристики зданий (XML)"},
@@ -2005,7 +2020,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_UI_BUILD_SHOW_RESERVOIR_RANGES, "Отображать зоны покрытия резервуаров при строительстве зданий, нуждающихся в воде"},
     {TR_CONFIG_UI_BUILD_SHOW_RESERVOIR_RANGES_TOOLTIP, "Отображает трубы резервуаров на карте при размещении некоторых зданий (фонтаны, бани) без включения слоя воды."},
     {TR_CONFIG_GP_CH_ALWAYS_DESTROY_BRIDGES, "Мосты можно удалять вместе с пешеходами"},
-    {TR_CONFIG_GP_CH_ALWAYS_DESTROY_BRIDGES_TOOLTIP, "Инструментом расчистки можно удалить мост, даже если на нем все еще есть жители или вражеские юниты."},
+    {TR_CONFIG_GP_CH_ALWAYS_DESTROY_BRIDGES_TOOLTIP, "Инструментом расчистки можно удалить мост, даже если на нем все еще есть жители."},
     {TR_CONFIG_CATEGORY_MANAGEMENT_DESTRUCTION, "Снос"},
     {TR_CHEAT_DESTROYED_BUILDING, "Здание разрушено"},
     {TR_EMPIRE_TOOL_OUR_CITY, "Наш город"},

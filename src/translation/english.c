@@ -59,6 +59,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_VIDEO_SOUND, "Enable video sound"},
     {TR_CONFIG_SCROLL_SPEED, "Scroll speed:"},
     {TR_CONFIG_SHOW_INTRO_VIDEO, "Play intro videos"},
+    {TR_CONFIG_SHOW_INTRO_VIDEO_TOOLTIP, "Plays the introductory videos when starting the game and entering the map editor."},
     {TR_CONFIG_SIDEBAR_INFO, "Extra information in the control panel"},
     {TR_CONFIG_SIDEBAR_INFO_TOOLTIP, "Displays a game speed control and additional information about the scenario in the sidebar:\nPopulation, Unemployment, Ratings, Requests"},
     {TR_CONFIG_SMOOTH_SCROLLING, "Enable smooth scrolling"},
@@ -76,6 +77,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_SHOW_CONSTRUCTION_SIZE, "Show area of construction when dragging the cursor"},
     {TR_CONFIG_SHOW_CONSTRUCTION_SIZE_TOOLTIP, "- Displays small yellow text in the format of \"1x2\" to let you know how many tiles wide and long your construction area is.\n - Particularly useful for laying roads, houses, demolishing trees, andanything else that can be built by clicking and dragging."},
     {TR_CONFIG_HIGHLIGHT_LEGIONS, "Highlight legion on cursor hover"},
+    {TR_CONFIG_HIGHLIGHT_LEGIONS_TOOLTIP, "Highlights a legion's soldiers when you hover the cursor over them."},
     {TR_CONFIG_ROTATE_MANUALLY, "Rotate Gatehouse and Triumph Arch by hotkey"},
     {TR_CONFIG_SHOW_MILITARY_SIDEBAR, "Enable military sidebar"},
     {TR_CONFIG_SHOW_MILITARY_SIDEBAR_TOOLTIP, "When you left click a legion, the sidebar building buttons are replaced with an information panel detailing the legions status (morale, health, size) and buttons to issue commands to the legion."},
@@ -97,9 +99,12 @@ static translation_string all_strings[] = {
     {TR_CONFIG_GRANDFESTIVAL, "Grand festivals allow extra blessing from a god"},
     {TR_CONFIG_DIFFICULTY, "Difficulty:"},
     {TR_CONFIG_MAX_GRAND_TEMPLES, "Maximum number of grand temples per city:"},
+    {TR_CONFIG_MAX_GRAND_TEMPLES_TOOLTIP, "Controls the construction limit for Grand Temples. Set it to 5 to allow building every Grand Temple."},
     {TR_CONFIG_INFINITE, "Infinite"},
     {TR_CONFIG_GODS_EFFECTS, "Enable god curses/blessings"},
+    {TR_CONFIG_GODS_EFFECTS_TOOLTIP, "Enables divine blessings and curses. Gods can reward or punish your city based on their mood."},
     {TR_CONFIG_JEALOUS_GODS, "Disable jealousy of gods"},
+    {TR_CONFIG_JEALOUS_GODS_TOOLTIP, "Gods no longer become jealous if one deity receives more temples than the others."},
     {TR_CONFIG_GLOBAL_LABOUR, "Enable global labor pool"},
     {TR_CONFIG_GLOBAL_LABOUR_TOOLTIP, "Removes the need to have labor-seeking citizens pass by housing. Instead, all buildings with road access will be fully staffed if there is a sufficient number of unemployed citizens."},
     {TR_CONFIG_SCHOOL_WALKERS, "Extend school walkers range"},
@@ -109,6 +114,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_FIXED_WORKERS_TOOLTIP, "Enabling this option will set your worker pool to 45% of your plebeian population, without regard for age."},
     {TR_CONFIG_EXTRA_FORTS, "Allow building 4 extra forts"},
     {TR_CONFIG_WOLVES_BLOCK, "Block building around wolves"},
+    {TR_CONFIG_WOLVES_BLOCK_TOOLTIP, "Wolves also prevent construction nearby, just like enemy units."},
     {TR_CONFIG_DYNAMIC_GRANARIES, "Block unconnected granary roads"},
     {TR_CONFIG_MORE_STOCKPILE, "Houses stockpile more goods from market"},
     {TR_CONFIG_NO_SUPPLIER_DISTRIBUTION, "Market buyers don't distribute goods to houses"},
@@ -117,6 +123,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_GETTING_GRANARIES_GO_OFFROAD, "Cart pushers from getting granaries can go off-road"},
     {TR_CONFIG_GETTING_GRANARIES_GO_OFFROAD_TOOLTIP, "Cart pushers from granaries set to \"Get\" can leave roads when collecting food from granaries set to \"Accept\", so a road connection between them is no longer required."},
     {TR_CONFIG_GRANARIES_GET_DOUBLE, "Double the capacity of cart pushers from getting granaries"},
+    {TR_CONFIG_GRANARIES_GET_DOUBLE_TOOLTIP, "Cart pushers collect up to 16 units of food from source granaries instead of 8."},
     {TR_CONFIG_ALLOW_EXPORTING_FROM_GRANARIES, "Allow traders to export food from granaries"},
     {TR_CONFIG_ALLOW_EXPORTING_FROM_GRANARIES_TOOLTIP, "By default, food imports, exports and Caesar requests only work with food stored in warehouses. Augustus also allows imports and requests directly from granaries."},
     {TR_CONFIG_TOWER_SENTRIES_GO_OFFROAD, "Tower sentries don't need road access from barracks"},
@@ -131,9 +138,13 @@ static translation_string all_strings[] = {
     {TR_CONFIG_RANDOM_COLLAPSES_TAKE_MONEY, "Randomly collapsing pits and mines take some money instead"},
     {TR_CONFIG_RANDOM_COLLAPSES_TAKE_MONEY_TOOLTIP, "When random events \"Iron mine collapse\" and \"Clay pit flooded\" happen, the related building does not collapse to rubble. Instead, its current production is reset and money is directly taken from the city funds to simulate the reconstruction."},
     {TR_CONFIG_MULTIPLE_BARRACKS, "Allow building multiple barracks"},
+    {TR_CONFIG_MULTIPLE_BARRACKS_TOOLTIP, "Removes the Barracks building limit."},
     {TR_CONFIG_NOT_ACCEPTING_WAREHOUSES, "Warehouses and granaries don't accept anything when built"},
+    {TR_CONFIG_NOT_ACCEPTING_WAREHOUSES_TOOLTIP, "Newly built warehouses and granaries accept no goods until configured. Helps prevent unwanted stockpiling and allows precise storage management."},
     {TR_CONFIG_NOT_ACCEPTING_MARKETS, "Markets don't accept anything when built"},
+    {TR_CONFIG_NOT_ACCEPTING_MARKETS_TOOLTIP, "Newly built markets accept no goods until configured. Enable this to fine-tune goods distribution between districts."},
     {TR_CONFIG_HOUSES_DONT_EXPAND_INTO_GARDENS, "Houses don't expand into gardens"},
+    {TR_CONFIG_HOUSES_DONT_EXPAND_INTO_GARDENS_TOOLTIP, "Gardens are treated as obstacles for house expansion. Remove them if you want nearby houses to expand and evolve."},
     {TR_CONFIG_GP_CH_AUTO_CLEAR_TREES, "Auto-clear trees and shrubs when placing buildings"},
     {TR_CONFIG_GP_CH_AUTO_CLEAR_TREES_TOOLTIP, "When constructing a building, any vegetation located on the terrain is automatically removed, and the usual cost of the clear tool is deducted from the city funds."},
     {TR_CONFIG_ROAMERS_DONT_SKIP_CORNERS, "Roaming walkers don't skip corners"},
@@ -149,6 +160,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_DRAW_WEATHER, "Enable dynamic weather"},
     {TR_CONFIG_DRAW_WEATHER_TOOLTIP, "Enables weather effects (rain, snow, and sandstorms) with adjustable intensity, particle speed, and particle size.\n Note: Weather effects are purely visual and have no impact on the city."},
     {TR_CONFIG_ASK_CONFIRMATION_ON_FILE_OVERWRITE, "Ask for confirmation when overwriting a file"},
+    {TR_CONFIG_ASK_CONFIRMATION_ON_FILE_OVERWRITE_TOOLTIP, "Shows a confirmation dialog before replacing an existing file."},
     {TR_CONFIG_GATES_DEFAULT_TO_PASS_ALL_WALKERS, "Non-military gates default to allowing all walkers"},
     {TR_CONFIG_GATES_DEFAULT_TO_PASS_ALL_WALKERS_TOOLTIP, "When built over roads, Garden Walls or Hedges become Garden Gates, acting as a roadblock. In case of only decorative purposes, they can be set to allow all walkers by default."},
     {TR_HOTKEY_TITLE, "Augustus hotkey configuration"},
@@ -504,6 +516,7 @@ static translation_string all_strings[] = {
     {TR_WARNING_RESOURCES_NOT_AVAILABLE, "You cannot obtain the needed materials"},
     {TR_CONFIG_GP_CH_MONUMENTS_BOOST_CULTURE_RATING, "Completed grand temples grant +6 culture rating"},
     {TR_CONFIG_GP_CH_DISABLE_INFINITE_WOLVES_SPAWNING, "Disable infinite wolves spawning"},
+    {TR_CONFIG_GP_CH_DISABLE_INFINITE_WOLVES_SPAWNING_TOOLTIP, "Prevents wolves from spawning endlessly after they have been killed."},
     {TR_BUTTON_BACK_TO_MAIN_MENU, "Exit to main menu"},
     {TR_LABEL_PAUSE_MENU, "Pause"},
     {TR_OVERLAY_LEVY, "Levies"},
@@ -1607,16 +1620,16 @@ static translation_string all_strings[] = {
     {TR_USER_DIRECTORIES_WINDOW_TITLE, "Set user directory"},
     {TR_USER_DIRECTORIES_WINDOW_USER_PATH, "User directory:"},
     {TR_USER_DIRECTORIES_WINDOW_USER_PATH_TOOLTIP,
-        "- Default (Caesar III installation path, no sub-directories)\n"
-            "Stores all new files in the Caesar III folder (where c3.exe is located).\n"
-        "- Caesar III installation path, using sub-directories\n"
-            "Creates the required sub-folders (campaigns, config, savegames, scenarios) and moves existing user files (.svx, .ini) into them.\n"
-        "- Recommended (user directory path of the operating system)\n"
-            "Stores user files in the operating system's user directory (e.g. \"C:/Users/***/AppData/Roaming\" on Windows) instead of the Caesar III installation folder.\n"
-        "- Set custom directory...\n"
-            "Stores all user files in a directory of your choice, organized into sub-folders.\n"
-        "Note:\n"
-            "- Log files are always saved to the Windows user data folder:\nC:/Users/***/AppData/Roaming/augustus/augustus"},
+        "- Default (Caesar III installation path, no sub-directories)\n \
+            Stores all new files in the Caesar III folder (where c3.exe is located).\n \
+        - Caesar III installation path, using sub-directories\n \
+            Creates the required sub-folders (campaigns, config, savegames, scenarios) and moves existing user files (.svx, .ini) into them.\n \
+        - Recommended (user directory path of the operating system)\n \
+            Stores user files in the operating system's user directory (e.g. \"C:/Users/***/AppData/Roaming\" on Windows) instead of the Caesar III installation folder.\n \
+        - Set custom directory...\n \
+            Stores all user files in a directory of your choice, organized into sub-folders.\n \
+        Note:\n \
+            - Log files are always saved to the Windows user data folder:\n C:/Users/***/AppData/Roaming/augustus/augustus"},
     {TR_USER_DIRECTORIES_USER_PATH_CHANGED_TITLE, "User path changed"},
     {TR_USER_DIRECTORIES_USER_PATH_CHANGED_TEXT, "The user path was successfully changed.\nDo you want to copy over your files?"},
     {TR_USER_DIRECTORIES_USER_PATH_CHANGED_OVERWRITE, "Overwrite existing files"},
@@ -1829,6 +1842,7 @@ static translation_string all_strings[] = {
     {TR_TOOLTIP_MINIMAL, "Minimal"},
     {TR_TOOLTIP_FULL, "Full"},
     {TR_CONFIG_CLEAR_WARNINGS_RIGHTCLICK, "Right click to clear warnings in city view"},
+    {TR_CONFIG_CLEAR_WARNINGS_RIGHTCLICK_TOOLTIP, "If city warnings are present, right-click clears them all at once."},
     {TR_CONFIG_GP_CH_STORAGE_REQUESTS_RESPECT_MAINTAIN, "Caesar's requests respect \'Maintaining\'"},
     {TR_CONFIG_GP_CH_STORAGE_REQUESTS_RESPECT_MAINTAIN_TOOLTIP, "When a resource is set to \'Maintaining\' in any storage building, requests from Caesar can fetch from it, but without going under the minimum defined threshold."},
     {TR_CONFIG_ENABLE_MARKET_RANGE, "Enable market range"},
@@ -1945,6 +1959,7 @@ static translation_string all_strings[] = {
     {TR_CITY_MESSAGE_TITLE_GOVERNOR_RANK_CHANGE, "Governor rank"},
     {TR_TOOLTIP_OVERLAY_LEVY_PER_TILE, " Denarii paid monthly in levies per tile"},
     {TR_CONFIG_UI_CV_BUILD_MENU_ICONS, "Show resource icons in build menu"},
+    {TR_CONFIG_UI_CV_BUILD_MENU_ICONS_TOOLTIP, "If a building produces a resource, its icon is displayed next to it."},
     {TR_EDITOR_RESET_FAVOR_MONTHLY, "Reset favor monthly"},
     {TR_CONFIG_UI_WT_ENABLE_SNOW_CENTRAL, "Enable snow in central climate"},
     {TR_EDITOR_UNABLE_TO_LOAD_MODEL_DATA_TITLE, "Unable to load model data xml"},
@@ -2005,7 +2020,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_UI_BUILD_SHOW_RESERVOIR_RANGES, "Show reservoir range when building other reservoirs and buildings that require its coverage"},
     {TR_CONFIG_UI_BUILD_SHOW_RESERVOIR_RANGES_TOOLTIP, "Displays reservoir pipes on the map when placing some buildings (e.g. fountains, baths, etc.), without enabling the Water overlay."},
     {TR_CONFIG_GP_CH_ALWAYS_DESTROY_BRIDGES, "Always allow removal of bridges"},
-    {TR_CONFIG_GP_CH_ALWAYS_DESTROY_BRIDGES_TOOLTIP, "Bridges can be removed with the clear tool, even if citizens or enemy;) are still on it."},
+    {TR_CONFIG_GP_CH_ALWAYS_DESTROY_BRIDGES_TOOLTIP, "Bridges can be removed with the clear tool, even if citizens are still on it."},
     {TR_CONFIG_CATEGORY_MANAGEMENT_DESTRUCTION, "Destruction"},
     {TR_CHEAT_DESTROYED_BUILDING, "Destroyed building"},
     {TR_EMPIRE_TOOL_OUR_CITY, "Our City"},
