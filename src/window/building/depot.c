@@ -175,9 +175,9 @@ void window_building_get_depot_resource_orders_count(int building_id, resource_t
 
 static void draw_storage_name_and_depot_usage(building_info_context *c, building *storage, int x, int y, int width, font_t font, color_t color)
 {
-    if (c->depot_selection != 2 && c->depot_selection != 3) {
-        text_draw_label_and_number_centered(lang_get_string(28, storage->type), storage->storage_id, "",
-            x, y, width, font, color);
+    if (!config_get(CONFIG_GP_CH_CART_DEPOT_STORAGE_USAGE) || (c->depot_selection != 2 && c->depot_selection != 3)) {
+        text_draw_label_and_number_centered(lang_get_string(28, storage->type),
+            storage->storage_id, "", x, y, width, font, color);
         return;
     }
 
@@ -734,7 +734,26 @@ void window_building_draw_depot_order_source_destination_background(building_inf
     int y_offset = window_building_get_vertical_offset(c, 28);
     c->help_id = 0;
     outer_panel_draw(c->x_offset, y_offset, 29, 28);
-    text_draw_centered(title, c->x_offset, y_offset + 10, 16 * c->width_blocks, FONT_LARGE_BLACK, 0);
+    int center_x = c->x_offset + 8 * c->width_blocks;
+    int title_width = text_get_width(title, FONT_LARGE_BLACK);
+    const image *img = image_get(resource_get_data(data.target_resource_id)->image.icon);
+    int spacing = 10;
+    int total_width = img->original.width
+        + spacing
+        + title_width
+        + spacing
+        + img->original.width;
+    int start_x = center_x - total_width / 2;
+    int icon_h = (22 - img->original.height) / 2;
+    // Left icon
+    image_draw(resource_get_data(data.target_resource_id)->image.icon,
+        start_x, y_offset + 12 + icon_h, COLOR_MASK_NONE, SCALE_NONE);
+    // Title
+    text_draw(title, start_x + img->original.width + spacing, y_offset + 10, FONT_LARGE_BLACK, 0);
+    // Right icon
+    image_draw(resource_get_data(data.target_resource_id)->image.icon,
+        start_x + img->original.width + spacing + title_width + spacing,
+        y_offset + 12 + icon_h, COLOR_MASK_NONE, SCALE_NONE);
     inner_panel_draw(c->x_offset + 16, y_offset + 42, c->width_blocks - 2, 21);
     data.window_area.x = c->x_offset;
     data.window_area.y = y_offset;
