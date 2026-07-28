@@ -152,6 +152,109 @@ static generic_button depot_order_buttons[] = {
 };
 dropdown_button tooltip_style_dropdown_button;
 
+void window_building_get_depot_resource_orders_count(int building_id, resource_type resource,
+    int *source_count, int *destination_count)
+{
+    *source_count = 0;
+    *destination_count = 0;
+    int max_buildings = building_count();
+    for (int i = 1; i < max_buildings; i++) {
+        building *b = building_get(i);
+        if (!b || b->state == BUILDING_STATE_UNUSED || b->type != BUILDING_DEPOT ||
+            b->data.depot.current_order.resource_type != resource) {
+            continue;
+        }
+        if ((int) b->data.depot.current_order.src_storage_id == building_id) {
+            (*source_count)++;
+        }
+        if ((int) b->data.depot.current_order.dst_storage_id == building_id) {
+            (*destination_count)++;
+        }
+    }
+}
+
+static void draw_storage_name_and_depot_usage(building_info_context *c, building *storage, int x, int y, int width, font_t font, color_t color)
+{
+    if (c->depot_selection != 2 && c->depot_selection != 3) {
+        text_draw_label_and_number_centered(lang_get_string(28, storage->type), storage->storage_id, "",
+            x, y, width, font, color);
+        return;
+    }
+
+    int amount = building_storage_get_amount(storage, data.target_resource_id);
+
+    int source_count, destination_count;
+    window_building_get_depot_resource_orders_count(storage->id, data.target_resource_id, &source_count, &destination_count);
+
+    const image *img = image_get(resource_get_data(data.target_resource_id)->image.icon);
+
+    int total_width =
+        text_get_width(lang_get_string(28, storage->type), font) +
+        text_get_number_width(storage->storage_id, ' ', "", font) +
+        10 +
+        img->original.width +
+        3 +
+        text_get_number_width(amount, 0, "", font);
+
+    if (source_count > 0) {
+        total_width +=
+            10 +
+            text_get_width(translation_for(TR_BUILDING_INFO_DEPOT_SOURCE_SRC), font) +
+            text_get_number_width(source_count, 0, "", font);
+    }
+
+    if (destination_count > 0) {
+        total_width +=
+            10 +
+            text_get_width(translation_for(TR_BUILDING_INFO_DEPOT_DESTINATION_DST), font) +
+            text_get_number_width(destination_count, 0, "", font);
+    }
+
+    int text_x = x + (width - total_width) / 2;
+    if (text_x < x + 4) {
+        text_x = x + 4;
+    }
+
+    int info_x = text_x + text_draw_label_and_number(lang_get_string(28, storage->type), storage->storage_id, "",
+        text_x, y, font, color);
+
+    info_x += 10;
+
+    int icon_h = (22 - img->original.height) / 2;
+    image_draw(resource_get_data(data.target_resource_id)->image.icon,
+        info_x, y - 6 + icon_h, COLOR_MASK_NONE, SCALE_NONE);
+
+    info_x += img->original.width;
+    info_x += 3;
+    text_draw_number(amount, 0, "", info_x, y, font, color);
+    info_x += text_get_number_width(amount, 0, "", font);
+
+    color_t src_color = 0xff7f0000;
+    color_t dst_color = 0xff033c77;
+    color_t bcg_color = 0xffc5b594; //shadow
+
+    if (source_count > 0 && destination_count > 0) {
+        src_color = 0xff0a5205;
+        dst_color = 0xff0a5205;
+    }
+
+    if (source_count > 0) {
+        info_x += 10;
+        text_draw_label_and_number(translation_for(TR_BUILDING_INFO_DEPOT_SOURCE_SRC),
+            source_count, "", info_x + 1, y + 1, FONT_NORMAL_PLAIN, bcg_color); //shadow
+        info_x += text_draw_label_and_number(translation_for(TR_BUILDING_INFO_DEPOT_SOURCE_SRC),
+            source_count, "", info_x, y, FONT_NORMAL_PLAIN, src_color);
+    }
+
+    if (destination_count > 0) {
+        info_x += 10;
+        text_draw_label_and_number(translation_for(TR_BUILDING_INFO_DEPOT_DESTINATION_DST),
+            destination_count, "", info_x + 1, y + 1, FONT_NORMAL_PLAIN, bcg_color); //shadow
+        text_draw_label_and_number(translation_for(TR_BUILDING_INFO_DEPOT_DESTINATION_DST),
+            destination_count, "", info_x, y, FONT_NORMAL_PLAIN, dst_color);
+    }
+}
+
 static void setup_buttons_for_selected_depot(void)
 {
     for (int i = 0; i < MAX_VISIBLE_ROWS; i++) {
@@ -369,25 +472,21 @@ static void depot_draw_cart_status(const building *b, building_info_context *c)
     int x_icon = c->x_offset + 35;  // icon position
     int x_amount = x_icon + 15;     // amount position
     int x_action = x_amount + 30;   // text action position
-
     for (int i = 0; i < 3; i++) {
         int y_pos = y_cart + i * 16;
         figure *f = 0;
         if (b->data.distribution.cartpusher_ids[i]) {
             f = figure_get(b->data.distribution.cartpusher_ids[i]);
         }
-
         if (f && f->state != FIGURE_STATE_DEAD) {
-            
             int resource = f->resource_id ? f->resource_id : f->collecting_item_id;
             if (resource != RESOURCE_NONE) { //icon position
                 const resource_data *rdata = resource_get_data(resource);
                 const image *img = image_get(rdata->image.icon);
-                int draw_x = x_icon - (img->original.width / 2);
-                int draw_y = y_pos - (img->original.height / 2);
-                image_draw(rdata->image.icon, draw_x, draw_y + 5, COLOR_MASK_NONE, SCALE_NONE);
+                int draw_x = x_amount - 3 - img->original.width;
+                int draw_y = y_pos + (22 - img->original.height) / 2;   //22 max height
+                image_draw(rdata->image.icon, draw_x, draw_y - 5, COLOR_MASK_NONE, SCALE_NONE);
             }
-            
             if (f->loads_sold_or_carrying > 0) { //amount position
                 text_draw_number(f->loads_sold_or_carrying, 'x', "",
                     x_amount, y_pos, FONT_NORMAL_BROWN, 0);
@@ -695,8 +794,7 @@ void window_building_draw_depot_select_source_destination(building_info_context 
             // Middle button - select storage
             button_border_draw(c->x_offset + 18 + BLOCK_SIZE * 2, y_offset + 46 + ROW_HEIGHT * drawn_rows, base_width,
                 22, data.storage_building_focus_button_id == drawn_rows + 1);
-            text_draw_label_and_number_centered(
-                lang_get_string(28, bld->type), bld->storage_id, "", c->x_offset + 18 + BLOCK_SIZE * 2,
+            draw_storage_name_and_depot_usage(c, bld, c->x_offset + 18 + BLOCK_SIZE * 2,
                 y_offset + 52 + ROW_HEIGHT * drawn_rows, base_width, FONT_NORMAL_WHITE, 0);
 
             // Right button - view storage
