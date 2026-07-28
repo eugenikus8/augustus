@@ -406,10 +406,10 @@ void figure_docker_action(figure *f)
                     b->data.dock.queued_docker_id = 0;
                 }
             }
-                f->wait_ticks++;
-                if (f->wait_ticks >= 20) {
-                    set_docker_as_idle(f);
-                }
+            f->wait_ticks++;
+            if (f->wait_ticks >= 20) {
+                set_docker_as_idle(f);
+            }
             f->image_offset = 0;
             break;
         case FIGURE_ACTION_135_DOCKER_IMPORT_GOING_TO_STORAGE:
