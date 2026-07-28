@@ -175,7 +175,7 @@ void window_building_get_depot_resource_orders_count(int building_id, resource_t
 
 static void draw_storage_name_and_depot_usage(building_info_context *c, building *storage, int x, int y, int width, font_t font, color_t color)
 {
-    if (!config_get(CONFIG_GP_CH_CART_DEPOT_STORAGE_USAGE) || (c->depot_selection != 2 && c->depot_selection != 3)) {
+    if (!config_get(CONFIG_UI_EXTRA_INFORMATION_IN_CART_DEPOT) || (c->depot_selection != 2 && c->depot_selection != 3)) {
         text_draw_label_and_number_centered(lang_get_string(28, storage->type),
             storage->storage_id, "", x, y, width, font, color);
         return;
