@@ -77,12 +77,10 @@ int building_animation_offset(building *b, int image_id, int grid_offset)
         return 0;
     }
 
-
     if (b->type == BUILDING_DOCK && !building_dock_has_active_dockers(b)) {
         map_sprite_animation_set(grid_offset, 1);
         return 1;
     }
-
 
     if (b->type == BUILDING_MARBLE_QUARRY && (b->num_workers <= 0 || b->strike_duration_days > 0)) {
         map_sprite_animation_set(grid_offset, 1);

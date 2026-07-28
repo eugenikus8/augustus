@@ -335,9 +335,6 @@ void figure_docker_action(figure *f)
     if (b->type != BUILDING_DOCK) {
         f->state = FIGURE_STATE_DEAD;
     }
-    //if (b->data.dock.num_ships) {
-    //    b->data.dock.num_ships--;
-    //}
     if (b->data.dock.trade_ship_id) {
         figure *ship = figure_get(b->data.dock.trade_ship_id);
         if (ship->state != FIGURE_STATE_ALIVE || ship->type != FIGURE_TRADE_SHIP) {
@@ -369,7 +366,6 @@ void figure_docker_action(figure *f)
                 f->wait_ticks = 0;
             }
             if ((unsigned int) b->data.dock.queued_docker_id == f->id) {
-                //b->data.dock.num_ships = 120;
                 f->wait_ticks++;
                 if (f->wait_ticks >= 0) {//80
                     f->action_state = FIGURE_ACTION_135_DOCKER_IMPORT_GOING_TO_STORAGE;
@@ -402,7 +398,6 @@ void figure_docker_action(figure *f)
                 f->wait_ticks = 0;
             }
             if ((unsigned int) b->data.dock.queued_docker_id == f->id) {
-                //b->data.dock.num_ships = 120;
                 f->wait_ticks++;
                 if (f->wait_ticks >= 0) {//80
                     set_docker_as_idle(f);
