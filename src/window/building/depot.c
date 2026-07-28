@@ -184,74 +184,112 @@ static void draw_storage_name_and_depot_usage(building_info_context *c, building
     int amount = building_storage_get_amount(storage, data.target_resource_id);
 
     int source_count, destination_count;
-    window_building_get_depot_resource_orders_count(storage->id, data.target_resource_id, &source_count, &destination_count);
+    window_building_get_depot_resource_orders_count(storage->id, data.target_resource_id,
+        &source_count, &destination_count);
 
     const image *img = image_get(resource_get_data(data.target_resource_id)->image.icon);
 
-    int total_width =
-        text_get_width(lang_get_string(28, storage->type), font) +
-        text_get_number_width(storage->storage_id, ' ', "", font) +
+    // Basic information columns
+    int name_column_width = 100;
+    int id_column_width = 25;
+    int icon_column_width = img->original.width + 10;
+    int amount_column_width = 35;
+
+    int main_width =
+        name_column_width +
+        id_column_width +
+        icon_column_width +
+        amount_column_width;
+
+    // We ALWAYS reserve a place for SRC/DST, even if they are not on this line.
+    int depot_extra_width = 0;
+
+    depot_extra_width +=
         10 +
-        img->original.width +
-        3 +
-        text_get_number_width(amount, 0, "", font);
+        text_get_width(translation_for(TR_BUILDING_INFO_DEPOT_SOURCE_SRC), FONT_NORMAL_PLAIN) +
+        text_get_number_width(99, 0, "", FONT_NORMAL_PLAIN);
 
-    if (source_count > 0) {
-        total_width +=
-            10 +
-            text_get_width(translation_for(TR_BUILDING_INFO_DEPOT_SOURCE_SRC), font) +
-            text_get_number_width(source_count, 0, "", font);
+    depot_extra_width +=
+        10 +
+        text_get_width(translation_for(TR_BUILDING_INFO_DEPOT_DESTINATION_DST), FONT_NORMAL_PLAIN) +
+        text_get_number_width(99, 0, "", FONT_NORMAL_PLAIN);
+
+    int total_width = main_width + depot_extra_width;
+
+    int table_x = x + 10 + (width - total_width) / 2;
+    if (table_x < x + 4) {
+        table_x = x + 4;
     }
 
-    if (destination_count > 0) {
-        total_width +=
-            10 +
-            text_get_width(translation_for(TR_BUILDING_INFO_DEPOT_DESTINATION_DST), font) +
-            text_get_number_width(destination_count, 0, "", font);
-    }
+    // Name storage
+    int gap = 3;
+    int name_width = text_get_width(lang_get_string(28, storage->type), font);
+    int name_x =
+        table_x +
+        name_column_width -
+        name_width -
+        gap;
+    text_draw(lang_get_string(28, storage->type),
+        name_x, y, font, color);
 
-    int text_x = x + (width - total_width) / 2;
-    if (text_x < x + 4) {
-        text_x = x + 4;
-    }
+    // id storage
+    text_draw_number_centered(storage->storage_id,
+        table_x + name_column_width, y, id_column_width, font);
 
-    int info_x = text_x + text_draw_label_and_number(lang_get_string(28, storage->type), storage->storage_id, "",
-        text_x, y, font, color);
-
-    info_x += 10;
+    // icon res
+    int icon_x =
+        table_x +
+        name_column_width +
+        id_column_width +
+        15;
 
     int icon_h = (22 - img->original.height) / 2;
     image_draw(resource_get_data(data.target_resource_id)->image.icon,
-        info_x, y - 6 + icon_h, COLOR_MASK_NONE, SCALE_NONE);
+        icon_x, y - 6 + icon_h, COLOR_MASK_NONE, SCALE_NONE);
 
-    info_x += img->original.width;
-    info_x += 3;
-    text_draw_number(amount, 0, "", info_x, y, font, color);
-    info_x += text_get_number_width(amount, 0, "", font);
+
+    // amount res
+    int amount_x =
+        table_x +
+        name_column_width +
+        id_column_width +
+        icon_column_width;
+
+    text_draw_number_centered(amount, amount_x, y, amount_column_width, font);
+
+
+    // SRC / DST setting
+    int info_x = table_x + main_width;
 
     color_t src_color = 0xff7f0000;
     color_t dst_color = 0xff033c77;
-    color_t bcg_color = 0xffc5b594; //shadow
+    color_t bcg_color = 0xffc5b594; //shadow color
 
     if (source_count > 0 && destination_count > 0) {
         src_color = 0xff0a5205;
         dst_color = 0xff0a5205;
     }
 
+    // src
     if (source_count > 0) {
         info_x += 10;
-        text_draw_label_and_number(translation_for(TR_BUILDING_INFO_DEPOT_SOURCE_SRC),
-            source_count, "", info_x + 1, y + 1, FONT_NORMAL_PLAIN, bcg_color); //shadow
-        info_x += text_draw_label_and_number(translation_for(TR_BUILDING_INFO_DEPOT_SOURCE_SRC),
-            source_count, "", info_x, y, FONT_NORMAL_PLAIN, src_color);
+
+        text_draw_label_and_number(translation_for(TR_BUILDING_INFO_DEPOT_SOURCE_SRC), source_count, "",
+            info_x + 1, y + 1, FONT_NORMAL_PLAIN, bcg_color); // shadow
+
+        info_x += text_draw_label_and_number(translation_for(TR_BUILDING_INFO_DEPOT_SOURCE_SRC), source_count, "",
+            info_x, y, FONT_NORMAL_PLAIN, src_color);
     }
 
+    // dst
     if (destination_count > 0) {
         info_x += 10;
-        text_draw_label_and_number(translation_for(TR_BUILDING_INFO_DEPOT_DESTINATION_DST),
-            destination_count, "", info_x + 1, y + 1, FONT_NORMAL_PLAIN, bcg_color); //shadow
-        text_draw_label_and_number(translation_for(TR_BUILDING_INFO_DEPOT_DESTINATION_DST),
-            destination_count, "", info_x, y, FONT_NORMAL_PLAIN, dst_color);
+
+        text_draw_label_and_number(translation_for(TR_BUILDING_INFO_DEPOT_DESTINATION_DST), destination_count, "",
+            info_x + 1, y + 1, FONT_NORMAL_PLAIN, bcg_color); // shadow
+
+        text_draw_label_and_number(translation_for(TR_BUILDING_INFO_DEPOT_DESTINATION_DST), destination_count, "",
+            info_x, y, FONT_NORMAL_PLAIN, dst_color);
     }
 }
 
