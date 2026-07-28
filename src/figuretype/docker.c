@@ -335,9 +335,9 @@ void figure_docker_action(figure *f)
     if (b->type != BUILDING_DOCK) {
         f->state = FIGURE_STATE_DEAD;
     }
-    if (b->data.dock.num_ships) {
-        b->data.dock.num_ships--;
-    }
+    //if (b->data.dock.num_ships) {
+    //    b->data.dock.num_ships--;
+    //}
     if (b->data.dock.trade_ship_id) {
         figure *ship = figure_get(b->data.dock.trade_ship_id);
         if (ship->state != FIGURE_STATE_ALIVE || ship->type != FIGURE_TRADE_SHIP) {
@@ -355,7 +355,7 @@ void figure_docker_action(figure *f)
             figure_combat_handle_corpse(f);
             break;
         case FIGURE_ACTION_132_DOCKER_IDLING:
-            f->cart_image_id = 0;
+            f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART); //visible idle docker
             if (!deliver_import_resource(f, b)) {
                 fetch_export_resource(f, b, 1);
             }
@@ -369,9 +369,9 @@ void figure_docker_action(figure *f)
                 f->wait_ticks = 0;
             }
             if ((unsigned int) b->data.dock.queued_docker_id == f->id) {
-                b->data.dock.num_ships = 120;
+                //b->data.dock.num_ships = 120;
                 f->wait_ticks++;
-                if (f->wait_ticks >= 0) {
+                if (f->wait_ticks >= 0) {//80
                     f->action_state = FIGURE_ACTION_135_DOCKER_IMPORT_GOING_TO_STORAGE;
                     f->wait_ticks = 0;
                     set_cart_graphic(f);
@@ -402,19 +402,19 @@ void figure_docker_action(figure *f)
                 f->wait_ticks = 0;
             }
             if ((unsigned int) b->data.dock.queued_docker_id == f->id) {
-                b->data.dock.num_ships = 120;
+                //b->data.dock.num_ships = 120;
                 f->wait_ticks++;
-                if (f->wait_ticks >= 80) {
+                if (f->wait_ticks >= 0) {//80
                     set_docker_as_idle(f);
                     f->image_id = 0;
                     f->cart_image_id = 0;
                     b->data.dock.queued_docker_id = 0;
                 }
             }
-            f->wait_ticks++;
-            if (f->wait_ticks >= 20) {
-                set_docker_as_idle(f);
-            }
+                f->wait_ticks++;
+                if (f->wait_ticks >= 20) {
+                    set_docker_as_idle(f);
+                }
             f->image_offset = 0;
             break;
         case FIGURE_ACTION_135_DOCKER_IMPORT_GOING_TO_STORAGE:
