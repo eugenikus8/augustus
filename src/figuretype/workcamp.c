@@ -230,7 +230,9 @@ void figure_workcamp_worker_action(figure *f)
                 if (!monument_id) {
                     f->state = FIGURE_STATE_DEAD;
                 } else if (!take_resource_from_warehouse(f, warehouse_id)) {
-                    f->state = FIGURE_STATE_DEAD;
+                    // Warehouse is out of resources - finding a new one instead of dying
+                    f->destination_building_id = 0;
+                    f->action_state = FIGURE_ACTION_203_WORK_CAMP_WORKER_CREATED;
                 } else {
                     // Placeholder delivery
                     building_monument_add_delivery(monument_id, f->id, f->collecting_item_id, 0);
