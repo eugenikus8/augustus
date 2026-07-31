@@ -407,7 +407,7 @@ void figure_docker_action(figure *f)
                 }
             }
             f->wait_ticks++;
-            if (f->wait_ticks >= 20) {
+            if (f->wait_ticks >= 1) {//20
                 set_docker_as_idle(f);
             }
             f->image_offset = 0;
@@ -478,7 +478,7 @@ void figure_docker_action(figure *f)
         case FIGURE_ACTION_139_DOCKER_IMPORT_AT_STORAGE:
             set_cart_graphic(f);
             f->wait_ticks++;
-            if (f->wait_ticks > 10) {
+            if (f->wait_ticks > 1) {//10
                 int trade_city_id;
                 if (b->data.dock.trade_ship_id) {
                     trade_city_id = figure_get(b->data.dock.trade_ship_id)->empire_city_id;
@@ -512,7 +512,7 @@ void figure_docker_action(figure *f)
         case FIGURE_ACTION_140_DOCKER_EXPORT_AT_STORAGE:
             f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART); // empty
             f->wait_ticks++;
-            if (f->wait_ticks > 10) {
+            if (f->wait_ticks > 1) {//10
                 int trade_city_id;
                 if (b->data.dock.trade_ship_id) {
                     trade_city_id = figure_get(b->data.dock.trade_ship_id)->empire_city_id;
