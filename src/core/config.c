@@ -143,6 +143,7 @@ static const char *ini_keys[] = {
     [CONFIG_UI_AUTO_CYCLE_GARDENS] = "ui_auto_cycle_gardens",
     [CONFIG_UI_EXTRA_INFORMATION_IN_CART_DEPOT] = "ui_extra_information_in_cart_depot",
     [CONFIG_UI_AUTO_DELETE_OLD_COMMON_MESSAGES] = "ui_auto_delete_old_common_messages",
+    [CONFIG_UI_SCROLL_CAMERA_UNLOCKED] = "ui_scroll_camera_unlocked",
 };
 
 static const char *ini_string_keys[] = {
@@ -217,7 +218,8 @@ static int default_values[CONFIG_MAX_ENTRIES] = {
     [CONFIG_UI_WT_SANDSTORM_SIZE] = 0,
     [CONFIG_UI_WT_SNOWFLAKE_SIZE] = 2,
     [CONFIG_UI_WT_WEATHER_DURATION] = 1,
-    [CONFIG_UI_CLIMATE_GRID_COLORS] = 1
+    [CONFIG_UI_CLIMATE_GRID_COLORS] = 1,
+    [CONFIG_UI_SCROLL_CAMERA_UNLOCKED] = 1,
 };
 
 static const char default_string_values[CONFIG_STRING_MAX_ENTRIES][CONFIG_STRING_VALUE_MAX] = { 0 };
