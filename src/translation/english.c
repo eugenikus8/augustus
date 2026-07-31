@@ -443,11 +443,11 @@ static translation_string all_strings[] = {
     {TR_BUILDING_LIGHTHOUSE_NO_POLICY, "No sea trade policy."},
     {TR_BUILDING_LIGHTHOUSE_NOT_WORKING, "Lighthouse not working!"},
     {TR_BUILDING_LIGHTHOUSE_POLICY_TEXT, "Select a sea trade policy for your city. You can change to another policy at any time."},
-    {TR_BUILDING_LIGHTHOUSE_POLICY_1_TITLE, "Consilium venditoris maritimi" },
+    {TR_BUILDING_LIGHTHOUSE_POLICY_1_TITLE, "Consilium venditoris maritimi"},
     {TR_BUILDING_LIGHTHOUSE_POLICY_1, "Maritime seller's policy: Sea exports earn 20% more, but sea imports are 10% more expensive."},
-    {TR_BUILDING_LIGHTHOUSE_POLICY_2_TITLE, "Consilium emptoris maritimi" },
-    {TR_BUILDING_LIGHTHOUSE_POLICY_2, "Maritime buyer's policy: Sea imports are 20% cheaper." },
-    {TR_BUILDING_LIGHTHOUSE_POLICY_3_TITLE, "Consilium quantitatis maritimae" }, // XXX "quantitatis"? Can anybody double check?
+    {TR_BUILDING_LIGHTHOUSE_POLICY_2_TITLE, "Consilium emptoris maritimi"},
+    {TR_BUILDING_LIGHTHOUSE_POLICY_2, "Maritime buyer's policy: Sea imports are 20% cheaper."},
+    {TR_BUILDING_LIGHTHOUSE_POLICY_3_TITLE, "Consilium quantitatis maritimae"}, // XXX "quantitatis"? Can anybody double check?
     {TR_BUILDING_LIGHTHOUSE_POLICY_3, "Maritime quantity policy: Trade ships carry 4 additional goods, but the Lighthouse consumes 20% more timber."},
     {TR_EDITOR_ALLOWED_BUILDINGS_MONUMENTS, "Monuments"},
     {TR_CITY_MESSAGE_TEXT_LIGHTHOUSE_COMPLETE, "The completed Lighthouse - a mighty tower of stone, looms over the horizon. May its fiery beacon guide ships safely home until the end of time."},
@@ -2162,9 +2162,9 @@ static translation_string all_strings[] = {
     {TR_UI_LEDGER_BTN_BALANCE, "Dn Balance"},
     {TR_UI_LEDGER_TT_BALANCE, "Sort by Denarii Balance"},
     {TR_UI_LEDGER_DISABLED_1, "This feature is not yet available."},
-    {TR_UI_LEDGER_DISABLED_2, "Your scribes are working hard to build this feature, but they need more time."}
-    {TR_UI_LEDGER_TT_BALANCE, "Sort by Denarii Balance" },
-    {TR_UI_LEDGER_DISABLED_1, "This feature is not yet available." },
+    {TR_UI_LEDGER_DISABLED_2, "Your scribes are working hard to build this feature, but they need more time."},
+    {TR_UI_LEDGER_TT_BALANCE, "Sort by Denarii Balance"},
+    {TR_UI_LEDGER_DISABLED_1, "This feature is not yet available."},
     {TR_UI_LEDGER_DISABLED_2, "Your scribes are working hard to build this feature, but they need more time."},
     {TR_CONFIG_UI_SCROLL_CAMERA_UNLOCKED, "Expand camera bounds"}
 };
