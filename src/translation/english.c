@@ -2156,9 +2156,8 @@ static translation_string all_strings[] = {
     {TR_CONFIG_WT_WEATHER_DURATION, "Weather duration"},
     {TR_CONFIG_WT_DURATION_SHORT, "Short"},
     {TR_CONFIG_WT_DURATION_REGULAR, "Regular"},
-    {TR_CONFIG_WT_DURATION_LONG, "Long" },
-    {TR_UI_TRADE_LEDGER_HEADER , "Trade Ledger"},
     {TR_CONFIG_WT_DURATION_LONG, "Long"},
+    {TR_UI_TRADE_LEDGER_HEADER, "Trade Ledger"},
     {TR_ADVISOR_HEALTH_WATER_COVERAGE, "Water"},
     {TR_ADVISOR_HEALTH_HEALTH_COVERAGE, "Health"},
     {TR_BUILDING_FOUNTAINS, "Fountains"},
@@ -2221,7 +2220,7 @@ static translation_string all_strings[] = {
     {TR_UI_TRADE_LEDGER_BUYS, "Buys"},
     {TR_UI_TRADE_LEDGER_SELLS, "Sells"},
     {TR_UI_TOOLTIP_CLEAR_SELECTION, "Clear Selection"},
-    {TR_UI_TOOLTIP_SELECT_RESOURCE_FILTER , "Select Resource"},
+    {TR_UI_TOOLTIP_SELECT_RESOURCE_FILTER, "Select Resource"},
     {TR_UI_TOOLTIP_RESET_SORTING, "Reset Sorting"},
     {TR_UI_TOOLTIP_SELECT_SORTING, "Select Sorting"},
     {TR_UI_TOOLTIP_RESET_FILTERS, "Reset Filters"},
@@ -2247,9 +2246,13 @@ static translation_string all_strings[] = {
     {TR_UI_LEDGER_BTN_STOCK, "Stock"},
     {TR_UI_LEDGER_TT_STOCK, "Sort by Stock"},
     {TR_UI_LEDGER_BTN_BALANCE, "Dn Balance"},
+    {TR_UI_LEDGER_TT_BALANCE, "Sort by Denarii Balance"},
+    {TR_UI_LEDGER_DISABLED_1, "This feature is not yet available."},
+    {TR_UI_LEDGER_DISABLED_2, "Your scribes are working hard to build this feature, but they need more time."}
     {TR_UI_LEDGER_TT_BALANCE, "Sort by Denarii Balance" },
     {TR_UI_LEDGER_DISABLED_1, "This feature is not yet available." },
-    {TR_UI_LEDGER_DISABLED_2, "Your scribes are working hard to build this feature, but they need more time."}
+    {TR_UI_LEDGER_DISABLED_2, "Your scribes are working hard to build this feature, but they need more time."},
+    {TR_CONFIG_UI_SCROLL_CAMERA_UNLOCKED, "Expand camera bounds"}
 };
 
 void translation_english(const translation_string **strings, int *num_strings)
