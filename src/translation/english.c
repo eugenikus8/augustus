@@ -2171,6 +2171,8 @@ static translation_string all_strings[] = {
     {TR_EDITOR_SCENARIO_EVENTS_QUARRY_COLLAPSED, "Quarry collapse"},
     {TR_CITY_MESSAGE_TITLE_QUARRY_COLLAPSED, "Quarry collapse"},
     {TR_CITY_MESSAGE_TEXT_QUARRY_COLLAPSED, "A terrible event has occurred. One of our quarries has suffered a collapse! Our engineers powerless to prevent the disaster."},
+    {TR_CONFIG_UI_SCROLL_CAMERA_UNLOCKED, "Expand camera bounds" },
+    {TR_UI_LEDGER_ONLY_CURRENT_YEAR , "You only started your governorship this year!"},
 };
 
 void translation_english(const translation_string **strings, int *num_strings)
