@@ -123,9 +123,9 @@ static void font_and_colours(complex_button_style style, int is_disabled, int is
             *font = FONT_NORMAL_GREEN;
             if (is_large) {
                 *font = FONT_LARGE_PLAIN;
-                *font_primary = debug_color_primary; //COLOR_FONT_GRAY_50;
-                *font_secondary = debug_color_secondary; //COLOR_FONT_GRAY_GREEN;
             }
+            *font_primary = debug_color_primary; //COLOR_FONT_GRAY_50;
+            *font_secondary = debug_color_secondary; //COLOR_FONT_GRAY_GREEN;
             break;
         case COMPLEX_BUTTON_STYLE_RAW:
             *font = is_large ? FONT_LARGE_PLAIN : FONT_NORMAL_PLAIN;
@@ -281,12 +281,17 @@ static void draw_button_contents(const complex_button *button, font_t font, colo
     }
 }
 
-static void draw_default_style(const complex_button *button, font_t base_font, color_t font_primary, color_t font_secondary)
+static void draw_default_style(const complex_button *button, font_t base_font,
+    color_t font_primary, color_t font_secondary, color_t color_mask)
 {
     graphics_set_clip_rectangle(button->x, button->y, button->width, button->height);
 
     int height_blocks = button->height / BLOCK_SIZE;
     switch (button->style) {
+        case COMPLEX_BUTTON_STYLE_CUSTOM:
+            unbordered_panel_draw_colored(button->x, button->y, button->width / BLOCK_SIZE + 1,
+                height_blocks + 1, color_mask);
+            break;
         case COMPLEX_BUTTON_STYLE_NO_FILL:
         case COMPLEX_BUTTON_STYLE_RAW:
             break; // no bg fill
@@ -358,7 +363,7 @@ void complex_button_draw(const complex_button *button)
     }
     if (button->font || button->color_mask || button->style == COMPLEX_BUTTON_STYLE_CUSTOM) {
         // bypasses the default selection of colors/fonts
-        draw_default_style(button, button->font, button->font_color, COLOR_MASK_NONE);
+        draw_default_style(button, button->font, button->font_color, COLOR_MASK_NONE, button->color_mask);
         return;
     }
     int is_large = button->height > 32 && !button->dont_enlarge_font;
@@ -373,7 +378,7 @@ void complex_button_draw(const complex_button *button)
             draw_main_menu_style(button, base_font, font_primary, font_secondary);
             break;
         default: // all other variants housed in the default style draw function 
-            draw_default_style(button, base_font, font_primary, font_secondary);
+            draw_default_style(button, base_font, font_primary, font_secondary, button->color_mask);
     }
 }
 
@@ -386,13 +391,11 @@ void complex_button_draw_array(const complex_button *buttons, unsigned int num_b
 
 int complex_button_handle_mouse(complex_button *btn, const mouse *m)
 {
-    if (btn->is_disabled) {
+    if (btn->is_disabled || btn->is_hidden) {
         btn->is_clicked = 0;
-        return 0;
-    }
-    if (btn->is_hidden) {
-        btn->is_clicked = 0;
-        return 0;
+        if (btn->is_hidden) {
+            return 0; // hidden buttons do not handle mouse events
+        }
     }
     int handled = 0;
 
@@ -405,14 +408,17 @@ int complex_button_handle_mouse(complex_button *btn, const mouse *m)
     int inside = (m->x >= left && m->x < right && m->y >= top && m->y < bottom);
     if (btn->is_focused != inside) {
         btn->is_focused = inside;
-        if (btn->hover_handler) {
+
+        if (btn->hover_handler && !btn->is_disabled) {
             btn->hover_handler(btn); // run the hover handler on hover state change
         }
         window_request_refresh(); // redraw to show focus change
     } else {
         btn->is_focused = inside;
     }
-
+    if (btn->is_disabled) {
+        return 0; // disabled buttons do not handle mouse past establishing focus state for tooltip
+    }
     if (btn->is_ellipsized && btn->is_focused) { //if the button is ellipsized, show tooltip
         static uint8_t tooltip_text[512];
         lang_text_concatenate_sequence(btn->sequence, btn->sequence_size, tooltip_text, 512);
