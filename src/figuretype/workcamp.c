@@ -187,6 +187,15 @@ void figure_workcamp_worker_action(figure *f)
             // Fallback: if no monument needs delivery, supply the Highway Station if it exists and is short on stock
             if (!f->destination_building_id) {
                 int highway_station_id = city_buildings_get_highway_station();
+
+                if (highway_station_id) {
+                    building *highway_station = building_get(highway_station_id);
+                    if (highway_station->road_network_id != b->road_network_id ||
+                        highway_station->state != BUILDING_STATE_IN_USE) {
+                        highway_station_id = 0;
+                    }
+                }
+
                 int max_stock = building_highway_station_max_stock();
                 if (highway_station_id && max_stock > 0) {
                     building *highway_station = building_get(highway_station_id);
