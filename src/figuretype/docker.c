@@ -260,7 +260,7 @@ static int deliver_import_resource(figure *f, building *dock)
         return 0;
     }
     if (!f->destination_building_id) {
-        ship->loads_sold_or_carrying--;
+        //ship->loads_sold_or_carrying--;
         f->action_state = FIGURE_ACTION_133_DOCKER_IMPORT_QUEUE;
     } else {
         f->action_state = FIGURE_ACTION_135_DOCKER_IMPORT_GOING_TO_STORAGE;
@@ -489,6 +489,12 @@ void figure_docker_action(figure *f)
                     trade_city_id, f->loads_sold_or_carrying)) {
                     int ship_id = b->data.dock.trade_ship_id;
                     figure *ship = figure_get(ship_id);
+
+                    // delay import cargo accounting until delivery
+                    if (ship->loads_sold_or_carrying > 0) {
+                        ship->loads_sold_or_carrying--;
+                    }
+
                     unsigned short trader_id = ship->trader_id;
                     int storage_id = building_get(f->destination_building_id)->storage_id;
                     trader_record_sold_resource(ship_id, trader_id, f->resource_id, storage_id);
