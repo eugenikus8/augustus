@@ -986,7 +986,7 @@ int building_monument_get_monument_for_architect_guild(building *guild)
     int min_dist = INFINITE;
     building *min_building = 0;
     for (building_type type = BUILDING_MONUMENT_FIRST_ID; type < BUILDING_TYPE_MAX; type++) {
-        if (!MONUMENT_TYPES[type] || type == BUILDING_TRIUMPHAL_ARCH) {// triumphal arch should not be a destiantion for work camps
+        if (get_monument_building_type(type) < 0 || type == BUILDING_TRIUMPHAL_ARCH) {
             continue;
         }
         for (building *b = building_first_of_type(type); b; b = b->next_of_type) {
