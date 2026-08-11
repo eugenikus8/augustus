@@ -44,7 +44,7 @@ If you are unsure about anything regarding the savegame versioning, please ask o
 
 typedef enum {
 
-    SAVE_GAME_CURRENT_VERSION = 0xb8,
+    SAVE_GAME_CURRENT_VERSION = 0xb9,
 
     SAVE_GAME_LAST_ORIGINAL_LIMITS_VERSION = 0x66,
     SAVE_GAME_LAST_SMALLER_IMAGE_ID_VERSION = 0x76,
@@ -106,13 +106,14 @@ typedef enum {
     SAVE_GAME_LAST_NO_HIGHWAY_STATION = 0xb2,
     SAVE_GAME_LAST_NO_TRIUMPHAL_ARCH_MONUMENT = 0xb3,
     SAVE_GAME_LAST_NO_FORT_ORIENTATION = 0xb4,
-    SAVE_GAME_LAST_NO_LEDGER = 0xb5, // only existed in test versions, never on master. 
+    SAVE_GAME_LAST_NO_LEDGER = 0xb5, // only existed in test versions, never on master.
     SAVE_GAME_LAST_NO_FINANCE_OVERVIEW_HISTORY = 0xb6,
-    SAVE_GAME_LAST_NO_QUARRY_COLLAPSE = 0xb7,
+    SAVE_GAME_LAST_NO_HOUSE_MODELS = 0xb7,
+    SAVE_GAME_LAST_NO_QUARRY_COLLAPSE = 0xb8,
 } savegame_version_t;
 
 typedef enum {
-    SCENARIO_CURRENT_VERSION = 23,
+    SCENARIO_CURRENT_VERSION = 24,
 
     SCENARIO_VERSION_NONE = 0,
     SCENARIO_LAST_UNVERSIONED = 1,
@@ -136,7 +137,8 @@ typedef enum {
     SCENARIO_LAST_NO_FORMULAS_AND_MODEL_DATA = 19,
     SCENARIO_LAST_NO_EMPIRE_EDITOR = 20,
     SCENARIO_LAST_LIMITED_ROUTE_COST = 21,
-    SCENARIO_LAST_NO_QUARRY_COLLAPSE = 22
+    SCENARIO_LAST_NO_HOUSE_MODELS = 22,
+    SCENARIO_LAST_NO_QUARRY_COLLAPSE = 23
 } scenario_version_t;
 
 typedef enum {
