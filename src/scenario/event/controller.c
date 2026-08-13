@@ -616,7 +616,7 @@ void scenario_events_migrate_to_formulas(void)
             action = array_item(current->actions, j);
             if (action->type == ACTION_TYPE_ADJUST_CITY_HEALTH || action->type == ACTION_TYPE_ADJUST_ROME_WAGES ||
                 action->type == ACTION_TYPE_ADJUST_MONEY || action->type == ACTION_TYPE_ADJUST_SAVINGS) {
-                return;
+                continue;
             }
             scenario_parameters_foreach_in_action(action, migrate_parameters_action); //migrate parameters if needed
         }
