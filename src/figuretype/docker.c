@@ -260,7 +260,6 @@ static int deliver_import_resource(figure *f, building *dock)
         return 0;
     }
     if (!f->destination_building_id) {
-        //ship->loads_sold_or_carrying--;
         f->action_state = FIGURE_ACTION_133_DOCKER_IMPORT_QUEUE;
     } else {
         f->action_state = FIGURE_ACTION_135_DOCKER_IMPORT_GOING_TO_STORAGE;
