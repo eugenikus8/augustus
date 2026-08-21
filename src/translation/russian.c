@@ -2328,6 +2328,8 @@ static translation_string all_strings[] = {
     {TR_ACTION_TYPE_SEND_CITY_WARNING, "Отправить предупреждение городу"},
     {TR_PARAMETER_MESSAGE, "Сообщение"},
     {TR_PARAMETER_PLAY_FANFARE, "Проиграть фанфары"},
+    {TR_CONFIG_UI_SCROLL_LEGACY_SCROLLBAR, "Классическая полоса прокрутки"},
+    {TR_BUILDING_WILLOW_TREE, "Ива"},
 };
 
 void translation_russian(const translation_string **strings, int *num_strings)
