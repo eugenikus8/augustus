@@ -1938,7 +1938,6 @@ static translation_string all_strings[] = {
     {TR_BUILDING_HOUSE_MEDIUM_PALACE, "Medium Palace"},
     {TR_BUILDING_HOUSE_LARGE_PALACE,  "Large Palace"},
     {TR_BUILDING_HOUSE_LUXURY_PALACE, "Luxury Palace"},
-    {TR_CONFIG_UI_BUILD_SHOW_RESERVOIR_RANGES, "Show reservoir range when building fountains"},
     {TR_ACTION_TYPE_CHANGE_HOUSE_MODEL_DATA, "Change house model data"},
     {TR_PARAMETER_DEVOLVE_DESIRABILITY, "Devolve desirability"},
     {TR_PARAMETER_EVOLVE_DESIRABILITY, "Evolve desirability"},
@@ -1998,7 +1997,6 @@ static translation_string all_strings[] = {
     {TR_CONFIG_UI_BUILD_SHOW_RESERVOIR_RANGES, "Show reservoir range when building other reservoirs and buildings that require its coverage"},
     {TR_CONFIG_GP_CH_ALWAYS_DESTROY_BRIDGES, "Always allow removal of bridges"},
     {TR_CONFIG_CATEGORY_MANAGEMENT_DESTRUCTION, "Destruction"},
-    {TR_CHEAT_DESTROYED_BUILDING, "Destroyed building"},
     {TR_EMPIRE_TOOL_OUR_CITY, "Our City"},
     {TR_EMPIRE_TOOL_TRADE_CITY, "Trade City"},
     {TR_EMPIRE_TOOL_ROMAN_CITY, "Roman City"},
@@ -2116,7 +2114,6 @@ static translation_string all_strings[] = {
     {TR_EMPIRE_TOOL_PICK, "Pick empire tool"},
     {TR_EMPIRE_TOOLTIP_SHOW_TOOLS, "Show all tools"},
     {TR_EMPIRE_TOOLTIP_ROUTE_COST, "Change route cost"},
-    {TR_PARAMETER_TERRAIN_RUBBLE, "Rubble"},
     {TR_RESOURCE_SETTINGS_IN_GRANARIES, "in granaries"},
     {TR_CONFIG_HEADER_RAIN, "Rain"},
     {TR_CONFIG_HEADER_SNOW, "Snow"},
@@ -2331,7 +2328,9 @@ static translation_string all_strings[] = {
     {TR_CONDITION_TYPE_FIGURES_IN_AREA, "Figure count in area"},
     {TR_ACTION_TYPE_SEND_CITY_WARNING, "Send city warning"},
     {TR_PARAMETER_MESSAGE, "Message"},
-    {TR_PARAMETER_PLAY_FANFARE, "Play fanfare"}
+    {TR_PARAMETER_PLAY_FANFARE, "Play fanfare"},
+    {TR_CONFIG_UI_SCROLL_LEGACY_SCROLLBAR, "Enable classic scrollbars"},
+    {TR_BUILDING_WILLOW_TREE, "Willow tree"}
 };
 
 void translation_english(const translation_string **strings, int *num_strings)
