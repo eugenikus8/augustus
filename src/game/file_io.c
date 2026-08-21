@@ -471,6 +471,9 @@ static void get_version_data(savegame_version_data *version_data, savegame_versi
         version_data->piece_sizes.city_data -= sizeof(int32_t) * 6 * 2;
         version_data->piece_sizes.city_data += total_new_resources * 18;
         version_data->piece_sizes.city_data += total_new_food * 4;
+        if (version > SAVE_GAME_LAST_NO_FIXED_CITY_DATA_SIZE) {
+            version_data->piece_sizes.city_data += 16 + 12 + 8 + 8;
+        }
     }
     if (version <= SAVE_GAME_LAST_STATIC_SCENARIO_OBJECTS) {
         // Bug - this should have acconted the new resource types, but since it hasn't before,
@@ -807,7 +810,7 @@ static void scenario_load_from_state(scenario_state *file, scenario_version_t ve
     }
     model_reset();
     if (version > SCENARIO_LAST_NO_FORMULAS_AND_MODEL_DATA) {
-        model_load_model_data(file->model_data);
+        model_load_model_data(file->model_data, version);
     } else {
         scenario_events_migrate_to_formulas();
         scenario_events_migrate_to_resolved_display_names();
@@ -949,7 +952,7 @@ static void savegame_load_from_state(savegame_state *state, savegame_version_t v
 
     model_reset();
     if (version > SAVE_GAME_LAST_NO_FORMULAS_AND_MODEL_DATA) {
-        model_load_model_data(state->model_data);
+        model_load_model_data(state->model_data, scenario_version);
     }
     if (version <= SAVE_GAME_LAST_NO_HOUSE_MODELS) {
         model_reset_houses();
