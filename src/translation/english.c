@@ -453,6 +453,7 @@ static translation_string all_strings[] = {
     {TR_CITY_MESSAGE_TITLE_MONUMENT_COMPLETE, "Monument completed"},
     {TR_CITY_MESSAGE_TITLE_NEPTUNE_BLESSING, "A blessing from Neptune"},
     {TR_CITY_MESSAGE_TEXT_NEPTUNE_BLESSING, "Rewarding your city's devotion, Neptune grants smooth passage to traders for twelve months, during which your exports will earn an extra 50%."},
+    {TR_BUILDING_DOCK_NEPTUNE_BLESSING_LEFT, "Months of Neptune's blessing remaining:"},
     {TR_CITY_MESSAGE_TITLE_VENUS_BLESSING, "A blessing from Venus"},
     {TR_CITY_MESSAGE_TEXT_VENUS_BLESSING, "Delighted by the joyful reverence shown to her, Venus grants youthfulness, health, and happiness to your people, increasing the size of your working population. The mood in your city lifts at Venus' smile."},
     {TR_BUILDING_MENU_STATUES, "Statues"},

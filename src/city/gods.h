@@ -41,4 +41,6 @@ void city_god_blessing(int god_id);
 
 void city_god_curse(int god_id, int is_major);
 
+int city_god_neptune_blessing_months_left(void);
+
 #endif // CITY_GODS_H

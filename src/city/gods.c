@@ -60,6 +60,11 @@ void city_gods_update_blessings(void)
     }
 }
 
+int city_god_neptune_blessing_months_left(void)
+{
+    return city_data.religion.neptune_trade_bonus_active;
+}
+
 static void perform_blessing(god_type god)
 {
     switch (god) {

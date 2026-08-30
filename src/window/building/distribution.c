@@ -15,6 +15,7 @@
 #include "city/buildings.h"
 #include "core/dir.h"
 #include "city/finance.h"
+#include "city/gods.h"
 #include "city/military.h"
 #include "city/resource.h"
 #include "city/trade_policy.h"
@@ -540,6 +541,13 @@ void window_building_draw_dock(building_info_context *c)
                 window_building_draw_description(c, 101, 9);
             }
         }
+    }
+
+    // neptune blessing left
+    int neptune_blessing = city_god_neptune_blessing_months_left();
+    if (neptune_blessing > 0) {
+        text_draw_label_and_number(translation_for(TR_BUILDING_DOCK_NEPTUNE_BLESSING_LEFT), neptune_blessing,
+            "", c->x_offset + 32, c->y_offset + 115, FONT_NORMAL_PLAIN, COLOR_FONT_BLUE);
     }
 
     inner_panel_draw(c->x_offset + 16, c->y_offset + 136, c->width_blocks - 2, 4);
