@@ -1438,7 +1438,11 @@ static void spawn_figure_mission_post(building *b)
     map_point road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         // Mission Post always has 100% house coverage
-        b->houses_covered = 100;
+        if (b->distance_from_entry) {
+            b->houses_covered = 100;
+        } else {
+            b->houses_covered = 0;
+        }
         int pct_workers = worker_percentage(b);
         int spawn_delay;
         if (pct_workers >= 100) {
