@@ -214,7 +214,7 @@ static building *get_unmanned_tower_of_type(building_type type, building *barrac
             if (map_has_road_access(b->x, b->y, b->size, road)) {
                 map_point barracks_road;
                 map_has_road_access(barracks->x, barracks->y, barracks->size, &barracks_road);
-                if (map_routing_citizen_can_travel_over_land(barracks_road.x, barracks_road.y, road->x, road->y, 8, 1)) {
+                if (road && map_routing_citizen_can_travel_over_land(barracks_road.x, barracks_road.y, road->x, road->y, 8, 1)) {
                     return b;
                 }
             }
