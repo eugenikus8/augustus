@@ -121,6 +121,10 @@ void complex_button_init_style(complex_button *button, complex_button_style styl
     button->border_on_hover = 1;
 
     switch (style) {
+        case COMPLEX_BUTTON_STYLE_GRAY:
+            button->border_on_hover = 0;
+            button->shade_on_hover = 1;
+            break;
         case COMPLEX_BUTTON_STYLE_SUNKEN:
             button->border_on_hover = 0;
             button->shade_on_hover = 2;
@@ -134,7 +138,6 @@ void complex_button_init_style(complex_button *button, complex_button_style styl
         case COMPLEX_BUTTON_STYLE_CUSTOM:
         case COMPLEX_BUTTON_STYLE_DEFAULT:
         case COMPLEX_BUTTON_STYLE_BROWN:
-        case COMPLEX_BUTTON_STYLE_GRAY:
         default:
             break;
     }
@@ -631,7 +634,7 @@ static void draw_default_style(const complex_button *button, font_t base_font,
         }
     }
     draw_button_contents(button, base_font, font_primary, font_secondary);
-    if (button->draw_hover_state && button->shade_on_hover && button->is_hovered) {
+    if (button->draw_hover_state && button->shade_on_hover && button->is_hovered && !button->is_disabled) {
         graphics_shade_rect(button->x, button->y, button->width, button->height, button->shade_on_hover);
     }
     graphics_reset_clip_rectangle();
