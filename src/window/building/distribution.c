@@ -462,7 +462,7 @@ static void init_dock_permission_buttons(void)
         int city_id = -1;
         if (empire_object_is_sea_trade_route(route_id) && empire_city_is_trade_route_open(route_id)) {
             city_id = empire_city_get_for_trade_route(route_id);
-            if (city_id != -1) {
+            if (city_id) {
                 generic_button button = { 0, 0, 210, 22, dock_toggle_route, 0, route_id, city_id };
                 dock_distribution_permissions_buttons[dock_distribution_permissions_buttons_count] = button;
                 dock_distribution_permissions_buttons_count++;
@@ -1373,8 +1373,10 @@ void window_building_draw_storage_orders(building_info_context *c)
     int y_offset = window_building_get_vertical_offset(c, 28);
     c->help_id = is_granary(c) ? 3 : 4;
     outer_panel_draw(c->x_offset, y_offset, 29, 28);
-    lang_text_draw_sequence_centered(instructions_header, 3, c->x_offset, y_offset + 10,
-         BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK, COLOR_MASK_NONE);
+    lang_sequence instructions_sequence;
+    lang_seq_init(&instructions_sequence, instructions_header, 3);
+    lang_seq_draw_centered(&instructions_sequence, c->x_offset, y_offset + 10, BLOCK_SIZE * c->width_blocks,
+        FONT_LARGE_BLACK, COLOR_MASK_NONE);
     if (!data.showing_special_orders || data.building_id != c->building_id) {
         const resource_list *list = is_granary(c) ? city_resource_get_potential_foods()
             : city_resource_get_potential();
