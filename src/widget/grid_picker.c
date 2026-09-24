@@ -38,13 +38,13 @@ void grid_picker_anchor_init(complex_button *anchor, int x, int y, int width, in
     }
 
     memset(anchor, 0, sizeof(*anchor));
+    complex_button_init_style(anchor, style);
     anchor->x = x;
     anchor->y = y;
     anchor->width = width;
     anchor->height = height;
-    anchor->style = style;
-    anchor->sequence = sequence;
-    anchor->sequence_size = sequence_size;
+    anchor->sequence.fragments = (lang_fragment *) sequence;
+    anchor->sequence.count = sequence_size;
     anchor->sequence_position = SEQUENCE_POSITION_CENTER;
     if (tooltip_c) {
         tooltip_copy_context(&anchor->tooltip_c, tooltip_c);
@@ -205,7 +205,9 @@ static void grid_picker_draw_cell_contents(const grid_picker *picker, const grid
     int text_max_width = picker->cell_width - 2 * inner_margin - image_before_width - image_after_width;
 
     if (cell->sequence && cell->sequence_size > 0) {
-        sequence_width = lang_text_get_sequence_width(cell->sequence, cell->sequence_size, font);
+        lang_sequence sequence;
+        lang_seq_init(&sequence, (lang_fragment *) cell->sequence, cell->sequence_size);
+        sequence_width = lang_seq_get_width(&sequence, font);
 
         if (sequence_width > text_max_width) {
             sequence_width = text_max_width;
@@ -222,8 +224,9 @@ static void grid_picker_draw_cell_contents(const grid_picker *picker, const grid
         cursor_x += image_before_width;
     }
     if (cell->sequence && cell->sequence_size > 0) {
-        cursor_x += lang_text_draw_sequence_ellipsized(
-            cell->sequence, cell->sequence_size, cursor_x, text_y, text_max_width, font, color, NULL);
+        lang_sequence sequence;
+        lang_seq_init(&sequence, (lang_fragment *) cell->sequence, cell->sequence_size);
+        cursor_x += lang_seq_draw_ellipsized(&sequence, cursor_x, text_y, text_max_width, font, color, NULL);
     }
 
     if (cell->image_after > 0) {
@@ -307,12 +310,12 @@ void update_anchor(grid_picker *picker)
     }
     if (cell->image.id > 0) {
         picker->anchor.image = cell->image;
-        picker->anchor.sequence = NULL;
-        picker->anchor.sequence_size = 0;
+        picker->anchor.sequence.fragments = NULL;
+        picker->anchor.sequence.count = 0;
     } else {
         picker->anchor.image_before = cell->image_before;
-        picker->anchor.sequence = cell->sequence;
-        picker->anchor.sequence_size = cell->sequence_size;
+        picker->anchor.sequence.fragments = cell->sequence;
+        picker->anchor.sequence.count = cell->sequence_size;
         picker->anchor.image_after = cell->image_after;
     }
 }
@@ -387,7 +390,7 @@ int grid_picker_handle_tooltip(grid_picker *picker, tooltip_context *c)
         grid_picker_cell *cell = &picker->cells[row][column];
         tooltip_copy_context(c, &cell->tooltip_c);
         return 1;
-    } else if (picker->anchor.is_focused && !tooltip_context_is_empty(&picker->anchor.tooltip_c)) {
+    } else if (picker->anchor.is_hovered && !tooltip_context_is_empty(&picker->anchor.tooltip_c)) {
         tooltip_copy_context(c, &picker->anchor.tooltip_c);
         return 1;
     }
