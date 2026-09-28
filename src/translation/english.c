@@ -80,7 +80,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_HIGHLIGHT_LEGIONS_TOOLTIP, "Highlights a legion's soldiers when you hover the cursor over them."},
     {TR_CONFIG_ROTATE_MANUALLY, "Rotate Gatehouse and Triumph Arch by hotkey"},
     {TR_CONFIG_SHOW_MILITARY_SIDEBAR, "Enable military sidebar"},
-    {TR_CONFIG_SHOW_MILITARY_SIDEBAR_TOOLTIP, "When you left click a legion, the sidebar building buttons are replaced with an information panel detailing the legions status (morale, health, size) and buttons to issue commands to the legion."},
+    {TR_CONFIG_SHOW_MILITARY_SIDEBAR_TOOLTIP, "When you left click a legion, the sidebar building buttons are replaced with an information panel detailing the legion's status (morale, health, size) and buttons to issue commands to the legion."},
     {TR_CONFIG_UI_INVERSE_MAP_DRAG, "Inverse dragging map with right mouse button"},
     {TR_CONFIG_UI_MESSAGE_ALERTS, "Show new messages as alerts instead of popups"},
     {TR_CONFIG_UI_MESSAGE_ALERTS_TOOLTIP, "Messages popups do not interrupt the game and are shown as simple alerts in the upper part of the screen."},
