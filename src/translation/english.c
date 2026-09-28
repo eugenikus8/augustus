@@ -100,7 +100,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_GRANARIES_GET_DOUBLE, "Double the capacity of cart pushers from getting granaries"},
     {TR_CONFIG_ALLOW_EXPORTING_FROM_GRANARIES, "Allow traders to export food from granaries"},
     {TR_CONFIG_TOWER_SENTRIES_GO_OFFROAD, "Tower sentries don't need road access from barracks"},
-    {TR_CONFIG_FARMS_DELIVER_CLOSE, "Farms and wharves deliver only to nearby granaries"},
+    {TR_CONFIG_FARMS_DELIVER_CLOSE, "Farms and wharves deliver only to nearby granaries and warehouses"},
     {TR_CONFIG_DELIVER_ONLY_TO_ACCEPTING_GRANARIES, "Food isn't delivered to getting granaries"},
     {TR_CONFIG_ALL_HOUSES_MERGE, "All houses merge"},
     {TR_CONFIG_WINE_COUNTS_IF_OPEN_TRADE_ROUTE, "Open trade route counts as providing different wine type"},
@@ -2288,6 +2288,9 @@ static translation_string all_strings[] = {
     {TR_UI_LEDGER_TT_BALANCE, "Sort by Denarii Balance"},
     {TR_UI_LEDGER_DISABLED_1, "This feature is not yet available."},
     {TR_UI_LEDGER_DISABLED_2, "Your scribes are working hard to build this feature, but they need more time."},
+    {TR_EDITOR_TOOL_OUTSKIRTS, "Outskirts"},
+    {TR_EDITOR_TOOL_OUTSKIRTS_REMOVE, "Remove outskits"},
+    {TR_EDITOR_SELECT_LAND, "Select land"},
     {TR_CONFIG_UI_SCROLL_CAMERA_UNLOCKED, "Expand camera bounds"},
     {TR_UI_LEDGER_ONLY_CURRENT_YEAR, "You only started your governorship this year!"},
     {TR_UI_TRADE_YEAR_PREVIOUS, "Previous year"},
@@ -2340,6 +2343,9 @@ static translation_string all_strings[] = {
     {TR_ACTION_TYPE_SEND_CITY_WARNING, "Send city warning"},
     {TR_PARAMETER_MESSAGE, "Message"},
     {TR_PARAMETER_PLAY_FANFARE, "Play fanfare"},
+    {TR_EDITOR_SELECT_OFFSET, "Select offset"},
+    {TR_WARNING_NO_MILITARY_ON_OUTSKIRTS, "You can't build military structures in the outskirts"},
+    {TR_CONFIG_SHOW_OUTSKIRTS_DESIRABILITY, "Show outskirts desirability malus in overlay"},
     {TR_CONFIG_UI_SCROLL_LEGACY_SCROLLBAR, "Enable classic scrollbars"},
     {TR_BUILDING_WILLOW_TREE, "Willow tree"},
     {TR_SIDEBAR_EXTRA_HOUSING_AVAILABLE, "Room for "},
@@ -2349,6 +2355,7 @@ static translation_string all_strings[] = {
     {TR_SIDEBAR_EXTRA_NOT_ENOUGH_ROOM_FOR_NEEDED_EMPLOYEES, "Not enough room for needed employees"},
     {TR_WIDGET_DN, "Dn"},
     {TR_SIDEBAR_DATE_JUMP_TO_CURRENT, "Click to skip to current year"},
+    {TR_CONFIG_FIX_EMPIRE_MAP_DIMENSIONS, "Extend map viewport to fullscreen"},
 };
 
 void translation_english(const translation_string **strings, int *num_strings)
