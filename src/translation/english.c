@@ -36,7 +36,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_HEADER_GAMEPLAY_CHANGES, "Difficulty"},
     {TR_CONFIG_HEADER_CITY_MANAGEMENT_CHANGES, "City Management"},
     {TR_CONFIG_LANGUAGE_LABEL, "Language:"},
-    {TR_CONFIG_LANGUAGE_LABEL_TOOLTIP, "Select a language other than the default Caesar III installation. To add a custom or modded language, create a folder in the Caesar III installation directory, copy the language files (c3.eng, c3_map.eng, c3_map_mm.eng, andc3_mm.eng) into it, then select the folder from the Language list andclick Apply."},
+    {TR_CONFIG_LANGUAGE_LABEL_TOOLTIP, "Select a language other than the default Caesar III installation. To add a custom or modded language, create a folder in the Caesar III installation directory, copy the language files (c3.eng, c3_map.eng, c3_map_mm.eng, andc3_mm.eng) into it, then select the folder from the Language list and click Apply."},
     {TR_CONFIG_LANGUAGE_DEFAULT, "(default)"},
     {TR_CONFIG_DEFAULT_PLAYER_NAME, "Default player name:"},
     {TR_CONFIG_GAME_SPEED, "Game speed:"},
