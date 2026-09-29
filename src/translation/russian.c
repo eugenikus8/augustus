@@ -128,8 +128,8 @@ static translation_string all_strings[] = {
     {TR_CONFIG_ALLOW_EXPORTING_FROM_GRANARIES_TOOLTIP, "В оригинальном C3 импорт и экспорт еды, а также запросы Цезаря могли быть выполнены, только если она находилась на складе. В Augustus можно использовать для этих целей амбары."},
     {TR_CONFIG_TOWER_SENTRIES_GO_OFFROAD, "Часовым на башнях не нужна дорога к казарме"},
     {TR_CONFIG_TOWER_SENTRIES_GO_OFFROAD_TOOLTIP, "Часовые могут добираться до назначенной башни вне дорог, поэтому дорога между казармой и башней больше не требуется, однако сама башня по-прежнему должна иметь доступ к дороге для получения работников."},
-    {TR_CONFIG_FARMS_DELIVER_CLOSE, "Фермы и причалы доставляют еду только в ближайшие амбары"},
-    {TR_CONFIG_FARMS_DELIVER_CLOSE_TOOLTIP, "Фермы доставляют еду только в ближайшие амбары, сокращая время доставки. Максимальное расстояние - 64 клетки по прямой."},
+    {TR_CONFIG_FARMS_DELIVER_CLOSE, "Фермы и причалы доставляют еду только в ближайшие амбары и склады"},
+    {TR_CONFIG_FARMS_DELIVER_CLOSE_TOOLTIP, "Фермы доставляют еду только в ближайшие амбары и склады, сокращая время доставки. Максимальное расстояние - 64 клетки по прямой."},
     {TR_CONFIG_DELIVER_ONLY_TO_ACCEPTING_GRANARIES, "Если Амбар \"Получает еду\", не принимать еду от ферм и причалов"},
     {TR_CONFIG_DELIVER_ONLY_TO_ACCEPTING_GRANARIES_TOOLTIP, "Улучшает контроль за движением ресурсов, предотвращая доставку еды из источников в амбары, в котором этот вид пищи настроен на \"Получение\" из других амбаров. \n Примечание: \"Получение\" - это специальная инструкция, когда носильщик из Амбара или Склада сам отправляется в другие хранилища, в которых товар \"Принимается\", для получения большой партии товара."},
     {TR_CONFIG_ALL_HOUSES_MERGE, "Разрешить слияние 4 домов одного уровня размером 1х1 в дом 2х2"},
@@ -2442,6 +2442,10 @@ static translation_string all_strings[] = {
     {TR_WIDGET_DN, "Ден"},
     {TR_SIDEBAR_DATE_JUMP_TO_CURRENT, "Щелкните, чтобы вернуться к текущему году"},
     {TR_CONFIG_FIX_EMPIRE_MAP_DIMENSIONS, "Расширить область просмотра карты на весь экран"},
+    {TR_HOTKEY_SAVE_QUICKSAVE, "Быстрое сохранение"},
+    {TR_HOTKEY_SAVE_QUICKLOAD, "Быстрая загрузка"},
+    {TR_CITY_WARNING_QUICKSAVE_SUCCESS, "Игра успешно сохранена."},
+    {TR_CITY_WARNING_QUICKLOAD_SUCCESS, "Игра успешно загружена."},
 };
 
 void translation_russian(const translation_string **strings, int *num_strings)
