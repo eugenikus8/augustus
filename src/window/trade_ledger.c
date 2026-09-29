@@ -112,29 +112,30 @@ static resource_list displayed_resources;
 static grid_box_type resource_table;
 static date_picker trade_year_picker;
 static int selected_year_index = 0;
+static int inherited_trade_year = 0;
 static int hide_irrelevant = 1; //default to hide
 static complex_button trade_status_buttons[LEDGER_TRADE_STATUS_BUTTON_MAX] = { 0 };
 static uint8_t trade_status_tooltips[LEDGER_TRADE_STATUS_BUTTON_MAX][LEDGER_TRADE_STATUS_TOOLTIP_MAX] = { 0 };
 static int trade_status_button_count = 0;
 
 static const lang_fragment hide_irrelevant_sequence[] = {
-    {.type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_UI_HIDE_IRRELEVANT_RESOURCES},
+    { .type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_UI_HIDE_IRRELEVANT_RESOURCES },
 };
 
 static const lang_fragment resource_header_sequence[] = {
-    {.type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_PARAMETER_TYPE_RESOURCE},
+    { .type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_PARAMETER_TYPE_RESOURCE },
 };
 
 static const lang_fragment tab_text_trade[] = {
-    {.type = LANG_FRAG_TEXT, .text = (const uint8_t *) "Trade"},
+    { .type = LANG_FRAG_TEXT, .text = (const uint8_t *) "Trade" },
 };
 
 static const lang_fragment tab_text_production[] = {
-    {.type = LANG_FRAG_TEXT, .text = (const uint8_t *) "Production"},
+    { .type = LANG_FRAG_TEXT, .text = (const uint8_t *) "Production" },
 };
 
 static image_button image_buttons[] = {
-    {744, 554, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1},
+    { 744, 554, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1 },
 };
 
 static checkbox_button hide_irrelevant_checkbox = {
@@ -144,7 +145,7 @@ static checkbox_button hide_irrelevant_checkbox = {
     .height = 20,
     .left_click_handler = hide_irrelevant_checkbox_clicked,
     .font = FONT_NORMAL_BLACK,
-    .sequence = {.fragments = (lang_fragment *) hide_irrelevant_sequence, .count = 1 },
+    .sequence = { .fragments = (lang_fragment *) hide_irrelevant_sequence, .count = 1 },
 };
 
 static complex_button resource_header_button = {
@@ -154,18 +155,18 @@ static complex_button resource_header_button = {
     .style = COMPLEX_BUTTON_STYLE_RAW,
     .left_click_handler = resource_header_button_click,
     .font = FONT_NORMAL_BLACK,
-    .sequence = {.fragments = (lang_fragment *) resource_header_sequence, .count = 1 },
+    .sequence = { .fragments = (lang_fragment *) resource_header_sequence, .count = 1 },
 };
 
 static cycling_button header_buttons[LEDGER_HEADER_BUTTON_COUNT] = { 0 };
 
 static const lang_fragment header_button_sequences[LEDGER_HEADER_BUTTON_COUNT][1] = {
-    {{.type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_UI_LEDGER_BTN_IMPORTED}},
-    {{.type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_UI_LEDGER_BTN_PRODUCED}},
-    {{.type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_UI_LEDGER_BTN_CONSUMED}},
-    {{.type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_UI_LEDGER_BTN_EXPORTED}},
-    {{.type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_UI_LEDGER_BTN_STOCK}},
-    {{.type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_UI_LEDGER_BTN_BALANCE}},
+    { { .type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_UI_LEDGER_BTN_IMPORTED } },
+    { { .type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_UI_LEDGER_BTN_PRODUCED } },
+    { { .type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_UI_LEDGER_BTN_CONSUMED } },
+    { { .type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_UI_LEDGER_BTN_EXPORTED } },
+    { { .type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_UI_LEDGER_BTN_STOCK } },
+    { { .type = LANG_FRAG_LABEL, .text_group = CUSTOM_TRANSLATION, .text_id = TR_UI_LEDGER_BTN_BALANCE } },
 };
 
 static const int header_button_tooltips[LEDGER_HEADER_BUTTON_COUNT] = {
@@ -465,11 +466,16 @@ static void update_trade_status_button_focus(const mouse *m)
 
 static void trade_ledger_init(void)
 {
-    selected_year_index = 0;
+    if (!selected_year_index) {
+        selected_year_index = inherited_trade_year;
+    }
 
     setup_resource_header_button();
     setup_header_buttons();
     setup_trade_year_control();
+    if (inherited_trade_year) {
+        trade_year_picker.selected_year_offset = inherited_trade_year;
+    }
     resource_table = (grid_box_type) {
             .x = LEDGER_TABLE_X,
             .y = 80,
@@ -489,10 +495,8 @@ static void trade_ledger_init(void)
     resources = city_resource_get_available();
     hide_irrelevant_checkbox.is_checked = hide_irrelevant;
 
-    refresh_irrelevant_resources();
-    refresh_displayed_rows();
-
     grid_box_init(&resource_table, displayed_row_count);
+    refresh_selected_year();
 }
 
 static void draw_background(void)
@@ -756,6 +760,12 @@ static void ledger_header_button_click(cycling_button *button)
     grid_box_update_total_items(&resource_table, displayed_row_count);
 
     grid_box_request_refresh(&resource_table);
+    window_invalidate();
+}
+
+void window_trade_ledger_set_trade_year(int year)
+{
+    selected_year_index = year;
     window_invalidate();
 }
 
