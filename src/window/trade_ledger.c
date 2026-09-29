@@ -3,6 +3,7 @@
 #include "assets/assets.h"
 #include "city/finance.h"
 #include "city/resource.h"
+#include "core/image.h"
 #include "core/image_group.h"
 #include "core/lang.h"
 #include "core/string.h"
@@ -56,6 +57,7 @@
     (2 * DATE_PICKER_BUTTON_WIDTH + LEDGER_TRADE_YEAR_TEXT_WIDTH + 2 * LEDGER_TRADE_YEAR_CONTROL_SPACING)
 #define LEDGER_TRADE_YEAR_CONTROL_X (LEDGER_TABLE_X + LEDGER_TABLE_WIDTH - LEDGER_TRADE_YEAR_CONTROL_WIDTH)
 #define LEDGER_TRADE_YEAR_CONTROL_Y 436
+#define LEDGER_TRADE_RESOURCE_ICON_SPACE 40
 
 typedef enum {
     LEDGER_HEADER_IMPORTED = 0,
@@ -653,9 +655,15 @@ static void draw_resource_row(const grid_box_item *item)
 
     inner_panel_draw_colored(item->x, item->y, item->width, item->height, COLOR_MASK_NONE);
     button_border_draw(item->x, item->y, item->width, item->height, is_focused);
+    // center the resource image
+    const image *res_img = image_get(resource_img_id);
+    int img_w = res_img->original.width;
+    int img_h = res_img->original.height;
+    int img_x = item->x + (LEDGER_TRADE_RESOURCE_ICON_SPACE / 2 - img_w / 2);
+    int img_y = item->y + (item->height / 2 - img_h / 2);
+    image_draw(resource_img_id, img_x, img_y, COLOR_MASK_NONE, SCALE_NONE);
 
-    image_draw(resource_img_id, item->x + 5, item->y + 5, COLOR_MASK_NONE, SCALE_NONE);
-    text_draw(name, item->x + 40, item->y + 10, FONT_NORMAL_GREEN, brown_correction);
+    text_draw(name, item->x + LEDGER_TRADE_RESOURCE_ICON_SPACE, item->y + 10, FONT_NORMAL_GREEN, brown_correction);
 
     text_draw_number_centered_colored(imported, header_button_x_positions[LEDGER_HEADER_IMPORTED],
         number_y, header_button_widths[LEDGER_HEADER_IMPORTED], FONT_NORMAL_GREEN, brown_correction);
@@ -678,7 +686,6 @@ static void trade_draw_content(tab_view *view, tab *active_tab)
     // start with resource overview, second function for by city view
     (void) view;
     (void) active_tab;
-    // int active = view->state.active_tab;
 
     // header row
     update_header_button_fonts();
