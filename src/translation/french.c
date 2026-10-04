@@ -2356,6 +2356,7 @@ static translation_string all_strings[] = {
     {TR_EDITOR_BRIDGES, "Ponts"},
     {TR_EDITOR_SCENARIO_BUILDING_LOW_BRIDGE, "Pont bas"},
     {TR_EDITOR_SCENARIO_BUILDING_SHIP_BRIDGE, "Pont navigable"},
+    {TR_HOTKEY_CLOSE, "Fermer les panneaux"},
 };
 
 void translation_french(const translation_string **strings, int *num_strings)

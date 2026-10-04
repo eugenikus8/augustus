@@ -2389,6 +2389,7 @@ static translation_string all_strings[] = {
     {TR_UI_LEDGER_HIDE_TOOLTIPS, "Hide list tooltips"},
     {TR_ADVISOR_RELIGION_PEOPLE, "People"},
     {TR_ADVISOR_RELIGION_COVERED, "covered"},
+    {TR_HOTKEY_CLOSE, "Exit panels"},
 };
 
 void translation_english(const translation_string **strings, int *num_strings)
