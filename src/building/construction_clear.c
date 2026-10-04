@@ -83,6 +83,10 @@ unsigned int building_construction_clear_select(int x_start, int y_start, int x_
 
             map_building_tiles_mark_deleting(grid_offset);
 
+            if (map_terrain_is(grid_offset, TERRAIN_BUILDING) && !b) {
+                continue; // continue to not calculate in the cost of undestroyable buidlings since they're TERRAIN_NOT_CLEAR
+            }
+
             if (map_terrain_is(grid_offset, TERRAIN_BUILDING) && b) {
                 items_placed++;
             } else if (map_terrain_is(grid_offset, TERRAIN_ROCK | TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP)) {
