@@ -626,7 +626,16 @@ const uint8_t *lang_get_string(int group, int index)
                 return translation_for(TR_BUILDING_LAND_CLEAR);
             case BUILDING_HIGHWAY_STATION:
                 return translation_for(TR_BUILDING_HIGHWAY_STATION);
-
+            case BUILDING_NATIVE_WELL:
+                return translation_for(TR_EDITOR_SCENARIO_BUILDING_NATIVE_WELL);
+            case BUILDING_NATIVE_LARGE_HUT_ALT:
+                return translation_for(TR_EDITOR_SCENARIO_BUILDING_NATIVE_LARGE_HUT_ALT);
+            case BUILDING_NATIVE_HUT_ALT_2:
+                return translation_for(TR_EDITOR_SCENARIO_BUILDING_NATIVE_HUT_ALT_2);
+            case BUILDING_NATIVE_LARGE_HUT_ALT_2:
+                return translation_for(TR_EDITOR_SCENARIO_BUILDING_NATIVE_LARGE_HUT_ALT_2);
+            case BUILDING_NATIVE_PALISADE:
+                return translation_for(TR_EDITOR_SCENARIO_BUILDING_NATIVE_PALISADE);
             default:
                 break;
         }
