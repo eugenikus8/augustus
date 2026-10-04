@@ -63,11 +63,8 @@ static void draw_status(void)
 
     int selected_tool = editor_tool_type();
     int brush_size = editor_tool_brush_size() - 1;
-    if (selected_tool == TOOL_SHALLOW) {
-        text_draw(translation_for(TR_EDITOR_TOOL_SHALLOW), text_offset, 178, FONT_NORMAL_WHITE, 0);
-    } else {
-        lang_text_draw(49, selected_tool, text_offset, 178, FONT_NORMAL_WHITE);
-    }
+
+    lang_text_draw(49, selected_tool, text_offset, 178, FONT_NORMAL_WHITE);
     switch (selected_tool) {
         case TOOL_GRASS:
         case TOOL_TREES:
