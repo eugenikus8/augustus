@@ -47,7 +47,7 @@ If you are unsure about anything regarding the savegame versioning, please ask o
 
 typedef enum {
 
-    SAVE_GAME_CURRENT_VERSION = 0xbe,
+    SAVE_GAME_CURRENT_VERSION = 0xbf,
 
     SAVE_GAME_LAST_ORIGINAL_LIMITS_VERSION = 0x66,
     SAVE_GAME_LAST_SMALLER_IMAGE_ID_VERSION = 0x76,
@@ -117,7 +117,8 @@ typedef enum {
     SAVE_GAME_LAST_NO_BUFFER_SIZE_IN_MODEL_DATA = 0xba,
     SAVE_GAME_LAST_NO_WILLOW_TREE = 0xbb,
     SAVE_GAME_LAST_NO_SHALLOWS = 0xbc,
-    SAVE_GAME_LAST_NO_OUTSKIRTS = 0xbd
+    SAVE_GAME_LAST_NO_OUTSKIRTS = 0xbd,
+    SAVE_GAME_LAST_NO_RAW_RELIGION_COVERAGE = 0xbe
 } savegame_version_t;
 
 typedef enum {

@@ -633,7 +633,7 @@ static void init_savegame_data(savegame_version_t version)
     }
     state->trade_prices = create_savegame_piece(version_data.piece_sizes.trade_prices, 0);
     state->figure_names = create_savegame_piece(84, 0);
-    state->culture_coverage = create_savegame_piece(60, 0);
+    state->culture_coverage = create_savegame_piece(version > SAVE_GAME_LAST_NO_RAW_RELIGION_COVERAGE ? 80 : 60, 0);
     state->scenario = create_savegame_piece(version_data.piece_sizes.scenario, 0);
     if (version_data.features.requests) {
         state->requests = create_savegame_piece(PIECE_SIZE_DYNAMIC, 0);
@@ -976,7 +976,7 @@ static void savegame_load_from_state(savegame_state *state, savegame_version_t v
     empire_city_load_state(state->empire_cities, version);
     trade_prices_load_state(state->trade_prices);
     figure_name_load_state(state->figure_names);
-    city_culture_load_state(state->culture_coverage);
+    city_culture_load_state(state->culture_coverage, version);
 
     scenario_criteria_load_state(state->max_game_year);
     scenario_earthquake_load_state(state->earthquake);
