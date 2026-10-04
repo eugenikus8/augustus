@@ -152,7 +152,7 @@ void editor_tool_start_use(const map_tile *tile)
     data.build_in_progress = 1;
     data.start_elevation = map_elevation_at(tile->grid_offset);
     data.start_tile = *tile;
-    if (data.type == TOOL_ROAD) {
+    if (editor_tool_is_updatable()) {
         game_undo_start_build(BUILDING_ROAD);
         map_routing_update_land();
     }
