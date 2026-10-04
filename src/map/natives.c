@@ -323,8 +323,14 @@ void map_natives_init_editor(void)
             } else if (image_crops != 0 && image_id >= image_crops && image_id <= image_crops + 25 &&
                 ((image_id - image_crops) % 5) == 0) {
                 type = BUILDING_NATIVE_CROPS;
-                // Reset display to wheat (variant kept on the building)
-                map_image_set(grid_offset, image_group(GROUP_EDITOR_BUILDING_CROPS));
+                // Reset display to the correct game-crops variant via aux atlas
+                // (variant kept on the building too for save round-trip).
+                int crop_offset = image_id - image_crops;
+                if (image_aux_is_loaded()) {
+                    map_image_set(grid_offset, image_group_aux(GROUP_BUILDING_FARM_CROPS) + crop_offset);
+                } else {
+                    map_image_set(grid_offset, image_group(GROUP_EDITOR_BUILDING_CROPS));
+                }
             } else { //unknown building
                 map_building_tiles_remove(0, x, y);
                 continue;

@@ -60,6 +60,7 @@ static const int MENU_TYPES[MENU_NUM_ITEMS][MAX_ITEMS_PER_MENU] = {
     TR_EDITOR_SCENARIO_BUILDING_NATIVE_WATCHTOWER,
     TR_EDITOR_SCENARIO_BUILDING_NATIVE_WELL,
     TR_EDITOR_SCENARIO_BUILDING_NATIVE_PALISADE,
+    TR_EDITOR_BRIDGES,
     TR_EDITOR_RUBBLE, -1},
     {23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, -1},
     {TR_EDITOR_TOOL_EARTHQUAKE_POINT, TR_EDITOR_TOOL_EARTHQUAKE_CUSTOM, TR_EDITOR_TOOL_EARTHQUAKE_REMOVE, -1},
@@ -70,6 +71,8 @@ static const int MENU_TYPES[MENU_NUM_ITEMS][MAX_ITEMS_PER_MENU] = {
     TR_EDITOR_SCENARIO_BUILDING_NATIVE_FIELD_OLIVE,
     TR_EDITOR_SCENARIO_BUILDING_NATIVE_FIELD_VINES,
     TR_EDITOR_SCENARIO_BUILDING_NATIVE_FIELD_PIG, -1},
+    {TR_EDITOR_SCENARIO_BUILDING_LOW_BRIDGE,
+    TR_EDITOR_SCENARIO_BUILDING_SHIP_BRIDGE, -1},
 };
 
 static struct {
@@ -182,6 +185,12 @@ static void button_menu_item(const generic_button *button)
                 case 1: editor_tool_set_type(TOOL_RIVER_EXIT_POINT); break;
             }
             break;
+        case MENU_BRIDGES:
+            switch (index) {
+                case 0: editor_tool_set_type(TOOL_LOW_BRIDGE); break;
+                case 1: editor_tool_set_type(TOOL_SHIP_BRIDGE); break;
+            }
+            break;
         case MENU_NATIVE_BUILDINGS:
             switch (index) {
                 case 0: editor_tool_set_type(TOOL_NATIVE_HUT); break;
@@ -199,7 +208,10 @@ static void button_menu_item(const generic_button *button)
                 case 9: editor_tool_set_type(TOOL_NATIVE_WATCHTOWER); break;
                 case 10: editor_tool_set_type(TOOL_NATIVE_WELL); break;
                 case 11: editor_tool_set_type(TOOL_NATIVE_PALISADE); break;
-                case 12: editor_tool_set_type(TOOL_NATIVE_RUINS); break;
+                case 12:
+                    window_editor_build_menu_show(MENU_BRIDGES);
+                    return;
+                case 13: editor_tool_set_type(TOOL_NATIVE_RUINS); break;
             }
             break;
         case MENU_NATIVE_FIELDS:

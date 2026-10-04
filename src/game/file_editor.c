@@ -29,6 +29,7 @@
 #include "game/state.h"
 #include "game/time.h"
 #include "map/aqueduct.h"
+#include "map/bridge.h"
 #include "map/building.h"
 #include "map/desirability.h"
 #include "map/elevation.h"
@@ -142,6 +143,11 @@ static void prepare_map_for_editing(void)
     map_tiles_update_all_walls();
     map_tiles_update_all_aqueducts(0);
     widget_map_editor_custom_earthquake_request_refresh();
+    // Reconstruct bridges first: map_natives_init_editor wipes terrain on
+    // tiles with TERRAIN_BUILDING whose image isn't a native — bridges'
+    // image_grid still shows water, so they'd be wiped. Reconstructing first
+    // sets map_building_at so natives skips those tiles.
+    map_bridge_recalculate_buildings_from_sprites();
     map_natives_init_editor();
     map_routing_update_all();
 
@@ -221,10 +227,13 @@ int game_file_editor_write_scenario(const char *scenario_file)
     scenario_distant_battle_set_roman_travel_months();
     scenario_distant_battle_set_enemy_travel_months();
 
-    // Native crop variants are displayed as wheat in the editor; encode each variant
-    // into the per-tile image_id only for the duration of the write, then restore.
-    // Newly placed buildings are still in CREATED state — include both.
-    int crops_base = image_group(GROUP_EDITOR_BUILDING_CROPS);
+    // Native crop variants: the editor displays the proper variant via the aux
+    // atlas (c3.555 group 100). For save/in-game compat the on-disk image_id
+    // must be in the editor crops group + variant*5 form (decoded by
+    // map_natives_init). Encode for the duration of the write, then restore the
+    // aux-based image so the editor keeps displaying the right variant.
+    int editor_crops_base = image_group(GROUP_EDITOR_BUILDING_CROPS);
+    int aux_crops_base = image_aux_is_loaded() ? image_group_aux(GROUP_BUILDING_FARM_CROPS) : 0;
     for (building *b = building_first_of_type(BUILDING_NATIVE_CROPS); b; b = b->next_of_type) {
         if (b->state != BUILDING_STATE_IN_USE && b->state != BUILDING_STATE_CREATED) {
             continue;
@@ -233,7 +242,7 @@ int game_file_editor_write_scenario(const char *scenario_file)
         if (variant < 0 || variant > 5) {
             variant = 0;
         }
-        map_image_set(b->grid_offset, crops_base + variant * 5);
+        map_image_set(b->grid_offset, editor_crops_base + variant * 5);
     }
 
     int result = game_file_io_write_scenario(scenario_file);
@@ -242,7 +251,15 @@ int game_file_editor_write_scenario(const char *scenario_file)
         if (b->state != BUILDING_STATE_IN_USE && b->state != BUILDING_STATE_CREATED) {
             continue;
         }
-        map_image_set(b->grid_offset, crops_base);
+        int variant = b->subtype.orientation;
+        if (variant < 0 || variant > 5) {
+            variant = 0;
+        }
+        if (aux_crops_base) {
+            map_image_set(b->grid_offset, aux_crops_base + variant * 5);
+        } else {
+            map_image_set(b->grid_offset, editor_crops_base);
+        }
     }
 
     if (result) {

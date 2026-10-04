@@ -2353,6 +2353,9 @@ static translation_string all_strings[] = {
     {TR_BUILDING_NATIVE_WELL, "Puits indigène"},
     {TR_BUILDING_NATIVE_WELL_DESC, "Ce puits creusé à la main puise l'eau de la terre pour abreuver la tribu locale. Bien que rudimentaire comparé aux aqueducs et fontaines romains, il suffit aux modestes besoins des indigènes. Les villageois s'y rassemblent à l'aube et au crépuscule pour puiser de l'eau, échanger les nouvelles, et observer les rythmes de leurs terres ancestrales."},
     {TR_BUILDING_NATIVE_PALISADE_DESC, "Cette palissade de bois protège le village des bêtes sauvages et des tribus rivales. Faite de pieux taillés en pointe et profondément enfoncés dans le sol, elle montre clairement que les indigènes entendent défendre leurs terres. Elle tiendra aussi longtemps que la tribu qui l'a dressée."},
+    {TR_EDITOR_BRIDGES, "Ponts"},
+    {TR_EDITOR_SCENARIO_BUILDING_LOW_BRIDGE, "Pont bas"},
+    {TR_EDITOR_SCENARIO_BUILDING_SHIP_BRIDGE, "Pont navigable"},
 };
 
 void translation_french(const translation_string **strings, int *num_strings)

@@ -4,15 +4,18 @@
 #include "building/image.h"
 #include "building/properties.h"
 #include "city/view.h"
+#include "core/direction.h"
 #include "core/image_group.h"
 #include "core/image_group_editor.h"
 #include "editor/tool.h"
 #include "editor/tool_restriction.h"
 #include "graphics/image.h"
 #include "input/scroll.h"
+#include "map/bridge.h"
 #include "map/grid.h"
 #include "map/terrain.h"
 #include "scenario/property.h"
+#include "widget/city/bridge.h"
 
 #define MAX_TILES 16
 
@@ -78,9 +81,14 @@ static void draw_building(const map_tile *tile, int x_view, int y_view, building
     } else {
         int image_id;
         if (type == BUILDING_NATIVE_CROPS) {
-            // Editor always shows wheat for any crop variant; in-game decoding
-            // uses the saved per-tile offset.
-            image_id = image_group(GROUP_EDITOR_BUILDING_CROPS);
+            int idx = editor_tool_id();
+            if (idx < 0 || idx > 5) idx = 0;
+            // Use aux atlas (c3.555 game crops) when available for proper variant preview.
+            if (image_aux_is_loaded()) {
+                image_id = image_group_aux(GROUP_BUILDING_FARM_CROPS) + idx * 5;
+            } else {
+                image_id = image_group(GROUP_EDITOR_BUILDING_CROPS);
+            }
         } else if (type == BUILDING_NATIVE_HUT_ALT) {
             switch (scenario_property_climate()) {
                 case CLIMATE_NORTHERN:
@@ -237,6 +245,42 @@ static void draw_selection_rectangle(const map_tile *current_tile, const map_til
     }
 }
 
+static void draw_bridge_preview(const map_tile *tile, int x, int y, int is_ship_bridge)
+{
+    int length, direction;
+    grid_slice blocked = { .size = 0 };
+    int end_offset = map_bridge_calculate_length_direction(tile->x, tile->y,
+        &length, &direction, &blocked);
+    int min_length = is_ship_bridge ? 5 : 2;
+    int blocked_placement = !end_offset || length < min_length || blocked.size > 0;
+
+    int x_delta, y_delta;
+    switch (direction) {
+        case DIR_0_TOP:    x_delta = 29;  y_delta = -15; break;
+        case DIR_2_RIGHT:  x_delta = 29;  y_delta = 15;  break;
+        case DIR_4_BOTTOM: x_delta = -29; y_delta = 15;  break;
+        case DIR_6_LEFT:   x_delta = -29; y_delta = -15; break;
+        default:
+            draw_flat_tile(x, y, COLOR_MASK_RED);
+            return;
+    }
+    color_t color_mask = blocked_placement ? COLOR_MASK_BUILDING_GHOST_RED : COLOR_MASK_BUILDING_GHOST;
+    if (blocked_placement) {
+        draw_flat_tile(x, y, length > 0 ? COLOR_MASK_GREEN : COLOR_MASK_RED);
+    }
+    if (direction == DIR_0_TOP || direction == DIR_6_LEFT) {
+        for (int i = length - 1; i >= 0; i--) {
+            int sprite_id = map_bridge_get_sprite_id(i, length, direction, is_ship_bridge);
+            city_draw_bridge_tile(x + x_delta * i, y + y_delta * i, scale, sprite_id, color_mask);
+        }
+    } else {
+        for (int i = 0; i < length; i++) {
+            int sprite_id = map_bridge_get_sprite_id(i, length, direction, is_ship_bridge);
+            city_draw_bridge_tile(x + x_delta * i, y + y_delta * i, scale, sprite_id, color_mask);
+        }
+    }
+}
+
 void map_editor_tool_draw(const map_tile *tile)
 {
     if (!tile->grid_offset || scroll_in_progress() || !editor_tool_is_active()) {
@@ -292,6 +336,12 @@ void map_editor_tool_draw(const map_tile *tile)
             } else {
                 draw_flat_tile(x, y, COLOR_MASK_GREEN);
             }
+            break;
+        case TOOL_LOW_BRIDGE:
+            draw_bridge_preview(tile, x, y, 0);
+            break;
+        case TOOL_SHIP_BRIDGE:
+            draw_bridge_preview(tile, x, y, 1);
             break;
         case TOOL_EARTHQUAKE_POINT:
         case TOOL_ENTRY_POINT:
