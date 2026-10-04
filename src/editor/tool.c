@@ -1,13 +1,17 @@
 #include "tool.h"
 
 #include "assets/assets.h"
+#include "building/building.h"
+#include "building/connectable.h"
 #include "building/image.h"
 #include "building/construction_routed.h"
 #include "core/image.h"
+#include "core/image_group.h"
 #include "core/image_group_editor.h"
 #include "core/random.h"
 #include "editor/tool_restriction.h"
 #include "game/undo.h"
+#include "map/building.h"
 #include "map/building_tiles.h"
 #include "map/elevation.h"
 #include "map/grid.h"
@@ -20,6 +24,7 @@
 #include "scenario/editor.h"
 #include "scenario/editor_events.h"
 #include "scenario/editor_map.h"
+#include "scenario/property.h"
 #include "city/warning.h"
 #include "widget/map_editor.h"
 #include "widget/minimap.h"
@@ -49,6 +54,11 @@ static struct {
 tool_type editor_tool_type(void)
 {
     return data.type;
+}
+
+int editor_tool_id(void)
+{
+    return data.id;
 }
 
 int editor_tool_is_active(void)
@@ -123,7 +133,8 @@ void editor_tool_foreach_brush_tile(void (*callback)(const void *user_data, int 
 
 int editor_tool_is_updatable(void)
 {
-    return data.type == TOOL_ROAD || data.type == TOOL_SELECT_LAND;;
+    return data.type == TOOL_ROAD || data.type == TOOL_SELECT_LAND ||
+           data.type == TOOL_NATIVE_PALISADE;
 }
 
 int editor_tool_is_in_use(void)
@@ -212,7 +223,13 @@ static void add_terrain(const void *tile_data, int dx, int dy)
     if (data.type != TOOL_EARTHQUAKE_CUSTOM && data.type != TOOL_EARTHQUAKE_CUSTOM_REMOVE &&
         data.type != TOOL_OUTSKIRTS && data.type != TOOL_OUTSKIRTS_REMOVE) {
         if (terrain & TERRAIN_BUILDING) {
+            // Fetch id before the tiles get cleared
+            unsigned int building_id = map_building_at(grid_offset);
             map_building_tiles_remove(0, x, y);
+            if (building_id) {
+                // Delete the building too, otherwise palisades get their image back on connection updates
+                building_delete(building_get(building_id));
+            }
             terrain = map_terrain_get(grid_offset);
         }
         if (!(terrain & (TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP))) {
@@ -389,6 +406,8 @@ void editor_tool_update_use(const map_tile *tile)
         default:
             break;
     }
+    // Brushes may have removed palisades: refresh the images of the remaining ones
+    building_connectable_update_connections();
 
     scenario_editor_set_as_unsaved();
     widget_minimap_invalidate();
@@ -460,8 +479,30 @@ static void place_building(const map_tile *tile)
             break;
         case TOOL_NATIVE_FIELD:
             type = BUILDING_NATIVE_CROPS;
+            // Always display wheat in editor; variant is stored on the building and
+            // encoded into the tile image only at save time
             image_id = image_group(GROUP_EDITOR_BUILDING_CROPS);
             size = 1;
+            break;
+        case TOOL_NATIVE_WELL:
+            type = BUILDING_NATIVE_WELL;
+            size = 1;
+            image_id = building_image_get_for_type(type);
+            break;
+        case TOOL_NATIVE_LARGE_HUT_ALT:
+            type = BUILDING_NATIVE_LARGE_HUT_ALT;
+            size = 2;
+            image_id = building_image_get_for_type(type);
+            break;
+        case TOOL_NATIVE_HUT_ALT_2:
+            type = BUILDING_NATIVE_HUT_ALT_2;
+            image_id = building_image_get_native_hut_alt_2_base(scenario_property_climate()) + (random_byte() % 3);
+            size = 1;
+            break;
+        case TOOL_NATIVE_LARGE_HUT_ALT_2:
+            type = BUILDING_NATIVE_LARGE_HUT_ALT_2;
+            size = 2;
+            image_id = building_image_get_for_type(type);
             break;
         case TOOL_NATIVE_DECORATION:
             type = BUILDING_NATIVE_DECORATION;
@@ -484,6 +525,11 @@ static void place_building(const map_tile *tile)
 
     if (editor_tool_can_place_building(tile, size * size, 0)) {
         building *b = building_create(type, tile->x, tile->y);
+        if (type == BUILDING_NATIVE_CROPS) {
+            // Stash variant index (0..5 → wheat/vegetables/fruit/olive/vines/pig)
+            // in an otherwise-unused subtype slot. Encoded onto the tile at save time.
+            b->subtype.orientation = (data.id >= 0 && data.id < 6) ? data.id : 0;
+        }
         map_building_tiles_add(b->id, tile->x, tile->y, size, image_id, TERRAIN_BUILDING);
         scenario_editor_set_as_unsaved();
         widget_minimap_invalidate();
@@ -535,6 +581,32 @@ static void place_road(const map_tile *start_tile, const map_tile *end_tile)
     }
 }
 
+static void place_native_palisade(const map_tile *start_tile, const map_tile *end_tile)
+{
+    int x_min, y_min, x_max, y_max;
+    map_grid_start_end_to_area(start_tile->x, start_tile->y, end_tile->x, end_tile->y,
+        &x_min, &y_min, &x_max, &y_max);
+    int items_placed = 0;
+    for (int y = y_min; y <= y_max; y++) {
+        for (int x = x_min; x <= x_max; x++) {
+            int grid_offset = map_grid_offset(x, y);
+            if (map_terrain_is(grid_offset, TERRAIN_NOT_CLEAR)) {
+                continue;
+            }
+            building *b = building_create(BUILDING_NATIVE_PALISADE, x, y);
+            map_building_tiles_add(b->id, b->x, b->y, b->size,
+                building_image_get(b), TERRAIN_BUILDING);
+            items_placed++;
+        }
+    }
+    if (items_placed > 0) {
+        building_connectable_update_connections();
+        scenario_editor_set_as_unsaved();
+    } else {
+        city_warning_show(WARNING_EDITOR_CANNOT_PLACE, NEW_WARNING_SLOT);
+    }
+}
+
 void editor_tool_end_use(const map_tile *tile)
 {
     if (!data.build_in_progress) {
@@ -573,10 +645,17 @@ void editor_tool_end_use(const map_tile *tile)
         case TOOL_NATIVE_FIELD:
         case TOOL_NATIVE_HUT:
         case TOOL_NATIVE_HUT_ALT:
+        case TOOL_NATIVE_HUT_ALT_2:
+        case TOOL_NATIVE_LARGE_HUT_ALT:
+        case TOOL_NATIVE_LARGE_HUT_ALT_2:
+        case TOOL_NATIVE_WELL:
         case TOOL_NATIVE_MONUMENT:
         case TOOL_NATIVE_WATCHTOWER:
         case TOOL_NATIVE_DECORATION:
             place_building(tile);
+            break;
+        case TOOL_NATIVE_PALISADE:
+            place_native_palisade(&data.start_tile, tile);
             break;
         case TOOL_RAISE_LAND:
         case TOOL_LOWER_LAND:
