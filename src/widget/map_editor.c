@@ -25,6 +25,7 @@
 #include "map/image_context.h"
 #include "map/point.h"
 #include "map/property.h"
+#include "map/sprite.h"
 #include "map/terrain.h"
 #include "map/tiles.h"
 #include "scenario/custom_variable.h"
@@ -34,6 +35,7 @@
 #include "sound/city.h"
 #include "sound/effect.h"
 #include "translation/translation.h"
+#include "widget/city/bridge.h"
 #include "widget/city/figure.h"
 #include "widget/map_editor_tool.h"
 #include "window/editor/empire.h"
@@ -177,6 +179,10 @@ static void draw_custom_earthquake(int x, int y, int grid_offset)
 static void draw_top(int x, int y, int grid_offset)
 {
     if (!map_property_is_draw_tile(grid_offset)) {
+        return;
+    }
+    if (map_sprite_bridge_at(grid_offset)) {
+        city_draw_bridge(x, y, draw_context.scale, grid_offset);
         return;
     }
     int map_x = map_grid_offset_to_x(grid_offset);
@@ -518,7 +524,7 @@ void widget_map_editor_handle_input(const mouse *m, const hotkeys *h)
         return;
     }
 
-    if (h->escape_pressed) {
+    if (h->close_pressed) {
         if (editor_tool_is_active()) {
             editor_tool_deactivate();
         } else {
