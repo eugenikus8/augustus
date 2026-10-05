@@ -50,8 +50,11 @@ static building *get_deletable_building(int grid_offset)
     building *b = building_main(building_get(building_id));
     if (b->type == BUILDING_BURNING_RUIN || b->type == BUILDING_NATIVE_CROPS ||
         b->type == BUILDING_NATIVE_HUT || b->type == BUILDING_NATIVE_HUT_ALT ||
+        b->type == BUILDING_NATIVE_HUT_ALT_2 || b->type == BUILDING_NATIVE_LARGE_HUT_ALT ||
+        b->type == BUILDING_NATIVE_LARGE_HUT_ALT_2 ||
         b->type == BUILDING_NATIVE_MEETING || b->type == BUILDING_NATIVE_MONUMENT ||
         b->type == BUILDING_NATIVE_DECORATION || b->type == BUILDING_NATIVE_WATCHTOWER ||
+        b->type == BUILDING_NATIVE_WELL || b->type == BUILDING_NATIVE_PALISADE ||
         building_properties_for_type(b->type)->shared) {
         return 0;
     }
@@ -79,6 +82,10 @@ unsigned int building_construction_clear_select(int x_start, int y_start, int x_
             }
 
             map_building_tiles_mark_deleting(grid_offset);
+
+            if (map_terrain_is(grid_offset, TERRAIN_BUILDING) && !b) {
+                continue; // continue to not calculate in the cost of undestroyable buidlings since they're TERRAIN_NOT_CLEAR
+            }
 
             if (map_terrain_is(grid_offset, TERRAIN_BUILDING) && b) {
                 items_placed++;

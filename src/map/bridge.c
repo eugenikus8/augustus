@@ -409,6 +409,84 @@ int map_bridge_has_figures(int grid_offset)
     return 0;
 }
 
+// Reconstruct a single bridge starting at `seed`. Walks the contiguous chain
+// in both axial directions to find the endpoints, then creates the bridge
+// building and registers it across the chain.
+static void reconstruct_bridge_chain(int seed)
+{
+    // Find axis by checking which neighbour is also a bridge tile.
+    static const int dx[4] = { 0, +1, 0, -1 };
+    static const int dy[4] = { -1, 0, +1, 0 };
+    int axis = -1;
+    int forward_delta = 0;
+    for (int i = 0; i < 4; i++) {
+        int neighbor = seed + map_grid_delta(dx[i], dy[i]);
+        if (map_is_bridge(neighbor)) {
+            axis = (dx[i] != 0) ? 0 : 1;
+            forward_delta = map_grid_delta(dx[i], dy[i]);
+            break;
+        }
+    }
+    // Single-tile "bridge" — shouldn't happen with the placement rules, but
+    // skip it rather than crash.
+    if (axis < 0) {
+        return;
+    }
+
+    // Walk backward to the start of the chain.
+    int back_delta = -forward_delta;
+    int start = seed;
+    while (map_is_bridge(start + back_delta)) {
+        start += back_delta;
+    }
+
+    // Walk forward from start to count length.
+    int length = 0;
+    int current = start;
+    while (map_is_bridge(current)) {
+        length++;
+        current += forward_delta;
+    }
+
+    // Determine bridge type from the sprite at the start (1-6 low, 7+ ship).
+    int start_sprite = map_sprite_bridge_at(start);
+    int is_ship = (start_sprite >= 7);
+    building_type type = is_ship ? BUILDING_SHIP_BRIDGE : BUILDING_LOW_BRIDGE;
+
+    int start_x = map_grid_offset_to_x(start);
+    int start_y = map_grid_offset_to_y(start);
+
+    building *b = building_create(type, start_x, start_y);
+    b->state = BUILDING_STATE_IN_USE;
+    current = start;
+    for (int i = 0; i < length; i++) {
+        map_building_set(current, b->id);
+        current += forward_delta;
+    }
+}
+
+void map_bridge_recalculate_buildings_from_sprites(void)
+{
+    // For scenarios, buildings aren't persisted but sprite_grid + terrain are.
+    // Walk the map and reconstruct each bridge as a building so routing,
+    // deletion, and building counts treat it correctly.
+    int grid_offset = map_data.start_offset;
+    for (int y = 0; y < map_data.height; y++, grid_offset += map_data.border_size) {
+        for (int x = 0; x < map_data.width; x++, grid_offset++) {
+            if (!map_is_bridge(grid_offset)) {
+                continue;
+            }
+            if (map_building_at(grid_offset)) {
+                continue;
+            }
+            if (!map_sprite_bridge_at(grid_offset)) {
+                continue;
+            }
+            reconstruct_bridge_chain(grid_offset);
+        }
+    }
+}
+
 void map_bridge_update_after_rotate(int counter_clockwise)
 {
     int grid_offset = map_data.start_offset;
