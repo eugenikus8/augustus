@@ -493,7 +493,8 @@ static void place_building(const map_tile *tile)
                 if (image_aux_is_loaded()) {
                     // Use game's GROUP_BUILDING_FARM_CROPS (loaded as aux in editor mode)
                     // so each variant displays its proper sprite.
-                    image_id = image_group_aux(GROUP_BUILDING_FARM_CROPS) + variant * 5;
+                    image_id = image_group_aux(GROUP_BUILDING_FARM_CROPS) +
+                        building_image_get_native_crop_offset(variant);
                 } else {
                     image_id = image_group(GROUP_EDITOR_BUILDING_CROPS);
                 }
