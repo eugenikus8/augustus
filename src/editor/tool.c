@@ -619,6 +619,7 @@ static void place_native_palisade(const map_tile *start_tile, const map_tile *en
     if (items_placed > 0) {
         building_connectable_update_connections();
         scenario_editor_set_as_unsaved();
+        widget_minimap_invalidate();
     } else {
         city_warning_show(WARNING_EDITOR_CANNOT_PLACE, NEW_WARNING_SLOT);
     }
