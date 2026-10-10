@@ -80,6 +80,7 @@ static void draw_status(void)
         case TOOL_EARTHQUAKE_CUSTOM_REMOVE:
         case TOOL_OUTSKIRTS:
         case TOOL_OUTSKIRTS_REMOVE:
+        case TOOL_MARSHLAND:
             lang_text_draw(48, brush_size, text_offset, 194, FONT_NORMAL_GREEN);
             break;
         default:

@@ -697,6 +697,8 @@ const uint8_t *lang_get_string(int group, int index)
                 return translation_for(TR_EDITOR_TOOL_WATER);
             case TR_EDITOR_TOOL_SHALLOW:
                 return translation_for(TR_EDITOR_TOOL_SHALLOW);
+            case TR_EDITOR_TOOL_MARSHLAND:
+                return translation_for(TR_EDITOR_TOOL_MARSHLAND);
             default:
                 break;
         }
@@ -746,6 +748,8 @@ const uint8_t *lang_get_string(int group, int index)
                 return translation_for(TR_EDITOR_TOOL_WATER);
             case TOOL_SHALLOW:
                 return translation_for(TR_EDITOR_TOOL_SHALLOW);
+            case TOOL_MARSHLAND:
+                return translation_for(TR_EDITOR_TOOL_MARSHLAND);
             default:
                 break;
         }

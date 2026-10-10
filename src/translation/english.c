@@ -2390,6 +2390,9 @@ static translation_string all_strings[] = {
     {TR_ADVISOR_RELIGION_PEOPLE, "People"},
     {TR_ADVISOR_RELIGION_COVERED, "covered"},
     {TR_HOTKEY_CLOSE, "Exit panels"},
+    {TR_EDITOR_TOOL_MARSHLAND, "Marshland"},
+    {TR_TERRAIN_MARSHLAND, "Marshland"},
+    {TR_TERRAIN_MARSHLAND_DESC, "A fetid swamp. Marshland is impassable and breeds disease: it lowers the desirability of the surrounding area and spreads sickness to nearby houses. No respectable citizen wants to live near it."}
 };
 
 void translation_english(const translation_string **strings, int *num_strings)
