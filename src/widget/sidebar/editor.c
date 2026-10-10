@@ -67,14 +67,19 @@ static void draw_status(void)
     lang_text_draw(49, selected_tool, text_offset, 178, FONT_NORMAL_WHITE);
     switch (selected_tool) {
         case TOOL_GRASS:
-        case TOOL_TREES:
-        case TOOL_WATER:
+        case TOOL_MEADOW:
+        case TOOL_ROCKS:
         case TOOL_SHALLOW:
         case TOOL_SHRUB:
-        case TOOL_ROCKS:
-        case TOOL_MEADOW:
+        case TOOL_TREES:
+        case TOOL_WATER:
+        case TOOL_NATIVE_RUINS:
         case TOOL_RAISE_LAND:
         case TOOL_LOWER_LAND:
+        case TOOL_EARTHQUAKE_CUSTOM:
+        case TOOL_EARTHQUAKE_CUSTOM_REMOVE:
+        case TOOL_OUTSKIRTS:
+        case TOOL_OUTSKIRTS_REMOVE:
             lang_text_draw(48, brush_size, text_offset, 194, FONT_NORMAL_GREEN);
             break;
         default:
